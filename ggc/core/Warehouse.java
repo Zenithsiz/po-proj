@@ -124,4 +124,14 @@ public class Warehouse implements Serializable {
 					.orElseGet(() -> _warehouse._products.put(productId, productSupplier.get()));
 		}
 	}
+
+	/// Returns the current date
+	public int getDate() {
+		return _date;
+	}
+
+	/// Advances the current date
+	public void advanceDate(int offset) {
+		_date += offset;
+	}
 }

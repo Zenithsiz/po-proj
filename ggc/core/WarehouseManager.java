@@ -65,4 +65,14 @@ public class WarehouseManager {
 		}
 	}
 
+	/// Returns the current date
+	public int getDate() {
+		return _warehouse.getDate();
+	}
+
+	/// Advances the current date
+	public void advanceDate(int offset) {
+		_warehouse.advanceDate(offset);
+	}
+
 }
