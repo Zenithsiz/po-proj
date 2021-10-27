@@ -2,9 +2,10 @@ package ggc.app.main;
 
 import pt.tecnico.uilib.menus.Command;
 import pt.tecnico.uilib.menus.CommandException;
+import java.io.IOException;
+import java.util.Optional;
 import ggc.app.exception.FileOpenFailedException;
 import ggc.core.WarehouseManager;
-import ggc.core.exception.UnavailableFileException;
 
 /**
  * Open existing saved state.
@@ -19,14 +20,13 @@ class DoOpenFile extends Command<WarehouseManager> {
 
 	@Override
 	public final void execute() throws CommandException {
-		String fileName = super.stringField("fileName");
+		// Get the existing filename, or
+		var fileName = Optional.ofNullable(_receiver.fileName()).orElseGet(() -> super.stringField("fileName"));
 
 		try {
-			_receiver.load(fileName);
-		} catch (UnavailableFileException ufe) {
-			throw new FileOpenFailedException(ufe.getFilename());
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			_receiver.save(fileName);
+		} catch (IOException e) {
+			throw new FileOpenFailedException(fileName);
 		}
 	}
 

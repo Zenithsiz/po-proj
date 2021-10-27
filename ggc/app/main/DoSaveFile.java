@@ -2,22 +2,34 @@ package ggc.app.main;
 
 import pt.tecnico.uilib.menus.Command;
 import pt.tecnico.uilib.menus.CommandException;
+import java.io.IOException;
+import java.util.Optional;
 import ggc.core.WarehouseManager;
-//FIXME import classes
 
 /**
  * Save current state to file under current name (if unnamed, query for name).
  */
 class DoSaveFile extends Command<WarehouseManager> {
 
-  /** @param receiver */
-  DoSaveFile(WarehouseManager receiver) {
-    super(Label.SAVE, receiver);
-  }
+	/** @param receiver */
+	DoSaveFile(WarehouseManager receiver) {
+		super(Label.SAVE, receiver);
 
-  @Override
-  public final void execute() throws CommandException {
-    //FIXME implement command and create a local Form
-  }
+		super.addStringField("fileName", Message.newSaveAs());
+	}
+
+	@Override
+	public final void execute() throws CommandException {
+		// Get the existing filename, or
+		var fileName = Optional.ofNullable(_receiver.fileName()).orElseGet(() -> super.stringField("fileName"));
+
+		// TODO: Only save when changed ocurred
+		try {
+			_receiver.save(fileName);
+		} catch (IOException e) {
+			// Note: No `CommandException` exception to throw here
+			e.printStackTrace();
+		}
+	}
 
 }
