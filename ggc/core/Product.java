@@ -16,8 +16,6 @@ public class Product implements Serializable {
 	}
 
 	/// Returns this product's id
-	// Note: Public so we can get IDs in `app`.
-	// TODO: Check if it needs to be public to get IDs or if we just need to use `toString`?
 	public String getId() {
 		return _id;
 	}

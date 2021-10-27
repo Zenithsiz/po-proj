@@ -5,9 +5,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-
 import ggc.core.exception.BadEntryException;
 import ggc.core.exception.ImportFileException;
+import ggc.core.exception.ParsingException;
 import ggc.core.exception.UnavailableFileException;
 
 /** Façade for access. */
@@ -60,7 +60,7 @@ public class WarehouseManager {
 	public void importFile(String textFile) throws ImportFileException {
 		try {
 			_warehouse.importFile(textFile);
-		} catch (IOException | BadEntryException /* FIXME maybe other exceptions */ e) {
+		} catch (IOException | BadEntryException | ParsingException e) {
 			throw new ImportFileException(textFile, e);
 		}
 	}
