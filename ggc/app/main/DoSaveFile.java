@@ -15,12 +15,14 @@ class DoSaveFile extends Command<WarehouseManager> {
 	DoSaveFile(WarehouseManager receiver) {
 		super(Label.SAVE, receiver);
 
+		// TODO: Somehow don't ask for the filename if we already have it
+		// Note: The asking is always done, even if we don't call `stringField` in `execute`, for some reason.
 		super.addStringField("fileName", Message.newSaveAs());
 	}
 
 	@Override
 	public final void execute() throws CommandException {
-		// Get the existing filename, or
+		// Get the existing filename, or request it
 		var fileName = Optional.ofNullable(_receiver.fileName()).orElseGet(() -> super.stringField("fileName"));
 
 		// TODO: Only save when changed ocurred
