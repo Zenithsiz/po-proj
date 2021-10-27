@@ -17,12 +17,12 @@ public class WarehouseManager {
   /** Name of file storing current warehouse. */
   private String _filename = "";
 
-  /** The wharehouse itself. */
+  /** The warehouse itself. */
   private Warehouse _warehouse = new Warehouse();
 
-  //FIXME define other attributes
-  //FIXME define constructor(s)
-  //FIXME define other methods
+  // FIXME define other attributes
+  // FIXME define constructor(s)
+  // FIXME define other methods
 
   /**
    * @@throws IOException
@@ -30,7 +30,7 @@ public class WarehouseManager {
    * @@throws MissingFileAssociationException
    */
   public void save() throws IOException, FileNotFoundException, MissingFileAssociationException {
-    //FIXME implement serialization method
+    // FIXME implement serialization method
   }
 
   /**
@@ -48,19 +48,19 @@ public class WarehouseManager {
    * @@param filename
    * @@throws UnavailableFileException
    */
-  public void load(String filename) throws UnavailableFileException, ClassNotFoundException  {
-    //FIXME implement serialization method
+  public void load(String filename) throws UnavailableFileException, ClassNotFoundException {
+    // FIXME implement serialization method
   }
 
   /**
-   * @param textfile
+   * @param textFile
    * @throws ImportFileException
    */
-  public void importFile(String textfile) throws ImportFileException {
+  public void importFile(String textFile) throws ImportFileException {
     try {
-      _warehouse.importFile(textfile);
+      _warehouse.importFile(textFile);
     } catch (IOException | BadEntryException /* FIXME maybe other exceptions */ e) {
-      throw new ImportFileException(textfile, e);
+      throw new ImportFileException(textFile, e);
     }
   }
 

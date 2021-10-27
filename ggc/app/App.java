@@ -13,10 +13,10 @@ public class App {
     try (var ui = Dialog.UI) {
       WarehouseManager manager = new WarehouseManager();
 
-      String datafile = System.getProperty("import");
-      if (datafile != null) {
+      String dataFile = System.getProperty("import");
+      if (dataFile != null) {
         try {
-          manager.importFile(datafile);
+          manager.importFile(dataFile);
         } catch (ImportFileException e) {
           // no behavior described: just present the problem
           e.printStackTrace();
