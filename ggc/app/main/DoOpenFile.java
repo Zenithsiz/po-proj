@@ -2,31 +2,32 @@ package ggc.app.main;
 
 import pt.tecnico.uilib.menus.Command;
 import pt.tecnico.uilib.menus.CommandException;
+import ggc.app.exception.FileOpenFailedException;
 import ggc.core.WarehouseManager;
-//FIXME import classes
+import ggc.core.exception.UnavailableFileException;
 
 /**
  * Open existing saved state.
  */
 class DoOpenFile extends Command<WarehouseManager> {
+	/** @param receiver */
+	DoOpenFile(WarehouseManager receiver) {
+		super(Label.OPEN, receiver);
 
-  /** @param receiver */
-  DoOpenFile(WarehouseManager receiver) {
-    super(Label.OPEN, receiver);
-    //FIXME maybe add command fields
-  }
+		super.addStringField("fileName", Message.openFile());
+	}
 
-  @Override
-  public final void execute() throws CommandException {
-    /*
-    try {
-      //FIXME implement command
-    } catch (UnavailableFileException ufe) {
-      throw new FileOpenFailedException(ufe.getFilename());
-    } catch (ClassNotFoundException e) {
-      e.printStackTrace();
-    }
-    */
-  }
+	@Override
+	public final void execute() throws CommandException {
+		String fileName = super.stringField("fileName");
+
+		try {
+			_receiver.load(fileName);
+		} catch (UnavailableFileException ufe) {
+			throw new FileOpenFailedException(ufe.getFilename());
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
 
 }
