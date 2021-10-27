@@ -1,0 +1,5 @@
+# Compiled libraries
+/*.jar
+
+# Compiled files
+*.class

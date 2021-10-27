@@ -1,0 +1,9 @@
+{
+	"cSpell.words": [
+		"javac",
+		"uilib"
+	],
+	"java.project.referencedLibraries": [
+		"po-uilib-v15.jar",
+	]
+}
