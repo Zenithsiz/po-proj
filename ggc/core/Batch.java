@@ -33,6 +33,11 @@ public class Batch implements Serializable {
 		return _product;
 	}
 
+	/// Returns the partner of this batch
+	public Partner getPartner() {
+		return _partner;
+	}
+
 	/// Returns the per-unit price of this batch
 	public double getUnitPrice() {
 		return _unitPrice;

@@ -3,6 +3,7 @@ package ggc.core;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Stream;
 import java.io.FileInputStream;
@@ -83,6 +84,11 @@ public class WarehouseManager {
 		return _warehouse.getProducts();
 	}
 
+	/// Returns a stream over all batches
+	public Stream<Batch> getBatches() {
+		return _warehouse.getBatches();
+	}
+
 	/// Returns the max price of a product
 	///
 	/// Returns `Optional.EMPTY` if `product` does not exist
@@ -113,6 +119,24 @@ public class WarehouseManager {
 		}
 
 		return repr.toString();
+	}
+
+	/// Returns a batch comparator by product id
+	public static Comparator<Product> productComparator() {
+		return Comparator.comparing(Product::getId);
+	}
+
+	/// Formats a batch according to it's availability
+	public String formatBatch(Batch batch) {
+		return String.format("%s|%s|%.0f|%d", batch.getProduct().getId(), batch.getPartner().getId(),
+				batch.getUnitPrice(), batch.getQuantity());
+	}
+
+	/// Returns a batch comparator by product id, partner id, unit price and then quantity
+	public static Comparator<Batch> batchComparator() {
+		return Comparator.<Batch, String>comparing(batch -> batch.getProduct().getId())
+				.thenComparing(batch -> batch.getPartner().getId()).thenComparing(Batch::getUnitPrice)
+				.thenComparing(Batch::getQuantity);
 	}
 
 }

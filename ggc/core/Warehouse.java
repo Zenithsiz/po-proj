@@ -134,6 +134,11 @@ public class Warehouse implements Serializable {
 		return _products.values().stream();
 	}
 
+	/// Returns a stream over all batches
+	public Stream<Batch> getBatches() {
+		return _batches.stream();
+	}
+
 	/// Returns the max price of a product
 	public Optional<Double> productMaxPrice(Product product) {
 		return _batches.stream().filter(batch -> batch.getProduct() == product).max(Batch::compareByUnitPrice)

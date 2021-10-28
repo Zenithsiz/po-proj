@@ -2,6 +2,10 @@ package ggc.app.products;
 
 import pt.tecnico.uilib.menus.Command;
 import pt.tecnico.uilib.menus.CommandException;
+
+import java.util.stream.Stream;
+
+import ggc.core.Product;
 import ggc.core.WarehouseManager;
 import ggc.core.util.StreamIterator;
 
@@ -16,7 +20,8 @@ class DoShowAllProducts extends Command<WarehouseManager> {
 
 	@Override
 	public final void execute() throws CommandException {
-		for (var product : StreamIterator.streamIt(_receiver.getProducts())) {
+		Stream<Product> products = _receiver.getProducts().sorted(WarehouseManager.productComparator());
+		for (var product : StreamIterator.streamIt(products)) {
 			_display.addLine(_receiver.formatProduct(product));
 		}
 
