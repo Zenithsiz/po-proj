@@ -10,15 +10,17 @@ import ggc.core.WarehouseManager;
  */
 class DoAdvanceDate extends Command<WarehouseManager> {
 
+	private static final String DAYS_OFFSET = "offset";
+
 	DoAdvanceDate(WarehouseManager receiver) {
 		super(Label.ADVANCE_DATE, receiver);
 
-		super.addIntegerField("offset", Message.requestDaysToAdvance());
+		super.addIntegerField(DAYS_OFFSET, Message.requestDaysToAdvance());
 	}
 
 	@Override
 	public final void execute() throws CommandException {
-		int offset = super.integerField("offset");
+		int offset = super.integerField(DAYS_OFFSET);
 
 		if (offset <= 0) {
 			throw new InvalidDateException(offset);

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import java.io.FileInputStream;
@@ -97,6 +98,16 @@ public class WarehouseManager {
 		return _warehouse.getBatches();
 	}
 
+	/// Returns a stream over all partners
+	public Stream<Partner> getPartners() {
+		return _warehouse.getPartners();
+	}
+
+	/// Returns a partner given it's id
+	public Optional<Partner> getPartner(String partnerId) {
+		return _warehouse.getPartner(partnerId);
+	}
+
 	/// Returns the max price of a product
 	///
 	/// Returns `Optional.EMPTY` if `product` does not exist
@@ -147,4 +158,30 @@ public class WarehouseManager {
 				.thenComparing(Batch::getQuantity);
 	}
 
+	/// Formats a partner
+	public String formatPartner(Partner partner) {
+		double totalPurchases = partner.getPurchases().mapToDouble(Transaction::getTotalPrice).sum();
+		double totalSales = 0.0;
+		double totalSalesPaid = 0.0;
+		for (var sale : StreamIterator.streamIt(partner.getSales())) {
+			totalSales += sale.getTotalPrice();
+			totalSalesPaid += sale.isPaid() ? sale.getTotalPrice() : 0.0;
+		}
+
+		return String.format("%s|%s|%s|%s|%.0f|%.0f|%.0f|%.0f", partner.getId(), partner.getName(),
+				partner.getAddress(), partner.getStatus(), partner.getPoints(), totalPurchases, totalSales,
+				totalSalesPaid);
+	}
+
+	/// Clears pending partner notifications and returns them
+	public List<Notification> clearPendingPartnerNotifications(Partner partner) {
+		return partner.clearPendingNotifications();
+	}
+
+	/// Formats a notification
+	public String formatNotification(Notification notification) {
+		Batch batch = notification.getBatch();
+		return String.format("%s|%s|%.0f", notification.getType(), batch.getProduct(),
+				notification.getBatch().getUnitPrice());
+	}
 }

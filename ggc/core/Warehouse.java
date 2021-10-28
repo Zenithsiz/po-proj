@@ -131,13 +131,28 @@ class Warehouse implements Serializable {
 	}
 
 	/// Returns a stream over all products
-	public Stream<Product> getProducts() {
+	Stream<Product> getProducts() {
 		return _products.values().stream();
 	}
 
 	/// Returns a stream over all batches
-	public Stream<Batch> getBatches() {
+	Stream<Batch> getBatches() {
 		return _batches.stream();
+	}
+
+	/// Returns a stream over all partners
+	Stream<Partner> getPartners() {
+		return _partners.values().stream();
+	}
+
+	/// Returns a stream over all transactions
+	Stream<Transaction> getTransactions() {
+		return _transactions.stream();
+	}
+
+	/// Returns a partner given it's id
+	Optional<Partner> getPartner(String partnerId) {
+		return Optional.ofNullable(_partners.get(partnerId));
 	}
 
 	/// Returns the max price of a product

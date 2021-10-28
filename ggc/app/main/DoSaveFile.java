@@ -4,21 +4,21 @@ import pt.tecnico.uilib.menus.Command;
 import pt.tecnico.uilib.menus.CommandException;
 import java.io.IOException;
 import java.util.Optional;
-import java.util.OptionalInt;
-
 import ggc.core.WarehouseManager;
 
 /**
  * Save current state to file under current name (if unnamed, query for name).
  */
 class DoSaveFile extends Command<WarehouseManager> {
+	private static final String FILE_NAME = "fileName";
+
 	/** @param receiver */
 	DoSaveFile(WarehouseManager receiver) {
 		super(Label.SAVE, receiver);
 
 		// TODO: Somehow don't ask for the filename if we already have it
 		// Note: The asking is always done, even if we don't call `stringField` in `execute`, for some reason.
-		super.addStringField("fileName", Message.newSaveAs());
+		super.addStringField(FILE_NAME, Message.newSaveAs());
 	}
 
 	@Override
@@ -29,7 +29,7 @@ class DoSaveFile extends Command<WarehouseManager> {
 		}
 
 		// Else get the existing filename, or request it
-		var fileName = Optional.ofNullable(_receiver.fileName()).orElseGet(() -> super.stringField("fileName"));
+		var fileName = Optional.ofNullable(_receiver.fileName()).orElseGet(() -> super.stringField(FILE_NAME));
 
 		try {
 			_receiver.save(fileName);
