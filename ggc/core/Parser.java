@@ -45,11 +45,11 @@ public class Parser {
 			break;
 
 		case "BATCH_S":
-			parseBundle(args, visitor);
+			parseBatch(args, visitor);
 			break;
 
 		case "BATCH_M":
-			parseDerivedBundle(args, visitor);
+			parseDerivedBatch(args, visitor);
 			break;
 
 		default:
@@ -71,8 +71,8 @@ public class Parser {
 		visitor.visitPartner(partner);
 	}
 
-	/// Parses a bundle
-	private void parseBundle(String[] args, ParserVisitor visitor)
+	/// Parses a batch
+	private void parseBatch(String[] args, ParserVisitor visitor)
 			throws BadEntryException, Exception, NumberFormatException {
 		if (args.length != 5) {
 			throw new BadEntryException("Expected 5 arguments, found " + args.length);
@@ -83,11 +83,11 @@ public class Parser {
 		double unitPrice = Integer.parseInt(args[3]);
 		int quantity = Integer.parseInt(args[4]);
 
-		visitor.visitBundle(productId, partnerId, quantity, unitPrice);
+		visitor.visitBatch(productId, partnerId, quantity, unitPrice);
 	}
 
-	/// Parses a derived bundle
-	private void parseDerivedBundle(String[] args, ParserVisitor visitor)
+	/// Parses a derived batch
+	private void parseDerivedBatch(String[] args, ParserVisitor visitor)
 			throws BadEntryException, Exception, NumberFormatException {
 		if (args.length != 7) {
 			throw new BadEntryException("Expected 7 arguments, found " + args.length);
@@ -106,6 +106,6 @@ public class Parser {
 				.map(recipeProduct -> Pair.fromArray(recipeProduct.split(":")).mapRight(s -> Integer.parseInt(s)))
 				.collect(Pair.toMapCollector());
 
-		visitor.visitDerivedBundle(productId, partnerId, quantity, unitPrice, costFactor, recipeProducts);
+		visitor.visitDerivedBatch(productId, partnerId, quantity, unitPrice, costFactor, recipeProducts);
 	}
 }

@@ -86,7 +86,7 @@ public class WarehouseManager {
 	/// Returns the max price of a product
 	///
 	/// Returns `Optional.EMPTY` if `product` does not exist
-	/// in any bundle in the warehouse.
+	/// in any batch in the warehouse.
 	public Optional<Double> productMaxPrice(Product product) {
 		return _warehouse.productMaxPrice(product);
 	}
@@ -99,7 +99,7 @@ public class WarehouseManager {
 	/// Formats a product according to it's availability
 	public String formatProduct(Product product) {
 		// Get the product's max price and total quantity
-		// Note: If no bundles exist, there is no max price, and so we'll return 0
+		// Note: If no batches exist, there is no max price, and so we'll return 0
 		double maxPrice = productMaxPrice(product).orElse(0.0);
 		int quantity = productTotalQuantity(product);
 

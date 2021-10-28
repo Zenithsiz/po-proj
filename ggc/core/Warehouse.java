@@ -37,8 +37,8 @@ public class Warehouse implements Serializable {
 	/// All products
 	private Map<String, Product> _products = new HashMap<>();
 
-	/// All bundles
-	private List<Bundle> _bundles = new ArrayList<>();
+	/// All batches
+	private List<Batch> _batches = new ArrayList<>();
 
 	/**
 	 * @param fileName
@@ -67,7 +67,7 @@ public class Warehouse implements Serializable {
 		}
 
 		@Override
-		public void visitBundle(String productId, String partnerId, int quantity, double unitPrice)
+		public void visitBatch(String productId, String partnerId, int quantity, double unitPrice)
 				throws UnknownPartnerIdException {
 			// Get an existing product, or register it
 			Product product = _warehouse._products.computeIfAbsent(productId, _key -> new Product(productId));
@@ -76,13 +76,13 @@ public class Warehouse implements Serializable {
 			Partner partner = Optional.ofNullable(_warehouse._partners.get(partnerId))
 					.orElseThrow(() -> new UnknownPartnerIdException(partnerId));
 
-			// And create a new bundle
-			Bundle bundle = new Bundle(product, quantity, partner, unitPrice);
-			_warehouse._bundles.add(bundle);
+			// And create a new batch
+			Batch batch = new Batch(product, quantity, partner, unitPrice);
+			_warehouse._batches.add(batch);
 		}
 
 		@Override
-		public void visitDerivedBundle(String productId, String partnerId, int quantity, double unitPrice,
+		public void visitDerivedBatch(String productId, String partnerId, int quantity, double unitPrice,
 				double costFactor, Map<String, Integer> recipeProducts)
 				throws UnknownPartnerIdException, UnknownProductIdException {
 			// If any of the recipe products don't exist, throw
@@ -112,9 +112,9 @@ public class Warehouse implements Serializable {
 			Partner partner = Optional.ofNullable(_warehouse._partners.get(partnerId))
 					.orElseThrow(() -> new UnknownPartnerIdException(partnerId));
 
-			// And create a new bundle
-			Bundle bundle = new Bundle(product, quantity, partner, unitPrice);
-			_warehouse._bundles.add(bundle);
+			// And create a new batch
+			Batch batch = new Batch(product, quantity, partner, unitPrice);
+			_warehouse._batches.add(batch);
 		}
 
 	}
@@ -136,12 +136,12 @@ public class Warehouse implements Serializable {
 
 	/// Returns the max price of a product
 	public Optional<Double> productMaxPrice(Product product) {
-		return _bundles.stream().filter(bundle -> bundle.getProduct() == product).max(Bundle::compareByUnitPrice)
-				.map(Bundle::getUnitPrice);
+		return _batches.stream().filter(batch -> batch.getProduct() == product).max(Batch::compareByUnitPrice)
+				.map(Batch::getUnitPrice);
 	}
 
 	/// Returns the total quantity of a product
 	public int productTotalQuantity(Product product) {
-		return _bundles.stream().filter(bundle -> bundle.getProduct() == product).mapToInt(Bundle::getQuantity).sum();
+		return _batches.stream().filter(batch -> batch.getProduct() == product).mapToInt(Batch::getQuantity).sum();
 	}
 }
