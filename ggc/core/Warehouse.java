@@ -1,6 +1,8 @@
 package ggc.core;
 
 import java.io.Serializable;
+import java.text.CollationKey;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +25,16 @@ class Warehouse implements Serializable {
 	/** Serial number for serialization. */
 	private static final long serialVersionUID = 202109192006L;
 
+	/// Collator for all strings
+	private static Collator collator;
+
+	static {
+		collator = Collator.getInstance();
+		// Note: Secondary so we consider accents
+		collator.setStrength(Collator.SECONDARY);
+		collator.setDecomposition(Collator.FULL_DECOMPOSITION);
+	}
+
 	/// Current date
 	private int _date;
 
@@ -33,10 +45,10 @@ class Warehouse implements Serializable {
 	private List<Transaction> _transactions = new ArrayList<>();
 
 	/// All partners
-	private Map<String, Partner> _partners = new HashMap<>();
+	private Map<CollationKey, Partner> _partners = new HashMap<>();
 
 	/// All products
-	private Map<String, Product> _products = new HashMap<>();
+	private Map<CollationKey, Product> _products = new HashMap<>();
 
 	/// All batches
 	private List<Batch> _batches = new ArrayList<>();
@@ -64,17 +76,18 @@ class Warehouse implements Serializable {
 
 		@Override
 		public void visitPartner(Partner partner) {
-			_warehouse._partners.put(partner.getId(), partner);
+			_warehouse._partners.put(collationKey(partner.getId()), partner);
 		}
 
 		@Override
 		public void visitBatch(String productId, String partnerId, int quantity, double unitPrice)
 				throws UnknownPartnerIdException {
 			// Get an existing product, or register it
-			Product product = _warehouse._products.computeIfAbsent(productId, _key -> new Product(productId));
+			Product product = _warehouse._products.computeIfAbsent(collationKey(productId),
+					_key -> new Product(productId));
 
 			// Then get the partner
-			Partner partner = Optional.ofNullable(_warehouse._partners.get(partnerId))
+			Partner partner = Optional.ofNullable(_warehouse._partners.get(collationKey(partnerId)))
 					.orElseThrow(() -> new UnknownPartnerIdException(partnerId));
 
 			// And create a new batch
@@ -91,17 +104,17 @@ class Warehouse implements Serializable {
 			// products which already exist
 			for (var entry : recipeProducts.entrySet()) {
 				String recipeProductId = entry.getKey();
-				if (!_warehouse._products.containsKey(recipeProductId)) {
+				if (!_warehouse._products.containsKey(collationKey(recipeProductId))) {
 					throw new UnknownProductIdException(recipeProductId);
 				}
 			}
 
 			// Get an existing product, or register it
-			Product product = _warehouse._products.computeIfAbsent(productId, _key -> {
+			Product product = _warehouse._products.computeIfAbsent(collationKey(productId), _key -> {
 				// Get all product quantities
 				// Note: We've already checked all recipe products exist, so this contains no `null`s.
 				Map<Product, Integer> productQuantities = recipeProducts.entrySet().stream().map(entry -> {
-					Product recipeProduct = _warehouse._products.get(entry.getKey());
+					Product recipeProduct = _warehouse._products.get(collationKey(entry.getKey()));
 					return new Pair<>(recipeProduct, entry.getValue());
 				}).collect(Pair.toMapCollector());
 
@@ -110,7 +123,7 @@ class Warehouse implements Serializable {
 			});
 
 			// Then get the partner
-			Partner partner = Optional.ofNullable(_warehouse._partners.get(partnerId))
+			Partner partner = Optional.ofNullable(_warehouse._partners.get(collationKey(partnerId)))
 					.orElseThrow(() -> new UnknownPartnerIdException(partnerId));
 
 			// And create a new batch
@@ -118,6 +131,11 @@ class Warehouse implements Serializable {
 			_warehouse._batches.add(batch);
 		}
 
+	}
+
+	/// Returns a collation key given a string with the class collation
+	private static CollationKey collationKey(String key) {
+		return Warehouse.collator.getCollationKey(key);
 	}
 
 	/// Returns the current date
@@ -149,12 +167,12 @@ class Warehouse implements Serializable {
 	///
 	/// Returns the new partner if successful, or empty is a partner with the same name exists
 	public Optional<Partner> registerPartner(String partnerId, String partnerName, String partnerAddress) {
-		Partner partner = _partners.get(partnerId);
+		Partner partner = _partners.get(collationKey(partnerId));
 
 		// If we didn't have the partner, insert it and return it
 		if (partner == null) {
 			partner = new Partner(partnerId, partnerName, partnerAddress);
-			_partners.put(partnerId, partner);
+			_partners.put(collationKey(partnerId), partner);
 			return Optional.of(partner);
 		}
 
@@ -168,7 +186,7 @@ class Warehouse implements Serializable {
 
 	/// Returns a partner given it's id
 	Optional<Partner> getPartner(String partnerId) {
-		return Optional.ofNullable(_partners.get(partnerId));
+		return Optional.ofNullable(_partners.get(collationKey(partnerId)));
 	}
 
 	/// Returns the max price of a product
