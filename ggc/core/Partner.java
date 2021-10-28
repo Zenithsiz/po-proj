@@ -2,7 +2,9 @@ package ggc.core;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /// Partner
@@ -34,8 +36,11 @@ public class Partner implements Serializable {
 	/// All pending notifications
 	private List<Notification> _pendingNotifications;
 
+	/// Blacklisted product notifications
+	private Set<Product> _blacklistedProductNotifications;
+
 	// Note: Package private to ensure we don't construct it outside of `core`.
-	Partner(String name, String address, String id) {
+	Partner(String id, String name, String address) {
 		_name = name;
 		_address = address;
 		_id = id;
@@ -44,6 +49,7 @@ public class Partner implements Serializable {
 		_purchases = new ArrayList<>();
 		_sales = new ArrayList<>();
 		_pendingNotifications = new ArrayList<>();
+		_blacklistedProductNotifications = new HashSet<>();
 	}
 
 	/// Returns the partner's id
@@ -86,6 +92,19 @@ public class Partner implements Serializable {
 		List<Notification> notifications = _pendingNotifications;
 		_pendingNotifications = new ArrayList<>();
 		return notifications;
+	}
+
+	/// Toggle if a product is blacklisted
+	void toggleIsProductNotificationBlacklisted(Product product) {
+		// Try to remove it and, if it doesn't exist, add it.
+		if (!_blacklistedProductNotifications.remove(product)) {
+			_blacklistedProductNotifications.add(product);
+		}
+	}
+
+	/// Returns if a product notification is blacklisted
+	boolean isProductNotificationBlacklisted(Product product) {
+		return _blacklistedProductNotifications.contains(product);
 	}
 
 	/// Partner status

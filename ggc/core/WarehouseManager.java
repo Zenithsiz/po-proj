@@ -108,6 +108,13 @@ public class WarehouseManager {
 		return _warehouse.getPartner(partnerId);
 	}
 
+	/// Registers a new partner
+	///
+	/// Returns the new partner if successful, or empty is a partner with the same name exists
+	public Optional<Partner> registerPartner(String partnerId, String partnerName, String partnerAddress) {
+		return _warehouse.registerPartner(partnerId, partnerName, partnerAddress);
+	}
+
 	/// Returns the max price of a product
 	///
 	/// Returns `Optional.EMPTY` if `product` does not exist

@@ -145,6 +145,22 @@ class Warehouse implements Serializable {
 		return _partners.values().stream();
 	}
 
+	/// Registers a new partner
+	///
+	/// Returns the new partner if successful, or empty is a partner with the same name exists
+	public Optional<Partner> registerPartner(String partnerId, String partnerName, String partnerAddress) {
+		Partner partner = _partners.get(partnerId);
+
+		// If we didn't have the partner, insert it and return it
+		if (partner == null) {
+			partner = new Partner(partnerId, partnerName, partnerAddress);
+			_partners.put(partnerId, partner);
+			return Optional.of(partner);
+		}
+
+		return Optional.empty();
+	}
+
 	/// Returns a stream over all transactions
 	Stream<Transaction> getTransactions() {
 		return _transactions.stream();

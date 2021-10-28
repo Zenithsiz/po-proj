@@ -68,7 +68,7 @@ class Parser {
 		String name = args[2];
 		String address = args[3];
 
-		Partner partner = new Partner(name, address, id);
+		Partner partner = new Partner(id, name, address);
 		visitor.visitPartner(partner);
 	}
 
