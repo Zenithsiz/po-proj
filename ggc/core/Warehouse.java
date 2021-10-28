@@ -17,7 +17,8 @@ import ggc.core.util.Pair;
 /**
  * Class Warehouse implements a warehouse.
  */
-public class Warehouse implements Serializable {
+// Note: Package private because we don't need it outside of core
+class Warehouse implements Serializable {
 
 	/** Serial number for serialization. */
 	private static final long serialVersionUID = 202109192006L;
@@ -120,12 +121,12 @@ public class Warehouse implements Serializable {
 	}
 
 	/// Returns the current date
-	public int getDate() {
+	int getDate() {
 		return _date;
 	}
 
 	/// Advances the current date
-	public void advanceDate(int offset) {
+	void advanceDate(int offset) {
 		_date += offset;
 	}
 
@@ -140,13 +141,13 @@ public class Warehouse implements Serializable {
 	}
 
 	/// Returns the max price of a product
-	public Optional<Double> productMaxPrice(Product product) {
+	Optional<Double> productMaxPrice(Product product) {
 		return _batches.stream().filter(batch -> batch.getProduct() == product).max(Batch::compareByUnitPrice)
 				.map(Batch::getUnitPrice);
 	}
 
 	/// Returns the total quantity of a product
-	public int productTotalQuantity(Product product) {
+	int productTotalQuantity(Product product) {
 		return _batches.stream().filter(batch -> batch.getProduct() == product).mapToInt(Batch::getQuantity).sum();
 	}
 }

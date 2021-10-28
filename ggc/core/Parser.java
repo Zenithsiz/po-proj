@@ -10,7 +10,8 @@ import ggc.core.exception.ParsingException;
 import ggc.core.util.Pair;
 
 /// File parser
-public class Parser {
+// Note: Package private because we don't need it outside of core
+class Parser {
 	/// Filename of the file we're parsing
 	private String _fileName;
 
@@ -19,7 +20,7 @@ public class Parser {
 	}
 
 	/// Visits all lines in this file
-	public void visit(ParserVisitor visitor) throws IOException, BadEntryException, ParsingException {
+	void visit(ParserVisitor visitor) throws IOException, BadEntryException, ParsingException {
 		try (var reader = new BufferedReader(new FileReader(_fileName))) {
 			String line;
 			while ((line = reader.readLine()) != null)

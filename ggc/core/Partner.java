@@ -22,7 +22,8 @@ public class Partner implements Serializable {
 	/// Points
 	private double _points;
 
-	public Partner(String name, String address, String id) {
+	// Note: Package private to ensure we don't construct it outside of `core`.
+	Partner(String name, String address, String id) {
 		_name = name;
 		_address = address;
 		_id = id;
@@ -31,12 +32,12 @@ public class Partner implements Serializable {
 	}
 
 	/// Returns the partner's id
-	public String getId() {
+	String getId() {
 		return _id;
 	}
 
 	/// Partner status
-	public enum PartnerStatus {
+	enum PartnerStatus {
 		Normal, Selection, Elite,
 	}
 }

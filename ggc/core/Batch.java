@@ -29,22 +29,22 @@ public class Batch implements Serializable {
 	}
 
 	/// Returns the product of this batch
-	public Product getProduct() {
+	Product getProduct() {
 		return _product;
 	}
 
 	/// Returns the partner of this batch
-	public Partner getPartner() {
+	Partner getPartner() {
 		return _partner;
 	}
 
 	/// Returns the per-unit price of this batch
-	public double getUnitPrice() {
+	double getUnitPrice() {
 		return _unitPrice;
 	}
 
 	/// Returns the quantity of product in this batch
-	public int getQuantity() {
+	int getQuantity() {
 		return _quantity;
 	}
 

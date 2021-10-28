@@ -18,12 +18,12 @@ public class DerivedProduct extends Product {
 	}
 
 	/// Returns the recipe used by this derived product
-	public Recipe getRecipe() {
+	Recipe getRecipe() {
 		return _recipe;
 	}
 
 	/// Returns the cost factor used by this derived product
-	public double getCostFactor() {
+	double getCostFactor() {
 		return _costFactor;
 	}
 
