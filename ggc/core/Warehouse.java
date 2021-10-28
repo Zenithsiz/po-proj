@@ -71,7 +71,7 @@ public class Warehouse implements Serializable {
 		public void visitBundle(String productId, String partnerId, int quantity, float unitPrice)
 				throws UnknownPartnerIdException {
 			// Get an existing product, or register it
-			Product product = getOrRegisterNewProduct(productId, () -> new Product(productId));
+			Product product = _warehouse._products.computeIfAbsent(productId, _key -> new Product(productId));
 
 			// Then get the partner
 			Partner partner = Optional.ofNullable(_warehouse._partners.get(partnerId))
@@ -97,7 +97,7 @@ public class Warehouse implements Serializable {
 			}
 
 			// Get an existing product, or register it
-			Product product = getOrRegisterNewProduct(productId, () -> {
+			Product product = _warehouse._products.computeIfAbsent(productId, _key -> {
 				// Get all product quantities
 				// Note: We've already checked all recipe products exist, so this contains no `null`s.
 				Map<Product, Integer> productQuantities = recipeProducts.entrySet().stream().map(entry -> {
@@ -116,12 +116,6 @@ public class Warehouse implements Serializable {
 			// And create a new bundle
 			Bundle bundle = new Bundle(product, quantity, partner, unitPrice);
 			_warehouse._bundles.add(bundle);
-		}
-
-		/// Returns an existing product, or registers a new one
-		private Product getOrRegisterNewProduct(String productId, Supplier<? extends Product> productSupplier) {
-			return Optional.ofNullable(_warehouse._products.get(productId))
-					.orElseGet(() -> _warehouse._products.put(productId, productSupplier.get()));
 		}
 	}
 
