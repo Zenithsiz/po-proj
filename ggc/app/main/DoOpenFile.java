@@ -24,8 +24,8 @@ class DoOpenFile extends Command<WarehouseManager> {
 		var fileName = Optional.ofNullable(_receiver.fileName()).orElseGet(() -> super.stringField("fileName"));
 
 		try {
-			_receiver.save(fileName);
-		} catch (IOException e) {
+			_receiver.load(fileName);
+		} catch (IOException | ClassNotFoundException e) {
 			throw new FileOpenFailedException(fileName);
 		}
 	}

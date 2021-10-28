@@ -11,7 +11,6 @@ import java.io.FileOutputStream;
 import ggc.core.exception.BadEntryException;
 import ggc.core.exception.ImportFileException;
 import ggc.core.exception.ParsingException;
-import ggc.core.exception.UnavailableFileException;
 import ggc.core.util.StreamIterator;
 
 /** Façade for access. */
@@ -43,15 +42,12 @@ public class WarehouseManager {
 
 	/**
 	 * @@param filename
-	 * @@throws UnavailableFileException
-	 * @@throws ClassNotFoundException
+	 * @@throws IOException
 	 */
-	public void load(String fileName) throws UnavailableFileException, ClassNotFoundException {
+	public void load(String fileName) throws IOException, ClassNotFoundException {
 		try (var file = new FileInputStream(fileName); var stream = new ObjectInputStream(file)) {
 			// Try to read the warehouse
 			_warehouse = (Warehouse) stream.readObject();
-		} catch (IOException e) {
-			throw new UnavailableFileException(fileName);
 		}
 
 		_fileName = fileName;
