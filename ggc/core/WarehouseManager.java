@@ -18,7 +18,7 @@ import ggc.core.util.StreamIterator;
 public class WarehouseManager {
 
 	/** Name of file storing current warehouse. */
-	private String _fileName = null;
+	private String _fileName;
 
 	/** The warehouse itself. */
 	private Warehouse _warehouse = new Warehouse();
@@ -178,6 +178,12 @@ public class WarehouseManager {
 		return String.format("%s|%s|%s|%s|%.0f|%.0f|%.0f|%.0f", partner.getId(), partner.getName(),
 				partner.getAddress(), partner.getStatus(), partner.getPoints(), totalPurchases, totalSales,
 				totalSalesPaid);
+	}
+
+	/// Returns a partner comparator
+	public static Comparator<Partner> partnerComparator() {
+		// Note: Id is unique, so we don't need to compare by anything else
+		return Comparator.comparing(Partner::getId);
 	}
 
 	/// Clears pending partner notifications and returns them

@@ -2,6 +2,8 @@ package ggc.app.partners;
 
 import pt.tecnico.uilib.menus.Command;
 import pt.tecnico.uilib.menus.CommandException;
+import java.util.stream.Stream;
+import ggc.core.Partner;
 import ggc.core.WarehouseManager;
 import ggc.core.util.StreamIterator;
 
@@ -16,7 +18,8 @@ class DoShowAllPartners extends Command<WarehouseManager> {
 
 	@Override
 	public void execute() throws CommandException {
-		for (var partner : StreamIterator.streamIt(_receiver.getPartners())) {
+		Stream<Partner> partners = _receiver.getPartners().sorted(WarehouseManager.partnerComparator());
+		for (var partner : StreamIterator.streamIt(partners)) {
 			_display.addLine(_receiver.formatPartner(partner));
 		}
 

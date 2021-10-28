@@ -24,10 +24,10 @@ class Warehouse implements Serializable {
 	private static final long serialVersionUID = 202109192006L;
 
 	/// Current date
-	private int _date = 0;
+	private int _date;
 
 	/// Next transaction id
-	private int _nextTransactionId = 0;
+	private int _nextTransactionId;
 
 	/// All transactions
 	private List<Transaction> _transactions = new ArrayList<>();

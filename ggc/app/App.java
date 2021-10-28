@@ -9,10 +9,10 @@ import ggc.core.exception.ImportFileException;
 public class App {
 
 	/**
-	 * @param args
+	 * @param _args
 	 *            command line arguments.
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] _args) {
 		try (var ui = Dialog.UI) {
 			WarehouseManager manager = new WarehouseManager();
 

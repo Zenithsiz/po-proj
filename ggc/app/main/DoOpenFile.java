@@ -27,7 +27,7 @@ class DoOpenFile extends Command<WarehouseManager> {
 
 		try {
 			_receiver.load(fileName);
-		} catch (IOException | ClassNotFoundException e) {
+		} catch (IOException | ClassNotFoundException _e) {
 			throw new FileOpenFailedException(fileName);
 		}
 	}
