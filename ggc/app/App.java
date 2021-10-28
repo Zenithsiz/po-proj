@@ -8,24 +8,27 @@ import ggc.core.exception.ImportFileException;
 /** Main driver for the management application. */
 public class App {
 
-  /** @param args command line arguments. */
-  public static void main(String[] args) {
-    try (var ui = Dialog.UI) {
-      WarehouseManager manager = new WarehouseManager();
+	/**
+	 * @param args
+	 *            command line arguments.
+	 */
+	public static void main(String[] args) {
+		try (var ui = Dialog.UI) {
+			WarehouseManager manager = new WarehouseManager();
 
-      String dataFile = System.getProperty("import");
-      if (dataFile != null) {
-        try {
-          manager.importFile(dataFile);
-        } catch (ImportFileException e) {
-          // no behavior described: just present the problem
-          e.printStackTrace();
-        }
-      }
+			String dataFile = System.getProperty("import");
+			if (dataFile != null) {
+				try {
+					manager.importFile(dataFile);
+				} catch (ImportFileException e) {
+					// no behavior described: just present the problem
+					e.printStackTrace();
+				}
+			}
 
-      Menu menu = new ggc.app.main.Menu(manager);
-      menu.open();
-    }
-  }
+			Menu menu = new ggc.app.main.Menu(manager);
+			menu.open();
+		}
+	}
 
 }
