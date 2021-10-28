@@ -8,10 +8,10 @@ public class DerivedProduct extends Product {
 	private Recipe _recipe;
 
 	/// Cost factor
-	private float _costFactor;
+	private double _costFactor;
 
 	// Note: Package private to ensure we don't construct it outside of `core`.
-	DerivedProduct(String id, Recipe recipe, float costFactor) {
+	DerivedProduct(String id, Recipe recipe, double costFactor) {
 		super(id);
 		_recipe = recipe;
 		_costFactor = costFactor;
@@ -23,13 +23,13 @@ public class DerivedProduct extends Product {
 	}
 
 	/// Returns the cost factor used by this derived product
-	public float getCostFactor() {
+	public double getCostFactor() {
 		return _costFactor;
 	}
 
 	/// Returns extra fields to format the product with
 	@Override
 	Stream<String> extraFormatFields() {
-		return Stream.of(Float.toString(_costFactor), _recipe.toString());
+		return Stream.of(Double.toString(_costFactor), _recipe.toString());
 	}
 }

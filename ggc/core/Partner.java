@@ -20,14 +20,14 @@ public class Partner implements Serializable {
 	private PartnerStatus _status;
 
 	/// Points
-	private float _points;
+	private double _points;
 
 	public Partner(String name, String address, String id) {
 		_name = name;
 		_address = address;
 		_id = id;
 		_status = PartnerStatus.Normal;
-		_points = 0.0f;
+		_points = 0.0;
 	}
 
 	/// Returns the partner's id

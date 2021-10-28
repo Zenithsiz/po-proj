@@ -67,7 +67,7 @@ public class Warehouse implements Serializable {
 		}
 
 		@Override
-		public void visitBundle(String productId, String partnerId, int quantity, float unitPrice)
+		public void visitBundle(String productId, String partnerId, int quantity, double unitPrice)
 				throws UnknownPartnerIdException {
 			// Get an existing product, or register it
 			Product product = _warehouse._products.computeIfAbsent(productId, _key -> new Product(productId));
@@ -82,8 +82,8 @@ public class Warehouse implements Serializable {
 		}
 
 		@Override
-		public void visitDerivedBundle(String productId, String partnerId, int quantity, float unitPrice,
-				float costFactor, Map<String, Integer> recipeProducts)
+		public void visitDerivedBundle(String productId, String partnerId, int quantity, double unitPrice,
+				double costFactor, Map<String, Integer> recipeProducts)
 				throws UnknownPartnerIdException, UnknownProductIdException {
 			// If any of the recipe products don't exist, throw
 			// Note: We do this regardless if the product exist to ensure that the user specified
@@ -116,6 +116,7 @@ public class Warehouse implements Serializable {
 			Bundle bundle = new Bundle(product, quantity, partner, unitPrice);
 			_warehouse._bundles.add(bundle);
 		}
+
 	}
 
 	/// Returns the current date
@@ -134,7 +135,7 @@ public class Warehouse implements Serializable {
 	}
 
 	/// Returns the max price of a product
-	public Optional<Float> productMaxPrice(Product product) {
+	public Optional<Double> productMaxPrice(Product product) {
 		return _bundles.stream().filter(bundle -> bundle.getProduct() == product).max(Bundle::compareByUnitPrice)
 				.map(Bundle::getUnitPrice);
 	}

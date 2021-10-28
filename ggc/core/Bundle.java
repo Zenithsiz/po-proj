@@ -18,10 +18,10 @@ public class Bundle implements Serializable {
 	private Partner _partner;
 
 	/// Price of each unit
-	private float _unitPrice;
+	private double _unitPrice;
 
 	// Note: Package private to ensure we don't construct it outside of `core`.
-	Bundle(Product product, int quantity, Partner partner, float unitPrice) {
+	Bundle(Product product, int quantity, Partner partner, double unitPrice) {
 		_product = Objects.requireNonNull(product);
 		_quantity = quantity;
 		_partner = Objects.requireNonNull(partner);
@@ -34,7 +34,7 @@ public class Bundle implements Serializable {
 	}
 
 	/// Returns the per-unit price of this bundle
-	public float getUnitPrice() {
+	public double getUnitPrice() {
 		return _unitPrice;
 	}
 
@@ -45,6 +45,6 @@ public class Bundle implements Serializable {
 
 	/// Compares two bundles by unit price
 	public static int compareByUnitPrice(Bundle lhs, Bundle rhs) {
-		return Float.compare(lhs._unitPrice, rhs._unitPrice);
+		return Double.compare(lhs._unitPrice, rhs._unitPrice);
 	}
 }

@@ -80,7 +80,7 @@ public class Parser {
 
 		String productId = args[1];
 		String partnerId = args[2];
-		float unitPrice = Integer.parseInt(args[3]);
+		double unitPrice = Integer.parseInt(args[3]);
 		int quantity = Integer.parseInt(args[4]);
 
 		visitor.visitBundle(productId, partnerId, quantity, unitPrice);
@@ -95,9 +95,9 @@ public class Parser {
 
 		String productId = args[1];
 		String partnerId = args[2];
-		float unitPrice = Integer.parseInt(args[3]);
+		double unitPrice = Integer.parseInt(args[3]);
 		int quantity = Integer.parseInt(args[4]);
-		float costFactor = Float.parseFloat(args[5]);
+		double costFactor = Double.parseDouble(args[5]);
 		String allRecipeProducts = args[6];
 
 		// Get all recipe products/quantities by separating on `#`s, then separate

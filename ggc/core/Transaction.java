@@ -22,5 +22,5 @@ public class Transaction implements Serializable {
 	private int _amount;
 
 	/// Total price of transaction
-	private float _totalPrice;
+	private double _totalPrice;
 }

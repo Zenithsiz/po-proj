@@ -87,7 +87,7 @@ public class WarehouseManager {
 	///
 	/// Returns `Optional.EMPTY` if `product` does not exist
 	/// in any bundle in the warehouse.
-	public Optional<Float> productMaxPrice(Product product) {
+	public Optional<Double> productMaxPrice(Product product) {
 		return _warehouse.productMaxPrice(product);
 	}
 
@@ -100,7 +100,7 @@ public class WarehouseManager {
 	public String formatProduct(Product product) {
 		// Get the product's max price and total quantity
 		// Note: If no bundles exist, there is no max price, and so we'll return 0
-		float maxPrice = productMaxPrice(product).orElse(0.0f);
+		double maxPrice = productMaxPrice(product).orElse(0.0);
 		int quantity = productTotalQuantity(product);
 
 		// Create the base string
