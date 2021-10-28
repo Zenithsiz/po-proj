@@ -22,6 +22,9 @@ public class WarehouseManager {
 	/** The warehouse itself. */
 	private Warehouse _warehouse = new Warehouse();
 
+	/// If any changes were performed on the warehouse since the last save
+	private boolean _warehouseIsDirty;
+
 	/// Returns the current file name
 	public String fileName() {
 		return _fileName;
@@ -35,6 +38,7 @@ public class WarehouseManager {
 		try (var file = new FileOutputStream(fileName); var stream = new ObjectOutputStream(file)) {
 			// Write the warehouse to file
 			stream.writeObject(_warehouse);
+			_warehouseIsDirty = false;
 		}
 
 		_fileName = fileName;
@@ -48,6 +52,7 @@ public class WarehouseManager {
 		try (var file = new FileInputStream(fileName); var stream = new ObjectInputStream(file)) {
 			// Try to read the warehouse
 			_warehouse = (Warehouse) stream.readObject();
+			_warehouseIsDirty = true;
 		}
 
 		_fileName = fileName;
@@ -60,9 +65,15 @@ public class WarehouseManager {
 	public void importFile(String textFile) throws ImportFileException {
 		try {
 			_warehouse.importFile(textFile);
+			_warehouseIsDirty = true;
 		} catch (IOException | BadEntryException | ParsingException e) {
 			throw new ImportFileException(textFile, e);
 		}
+	}
+
+	/// Returns if any changes were made to the warehouse
+	public boolean isWarehouseDirty() {
+		return _warehouseIsDirty;
 	}
 
 	/// Returns the current date
@@ -73,6 +84,7 @@ public class WarehouseManager {
 	/// Advances the current date
 	public void advanceDate(int offset) {
 		_warehouse.advanceDate(offset);
+		_warehouseIsDirty = true;
 	}
 
 	/// Returns a stream over all products
