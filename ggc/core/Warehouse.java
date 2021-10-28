@@ -1,19 +1,18 @@
 package ggc.core;
 
-// FIXME import classes (cannot import from pt.tecnico or ggc.app)
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.stream.Stream;
 import java.io.IOException;
 import ggc.core.exception.BadEntryException;
 import ggc.core.exception.ParsingException;
 import ggc.core.exception.UnknownPartnerIdException;
 import ggc.core.exception.UnknownProductIdException;
+import ggc.core.util.Pair;
 
 /**
  * Class Warehouse implements a warehouse.
@@ -105,8 +104,8 @@ public class Warehouse implements Serializable {
 					return new Pair<>(recipeProduct, entry.getValue());
 				}).collect(Pair.toMapCollector());
 
-				Recipe recipe = new Recipe(productQuantities, costFactor);
-				return new DerivedProduct(productId, recipe);
+				Recipe recipe = new Recipe(productQuantities);
+				return new DerivedProduct(productId, recipe, costFactor);
 			});
 
 			// Then get the partner
@@ -127,5 +126,21 @@ public class Warehouse implements Serializable {
 	/// Advances the current date
 	public void advanceDate(int offset) {
 		_date += offset;
+	}
+
+	/// Returns a stream over all products
+	public Stream<Product> getProducts() {
+		return _products.values().stream();
+	}
+
+	/// Returns the max price of a product
+	public Optional<Float> productMaxPrice(Product product) {
+		return _bundles.stream().filter(bundle -> bundle.getProduct() == product).max(Bundle::compareByUnitPrice)
+				.map(Bundle::getUnitPrice);
+	}
+
+	/// Returns the total quantity of a product
+	public int productTotalQuantity(Product product) {
+		return _bundles.stream().filter(bundle -> bundle.getProduct() == product).mapToInt(Bundle::getQuantity).sum();
 	}
 }

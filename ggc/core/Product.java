@@ -1,6 +1,7 @@
 package ggc.core;
 
 import java.io.Serializable;
+import java.util.stream.Stream;
 
 /// Base/Simple product
 public class Product implements Serializable {
@@ -18,5 +19,10 @@ public class Product implements Serializable {
 	/// Returns this product's id
 	public String getId() {
 		return _id;
+	}
+
+	/// Returns extra fields to format the product with
+	Stream<String> extraFormatFields() {
+		return Stream.empty();
 	}
 }

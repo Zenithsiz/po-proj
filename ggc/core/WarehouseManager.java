@@ -3,12 +3,15 @@ package ggc.core;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Optional;
+import java.util.stream.Stream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import ggc.core.exception.BadEntryException;
 import ggc.core.exception.ImportFileException;
 import ggc.core.exception.ParsingException;
 import ggc.core.exception.UnavailableFileException;
+import ggc.core.util.StreamIterator;
 
 /** Façade for access. */
 public class WarehouseManager {
@@ -73,6 +76,43 @@ public class WarehouseManager {
 	/// Advances the current date
 	public void advanceDate(int offset) {
 		_warehouse.advanceDate(offset);
+	}
+
+	/// Returns a stream over all products
+	public Stream<Product> getProducts() {
+		return _warehouse.getProducts();
+	}
+
+	/// Returns the max price of a product
+	///
+	/// Returns `Optional.EMPTY` if `product` does not exist
+	/// in any bundle in the warehouse.
+	public Optional<Float> productMaxPrice(Product product) {
+		return _warehouse.productMaxPrice(product);
+	}
+
+	/// Returns the total quantity of a product
+	public int productTotalQuantity(Product product) {
+		return _warehouse.productTotalQuantity(product);
+	}
+
+	/// Formats a product according to it's availability
+	public String formatProduct(Product product) {
+		// Get the product's max price and total quantity
+		// Note: If no bundles exist, there is no max price, and so we'll return 0
+		float maxPrice = productMaxPrice(product).orElse(0.0f);
+		int quantity = productTotalQuantity(product);
+
+		// Create the base string
+		StringBuilder repr = new StringBuilder(String.format("%s|%.0f|%d", product.getId(), maxPrice, quantity));
+
+		// Then add any extra fields the product may have
+		for (var field : StreamIterator.streamIt(product.extraFormatFields())) {
+			repr.append("|");
+			repr.append(field);
+		}
+
+		return repr.toString();
 	}
 
 }

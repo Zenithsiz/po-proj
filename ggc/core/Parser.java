@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import ggc.core.exception.BadEntryException;
 import ggc.core.exception.ParsingException;
+import ggc.core.util.Pair;
 
 /// File parser
 public class Parser {

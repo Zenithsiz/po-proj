@@ -1,4 +1,4 @@
-package ggc.core;
+package ggc.core.util;
 
 import java.util.Map;
 import java.util.function.Function;
