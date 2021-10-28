@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import ggc.core.exception.BadEntryException;
 import ggc.core.exception.ImportFileException;
+import ggc.core.exception.MissingFileAssociationException;
 import ggc.core.exception.ParsingException;
 import ggc.core.util.StreamIterator;
 
@@ -18,7 +19,7 @@ import ggc.core.util.StreamIterator;
 public class WarehouseManager {
 
 	/** Name of file storing current warehouse. */
-	private String _fileName;
+	private Optional<String> _fileName = Optional.empty();
 
 	/** The warehouse itself. */
 	private Warehouse _warehouse = new Warehouse();
@@ -27,36 +28,43 @@ public class WarehouseManager {
 	private boolean _warehouseIsDirty;
 
 	/// Returns the current file name
-	public String fileName() {
+	public Optional<String> getFileName() {
 		return _fileName;
+	}
+
+	/// Sets the current filename to use
+	public void setFileName(String fileName) {
+		_fileName = Optional.of(fileName);
 	}
 
 	/**
 	 * @@throws IOException
 	 */
-	public void save(String fileName) throws IOException {
+	public void save() throws MissingFileAssociationException, IOException {
+		// Get our filename, or throw if we don't have any
+		var fileName = _fileName.orElseThrow(() -> new MissingFileAssociationException());
+
 		// Open the file to save, and create an output stream from it
 		try (var file = new FileOutputStream(fileName); var stream = new ObjectOutputStream(file)) {
 			// Write the warehouse to file
 			stream.writeObject(_warehouse);
 			_warehouseIsDirty = false;
 		}
-
-		_fileName = fileName;
 	}
 
 	/**
 	 * @@param filename
 	 * @@throws IOException
 	 */
-	public void load(String fileName) throws IOException, ClassNotFoundException {
+	public void load() throws MissingFileAssociationException, IOException, ClassNotFoundException {
+		// Get our filename, or throw if we don't have any
+		var fileName = _fileName.orElseThrow(() -> new MissingFileAssociationException());
+
 		try (var file = new FileInputStream(fileName); var stream = new ObjectInputStream(file)) {
 			// Try to read the warehouse
 			_warehouse = (Warehouse) stream.readObject();
 			_warehouseIsDirty = true;
 		}
-
-		_fileName = fileName;
 	}
 
 	/**
