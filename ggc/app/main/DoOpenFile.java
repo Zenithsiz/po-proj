@@ -5,7 +5,6 @@ import pt.tecnico.uilib.menus.CommandException;
 import java.io.IOException;
 import ggc.app.exception.FileOpenFailedException;
 import ggc.core.WarehouseManager;
-import ggc.core.exception.MissingFileAssociationException;
 
 /**
  * Open existing saved state.
@@ -22,13 +21,12 @@ class DoOpenFile extends Command<WarehouseManager> {
 
 	@Override
 	public final void execute() throws CommandException {
-		// Get the existing filename in the warehouse, or ask it, then set it
-		var fileName = _receiver.getFileName().orElseGet(() -> super.stringField(FILE_NAME));
-		_receiver.setFileName(fileName);
+		// Get the file and try to load from it
+		var fileName = super.stringField(FILE_NAME);
 
 		try {
-			_receiver.load();
-		} catch (MissingFileAssociationException | IOException | ClassNotFoundException _e) {
+			_receiver.loadFrom(fileName);
+		} catch (IOException | ClassNotFoundException _e) {
 			throw new FileOpenFailedException(fileName);
 		}
 	}

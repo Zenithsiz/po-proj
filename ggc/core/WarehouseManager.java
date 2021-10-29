@@ -6,12 +6,12 @@ import java.io.ObjectOutputStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import ggc.core.exception.BadEntryException;
 import ggc.core.exception.ImportFileException;
-import ggc.core.exception.MissingFileAssociationException;
 import ggc.core.exception.ParsingException;
 import ggc.core.util.StreamIterator;
 
@@ -27,43 +27,28 @@ public class WarehouseManager {
 	/// If any changes were performed on the warehouse since the last save
 	private boolean _warehouseIsDirty;
 
-	/// Returns the current file name
-	public Optional<String> getFileName() {
-		return _fileName;
-	}
-
-	/// Sets the current filename to use
-	public void setFileName(String fileName) {
-		_fileName = Optional.of(fileName);
-	}
-
-	/**
-	 * @@throws IOException
-	 */
-	public void save() throws MissingFileAssociationException, IOException {
-		// Get our filename, or throw if we don't have any
-		var fileName = _fileName.orElseThrow(() -> new MissingFileAssociationException());
+	/// Saves the file into the associated file, or, if inexistent, gets it from `supplier`
+	public void save(Supplier<? extends String> supplier) throws IOException {
+		// Get our associated file, or use the supplier if we don't have it.
+		var fileName = _fileName.orElseGet(supplier);
 
 		// Open the file to save, and create an output stream from it
 		try (var file = new FileOutputStream(fileName); var stream = new ObjectOutputStream(file)) {
 			// Write the warehouse to file
 			stream.writeObject(_warehouse);
 			_warehouseIsDirty = false;
+			_fileName = Optional.of(fileName);
 		}
 	}
 
-	/**
-	 * @@param filename
-	 * @@throws IOException
-	 */
-	public void load() throws MissingFileAssociationException, IOException, ClassNotFoundException {
-		// Get our filename, or throw if we don't have any
-		var fileName = _fileName.orElseThrow(() -> new MissingFileAssociationException());
-
+	/// Loads from `fileName` and then associated filename
+	public void loadFrom(String fileName) throws IOException, ClassNotFoundException {
 		try (var file = new FileInputStream(fileName); var stream = new ObjectInputStream(file)) {
 			// Try to read the warehouse
+			// Note: We set dirty to false, as the new file is now the current state of the warehouse
 			_warehouse = (Warehouse) stream.readObject();
-			_warehouseIsDirty = true;
+			_warehouseIsDirty = false;
+			_fileName = Optional.of(fileName);
 		}
 	}
 
@@ -72,6 +57,7 @@ public class WarehouseManager {
 	 * @throws ImportFileException
 	 */
 	public void importFile(String textFile) throws ImportFileException {
+		// Import and set ourselves as dirty
 		try {
 			_warehouse.importFile(textFile);
 			_warehouseIsDirty = true;
