@@ -17,7 +17,7 @@ public class Product implements Serializable {
 	}
 
 	/// Returns this product's id
-	public String getId() {
+	String getId() {
 		return _id;
 	}
 

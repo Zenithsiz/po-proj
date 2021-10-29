@@ -20,7 +20,7 @@ public class Recipe implements Serializable {
 	}
 
 	/// Returns a stream of all products in this recipe
-	public Stream<Product> products() {
+	Stream<Product> products() {
 		return _productQuantities.keySet().stream();
 	}
 

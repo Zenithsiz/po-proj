@@ -49,7 +49,7 @@ public class Batch implements Serializable {
 	}
 
 	/// Compares two batches by unit price
-	public static int compareByUnitPrice(Batch lhs, Batch rhs) {
+	static int compareByUnitPrice(Batch lhs, Batch rhs) {
 		return Double.compare(lhs._unitPrice, rhs._unitPrice);
 	}
 }
