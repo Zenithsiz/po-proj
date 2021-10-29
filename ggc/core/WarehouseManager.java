@@ -120,7 +120,9 @@ public class WarehouseManager {
 	///
 	/// Returns the new partner if successful, or empty is a partner with the same name exists
 	public Optional<Partner> registerPartner(String partnerId, String partnerName, String partnerAddress) {
-		return _warehouse.registerPartner(partnerId, partnerName, partnerAddress);
+		var partner = _warehouse.registerPartner(partnerId, partnerName, partnerAddress);
+		_warehouseIsDirty |= partner.isPresent();
+		return partner;
 	}
 
 	/// Returns the max price of a product
@@ -196,7 +198,9 @@ public class WarehouseManager {
 
 	/// Clears pending partner notifications and returns them
 	public List<Notification> clearPendingPartnerNotifications(Partner partner) {
-		return partner.clearPendingNotifications();
+		var notifications = partner.clearPendingNotifications();
+		_warehouseIsDirty |= !notifications.isEmpty();
+		return notifications;
 	}
 
 	/// Formats a notification
