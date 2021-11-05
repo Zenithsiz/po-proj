@@ -52,10 +52,7 @@ public class WarehouseManager {
 		}
 	}
 
-	/**
-	 * @param textFile
-	 * @throws ImportFileException
-	 */
+	/// Imports the file `textFile` onto the warehouse.
 	public void importFile(String textFile) throws ImportFileException {
 		// Import and set ourselves as dirty
 		try {
