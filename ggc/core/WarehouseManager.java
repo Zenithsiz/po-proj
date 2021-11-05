@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.io.FileInputStream;
@@ -154,6 +155,16 @@ public class WarehouseManager {
 	/// Returns a batch comparator by product id, partner id, unit price and then quantity
 	public static Comparator<Batch> batchComparator() {
 		return Warehouse.batchComparator();
+	}
+
+	/// Returns a batch filter by it's partner id
+	public static Predicate<Batch> batchFilterPartnerId(String partnerId) {
+		return Warehouse.batchFilterPartnerId(partnerId);
+	}
+
+	/// Returns a batch filter by it's product id
+	public static Predicate<Batch> batchFilterProductId(String productId) {
+		return Warehouse.batchFilterProductId(productId);
 	}
 
 	/// Formats a partner

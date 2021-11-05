@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.io.IOException;
@@ -141,7 +142,7 @@ class Warehouse implements Serializable {
 
 	/// Returns a collation key given a string with the class collation
 	private static CollationKey getCollationKey(String key) {
-		return Warehouse.collator.getCollationKey(key);
+		return collator.getCollationKey(key);
 	}
 
 	// Note: We need to override the saving and loading because we use `RuleBasedCollationKey`s,
@@ -251,6 +252,16 @@ class Warehouse implements Serializable {
 		return Comparator.<Batch, CollationKey>comparing(batch -> getCollationKey(batch.getProduct().getId()))
 				.thenComparing(batch -> getCollationKey(batch.getPartner().getId())).thenComparing(Batch::getUnitPrice)
 				.thenComparing(Batch::getQuantity);
+	}
+
+	/// Returns a batch filter by it's partner id
+	public static Predicate<Batch> batchFilterPartnerId(String partnerId) {
+		return batch -> collator.equals(batch.getPartner().getId(), partnerId);
+	}
+
+	/// Returns a batch filter by it's product id
+	public static Predicate<Batch> batchFilterProductId(String productId) {
+		return batch -> collator.equals(batch.getProduct().getId(), productId);
 	}
 
 	/// Returns a partner comparator by it's id
