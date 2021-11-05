@@ -103,8 +103,10 @@ class Parser {
 
 		// Get all recipe products/quantities by separating on `#`s, then separate
 		// them to parse the quantities and collect them into a map.
-		var recipeProducts = Arrays.stream(allRecipeProducts.split("#"))
-				.map(recipeProduct -> Pair.fromArray(recipeProduct.split(":")).mapRight(s -> Integer.parseInt(s)))
+		var recipeProducts = Arrays.stream(allRecipeProducts.split("#")) //
+				.map(recipeProduct -> recipeProduct.split(":")) //
+				.map(Pair::fromArray) //
+				.map(pair -> pair.mapRight(Integer::parseInt)) //
 				.collect(Pair.toMapCollector());
 
 		visitor.visitDerivedBatch(productId, partnerId, quantity, unitPrice, costFactor, recipeProducts);

@@ -116,10 +116,12 @@ class Warehouse implements Serializable {
 			Product product = _warehouse._products.computeIfAbsent(getCollationKey(productId), _key -> {
 				// Get all product quantities
 				// Note: We've already checked all recipe products exist, so this contains no `null`s.
-				Map<Product, Integer> productQuantities = recipeProducts.entrySet().stream().map(entry -> {
-					Product recipeProduct = _warehouse._products.get(getCollationKey(entry.getKey()));
-					return new Pair<>(recipeProduct, entry.getValue());
-				}).collect(Pair.toMapCollector());
+				Map<Product, Integer> productQuantities = recipeProducts.entrySet().stream() //
+						.map(entry -> {
+							String recipeProductId = entry.getKey();
+							Product recipeProduct = _warehouse._products.get(getCollationKey(recipeProductId));
+							return new Pair<>(recipeProduct, entry.getValue());
+						}).collect(Pair.toMapCollector());
 
 				Recipe recipe = new Recipe(productQuantities);
 				return new DerivedProduct(productId, recipe, costFactor);
@@ -224,12 +226,17 @@ class Warehouse implements Serializable {
 
 	/// Returns the max price of a product
 	Optional<Double> productMaxPrice(Product product) {
-		return _batches.stream().filter(batch -> batch.getProduct() == product).max(Batch::compareByUnitPrice)
+		return _batches.stream() //
+				.filter(batch -> batch.getProduct() == product) //
+				.max(Batch::compareByUnitPrice) //
 				.map(Batch::getUnitPrice);
 	}
 
 	/// Returns the total quantity of a product
 	int productTotalQuantity(Product product) {
-		return _batches.stream().filter(batch -> batch.getProduct() == product).mapToInt(Batch::getQuantity).sum();
+		return _batches.stream() //
+				.filter(batch -> batch.getProduct() == product) //
+				.mapToInt(Batch::getQuantity) //
+				.sum();
 	}
 }
