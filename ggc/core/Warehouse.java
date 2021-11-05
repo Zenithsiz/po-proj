@@ -191,7 +191,7 @@ class Warehouse implements Serializable {
 	}
 
 	/// Returns a product given it's id
-	public Optional<Product> getProduct(String productId) {
+	Optional<Product> getProduct(String productId) {
 		return Optional.ofNullable(_products.get(getCollationKey(productId)));
 	}
 
@@ -213,7 +213,7 @@ class Warehouse implements Serializable {
 	/// Registers a new partner
 	///
 	/// Returns the new partner if successful, or empty is a partner with the same name exists
-	public Optional<Partner> registerPartner(String partnerId, String partnerName, String partnerAddress) {
+	Optional<Partner> registerPartner(String partnerId, String partnerName, String partnerAddress) {
 		Partner partner = _partners.get(getCollationKey(partnerId));
 
 		// If we didn't have the partner, insert it and return it
@@ -227,13 +227,18 @@ class Warehouse implements Serializable {
 	}
 
 	/// Toggles a partner's product notifications
-	public void togglePartnerNotifications(Partner partner, Product product) {
+	void togglePartnerNotifications(Partner partner, Product product) {
 		partner.toggleIsProductNotificationBlacklisted(product);
 	}
 
 	/// Returns a stream over all transactions
 	Stream<Transaction> getTransactions() {
 		return _transactions.stream();
+	}
+
+	/// Returns a transaction given it's id
+	Optional<Transaction> getTransaction(int transactionId) {
+		return transactionId < _transactions.size() ? Optional.of(_transactions.get(transactionId)) : Optional.empty();
 	}
 
 	/// Returns the max price of a product
@@ -253,29 +258,29 @@ class Warehouse implements Serializable {
 	}
 
 	/// Returns a product comparator by it's id
-	public static Comparator<Product> productComparator() {
+	static Comparator<Product> productComparator() {
 		return Comparator.comparing(product -> getCollationKey(product.getId()));
 	}
 
 	/// Returns a batch comparator by it's product id, partner id, unit price and then quantity
-	public static Comparator<Batch> batchComparator() {
+	static Comparator<Batch> batchComparator() {
 		return Comparator.<Batch, CollationKey>comparing(batch -> getCollationKey(batch.getProduct().getId()))
 				.thenComparing(batch -> getCollationKey(batch.getPartner().getId())).thenComparing(Batch::getUnitPrice)
 				.thenComparing(Batch::getQuantity);
 	}
 
 	/// Returns a batch filter by it's partner id
-	public static Predicate<Batch> batchFilterPartnerId(String partnerId) {
+	static Predicate<Batch> batchFilterPartnerId(String partnerId) {
 		return batch -> collator.equals(batch.getPartner().getId(), partnerId);
 	}
 
 	/// Returns a batch filter by it's product id
-	public static Predicate<Batch> batchFilterProductId(String productId) {
+	static Predicate<Batch> batchFilterProductId(String productId) {
 		return batch -> collator.equals(batch.getProduct().getId(), productId);
 	}
 
 	/// Returns a partner comparator by it's id
-	public static Comparator<Partner> partnerComparator() {
+	static Comparator<Partner> partnerComparator() {
 		// Note: Id is unique, so we don't need to compare by anything else
 		return Comparator.comparing(partner -> getCollationKey(partner.getId()));
 	}

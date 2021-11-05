@@ -119,6 +119,16 @@ public class WarehouseManager {
 		_warehouse.togglePartnerNotifications(partner, product);
 	}
 
+	/// Returns a stream over all transactions
+	public Stream<Transaction> getTransactions() {
+		return _warehouse.getTransactions();
+	}
+
+	/// Returns a transaction given it's id
+	public Optional<Transaction> getTransaction(int transactionId) {
+		return _warehouse.getTransaction(transactionId);
+	}
+
 	/// Returns the max price of a product
 	///
 	/// Returns `Optional.EMPTY` if `product` does not exist
@@ -209,5 +219,10 @@ public class WarehouseManager {
 		Batch batch = notification.getBatch();
 		return String.format("%s|%s|%.0f", notification.getType(), batch.getProduct(),
 				notification.getBatch().getUnitPrice());
+	}
+
+	/// Formats a transaction
+	public String formatTransaction(Transaction transaction) {
+		return transaction.format();
 	}
 }

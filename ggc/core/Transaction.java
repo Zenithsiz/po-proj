@@ -15,6 +15,9 @@ public abstract class Transaction implements Serializable {
 	/// Product of this transaction
 	private Product _product;
 
+	/// Partner associated with this transaction
+	private Partner _partner;
+
 	/// Amount of product of this transaction
 	private int _amount;
 
@@ -36,6 +39,11 @@ public abstract class Transaction implements Serializable {
 		return _product;
 	}
 
+	/// Returns this transaction's partner
+	Partner getPartner() {
+		return _partner;
+	}
+
 	/// Returns this transaction's product amount
 	int getAmount() {
 		return _amount;
@@ -45,4 +53,7 @@ public abstract class Transaction implements Serializable {
 	double getTotalPrice() {
 		return _totalPrice;
 	}
+
+	/// Formats this transaction
+	abstract String format();
 }
