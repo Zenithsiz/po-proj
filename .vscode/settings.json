@@ -4,7 +4,7 @@
 		"uilib"
 	],
 	"java.project.referencedLibraries": [
-		"po-uilib-v15.jar",
+		"po-uilib.jar",
 	],
 	"java.format.settings.url": "eclipse-formatter.xml",
 	"editor.insertSpaces": false,

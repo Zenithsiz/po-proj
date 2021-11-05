@@ -3,3 +3,7 @@
 
 # Compiled files
 *.class
+
+# Test diffs
+/tests/*.diff
+/tests/*.outhyp
