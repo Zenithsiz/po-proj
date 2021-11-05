@@ -145,7 +145,7 @@ public class WarehouseManager {
 
 	/// Returns a batch comparator by product id
 	public static Comparator<Product> productComparator() {
-		return Comparator.comparing(Product::getId);
+		return Warehouse.productComparator();
 	}
 
 	/// Formats a batch according to it's availability
@@ -156,9 +156,7 @@ public class WarehouseManager {
 
 	/// Returns a batch comparator by product id, partner id, unit price and then quantity
 	public static Comparator<Batch> batchComparator() {
-		return Comparator.<Batch, String>comparing(batch -> batch.getProduct().getId())
-				.thenComparing(batch -> batch.getPartner().getId()).thenComparing(Batch::getUnitPrice)
-				.thenComparing(Batch::getQuantity);
+		return Warehouse.batchComparator();
 	}
 
 	/// Formats a partner
@@ -178,8 +176,7 @@ public class WarehouseManager {
 
 	/// Returns a partner comparator
 	public static Comparator<Partner> partnerComparator() {
-		// Note: Id is unique, so we don't need to compare by anything else
-		return Comparator.comparing(Partner::getId);
+		return Warehouse.partnerComparator();
 	}
 
 	/// Clears pending partner notifications and returns them

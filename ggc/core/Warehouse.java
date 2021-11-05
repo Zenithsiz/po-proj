@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.text.CollationKey;
 import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -238,5 +239,23 @@ class Warehouse implements Serializable {
 				.filter(batch -> batch.getProduct() == product) //
 				.mapToInt(Batch::getQuantity) //
 				.sum();
+	}
+
+	/// Returns a product comparator by it's id
+	public static Comparator<Product> productComparator() {
+		return Comparator.comparing(product -> getCollationKey(product.getId()));
+	}
+
+	/// Returns a batch comparator by it's product id, partner id, unit price and then quantity
+	public static Comparator<Batch> batchComparator() {
+		return Comparator.<Batch, CollationKey>comparing(batch -> getCollationKey(batch.getProduct().getId()))
+				.thenComparing(batch -> getCollationKey(batch.getPartner().getId())).thenComparing(Batch::getUnitPrice)
+				.thenComparing(Batch::getQuantity);
+	}
+
+	/// Returns a partner comparator by it's id
+	public static Comparator<Partner> partnerComparator() {
+		// Note: Id is unique, so we don't need to compare by anything else
+		return Comparator.comparing(partner -> getCollationKey(partner.getId()));
 	}
 }
