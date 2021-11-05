@@ -85,6 +85,11 @@ public class WarehouseManager {
 		return _warehouse.getProducts();
 	}
 
+	/// Returns a product given it's id
+	public Optional<Product> getProduct(String productId) {
+		return _warehouse.getProduct(productId);
+	}
+
 	/// Returns a stream over all batches
 	public Stream<Batch> getBatches() {
 		return _warehouse.getBatches();
@@ -107,6 +112,11 @@ public class WarehouseManager {
 		var partner = _warehouse.registerPartner(partnerId, partnerName, partnerAddress);
 		_warehouseIsDirty |= partner.isPresent();
 		return partner;
+	}
+
+	/// Toggles a partner's product notifications
+	public void togglePartnerNotifications(Partner partner, Product product) {
+		_warehouse.togglePartnerNotifications(partner, product);
 	}
 
 	/// Returns the max price of a product

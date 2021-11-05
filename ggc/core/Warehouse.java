@@ -190,6 +190,11 @@ class Warehouse implements Serializable {
 		return _products.values().stream();
 	}
 
+	/// Returns a product given it's id
+	public Optional<Product> getProduct(String productId) {
+		return Optional.ofNullable(_products.get(getCollationKey(productId)));
+	}
+
 	/// Returns a stream over all batches
 	Stream<Batch> getBatches() {
 		return _batches.stream();
@@ -198,6 +203,11 @@ class Warehouse implements Serializable {
 	/// Returns a stream over all partners
 	Stream<Partner> getPartners() {
 		return _partners.values().stream();
+	}
+
+	/// Returns a partner given it's id
+	Optional<Partner> getPartner(String partnerId) {
+		return Optional.ofNullable(_partners.get(getCollationKey(partnerId)));
 	}
 
 	/// Registers a new partner
@@ -216,14 +226,14 @@ class Warehouse implements Serializable {
 		return Optional.empty();
 	}
 
+	/// Toggles a partner's product notifications
+	public void togglePartnerNotifications(Partner partner, Product product) {
+		partner.toggleIsProductNotificationBlacklisted(product);
+	}
+
 	/// Returns a stream over all transactions
 	Stream<Transaction> getTransactions() {
 		return _transactions.stream();
-	}
-
-	/// Returns a partner given it's id
-	Optional<Partner> getPartner(String partnerId) {
-		return Optional.ofNullable(_partners.get(getCollationKey(partnerId)));
 	}
 
 	/// Returns the max price of a product
