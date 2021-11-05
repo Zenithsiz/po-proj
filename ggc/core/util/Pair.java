@@ -37,6 +37,11 @@ public class Pair<L, R> {
 		return _rhs;
 	}
 
+	/// Maps the left value
+	public <L2> Pair<L2, R> mapLeft(Function<? super L, ? extends L2> mapper) {
+		return new Pair<>(mapper.apply(_lhs), _rhs);
+	}
+
 	/// Maps the right value
 	public <R2> Pair<L, R2> mapRight(Function<? super R, ? extends R2> mapper) {
 		return new Pair<>(_lhs, mapper.apply(_rhs));

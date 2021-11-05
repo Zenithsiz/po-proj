@@ -82,6 +82,11 @@ public class Partner implements Serializable {
 		return _purchases.stream();
 	}
 
+	/// Adds a purchase to this partner
+	public void addPurchase(Purchase purchase) {
+		_purchases.add(purchase);
+	}
+
 	/// Returns a stream of the partner's sales
 	Stream<Sale> getSales() {
 		return _sales.stream();

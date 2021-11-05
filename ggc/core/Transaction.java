@@ -18,11 +18,21 @@ public abstract class Transaction implements Serializable {
 	/// Partner associated with this transaction
 	private Partner _partner;
 
-	/// Amount of product of this transaction
-	private int _amount;
+	/// Quantity of product of this transaction
+	private int _quantity;
 
 	/// Total price of transaction
 	private double _totalPrice;
+
+	// Note: Package private to ensure we don't construct it outside of `core`.
+	Transaction(int id, int paymentDate, Product product, Partner partner, int quantity, double totalPrice) {
+		_id = id;
+		_paymentDate = paymentDate;
+		_product = product;
+		_partner = partner;
+		_quantity = quantity;
+		_totalPrice = totalPrice;
+	}
 
 	/// Returns this transaction's id
 	int getId() {
@@ -46,7 +56,7 @@ public abstract class Transaction implements Serializable {
 
 	/// Returns this transaction's product amount
 	int getAmount() {
-		return _amount;
+		return _quantity;
 	}
 
 	/// Returns this transaction's total price

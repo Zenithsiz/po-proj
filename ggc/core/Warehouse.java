@@ -43,6 +43,9 @@ class Warehouse implements Serializable {
 	/// Current date
 	private int _date;
 
+	/// Current balance
+	private int _balance;
+
 	/// Next transaction id
 	private int _nextTransactionId;
 
@@ -149,6 +152,7 @@ class Warehouse implements Serializable {
 	// and either way, the hashmaps could be saved as lists, the keys are redundant.
 	private void writeObject(ObjectOutputStream out) throws IOException {
 		out.writeObject(_date);
+		out.writeObject(_balance);
 		out.writeObject(_nextTransactionId);
 		out.writeObject(_transactions);
 		out.writeObject(new ArrayList<>(_partners.values()));
@@ -159,6 +163,7 @@ class Warehouse implements Serializable {
 	@SuppressWarnings("unchecked") // We're doing a raw cast without being able to properly check the underlying class
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		var date = (Integer) in.readObject();
+		var balance = (Integer) in.readObject();
 		var nextTransactionId = (Integer) in.readObject();
 		var transactions = (List<Transaction>) in.readObject();
 		var partners = (List<Partner>) in.readObject();
@@ -166,6 +171,7 @@ class Warehouse implements Serializable {
 		var batches = (List<Batch>) in.readObject();
 
 		_date = date;
+		_balance = balance;
 		_nextTransactionId = nextTransactionId;
 		_transactions = transactions;
 		_partners = partners.stream()
@@ -195,6 +201,52 @@ class Warehouse implements Serializable {
 		return Optional.ofNullable(_products.get(getCollationKey(productId)));
 	}
 
+	/// Registers a simple product given it's id
+	///
+	/// Returns the new product if successful, or empty if a product with the same name exists
+	public Optional<Product> registerProduct(String productId) {
+		// If we didn't have the product, insert it and return it
+		if (getProduct(productId).isEmpty()) {
+			var product = new Product(productId);
+			_products.put(getCollationKey(productId), product);
+			return Optional.of(product);
+		}
+
+		// Else return empty
+		return Optional.empty();
+	}
+
+	/// Registers a derived product given it's id, alpha and all components by id
+	///
+	/// Returns the new product if successful, or empty if a product with the same name exists, or a component
+	/// can't be found.
+	public Optional<Product> registerDerivedProduct(String productId, double costFactor,
+			Stream<Pair<String, Integer>> recipeProducts) {
+		// If any of the recipe products don't exist, return empty
+		// Note: We do this regardless if the product exists to ensure that the user specified
+		// products which already exist
+		if (recipeProducts.anyMatch(pair -> getProduct(pair.getLhs()).isEmpty())) {
+			return Optional.empty();
+		}
+
+		// If we didn't have the product, insert it and return it
+		if (getProduct(productId).isEmpty()) {
+			// Get all product quantities
+			// Note: We've already checked all recipe products exist, so `Optional::get` won't throw
+			Map<Product, Integer> productQuantities = recipeProducts
+					.map(pair -> pair.mapLeft(this::getProduct).mapLeft(Optional::get)) //
+					.collect(Pair.toMapCollector());
+
+			Recipe recipe = new Recipe(productQuantities);
+			var product = new DerivedProduct(productId, recipe, costFactor);
+			_products.put(getCollationKey(productId), product);
+			return Optional.of(product);
+		}
+
+		// Else return empty
+		return Optional.empty();
+	}
+
 	/// Returns a stream over all batches
 	Stream<Batch> getBatches() {
 		return _batches.stream();
@@ -214,15 +266,14 @@ class Warehouse implements Serializable {
 	///
 	/// Returns the new partner if successful, or empty is a partner with the same name exists
 	Optional<Partner> registerPartner(String partnerId, String partnerName, String partnerAddress) {
-		Partner partner = _partners.get(getCollationKey(partnerId));
-
-		// If we didn't have the partner, insert it and return it
-		if (partner == null) {
-			partner = new Partner(partnerId, partnerName, partnerAddress);
+		// If we didn't have the product, insert it and return it
+		if (getPartner(partnerId).isEmpty()) {
+			var partner = new Partner(partnerId, partnerName, partnerAddress);
 			_partners.put(getCollationKey(partnerId), partner);
 			return Optional.of(partner);
 		}
 
+		// Else return empty
 		return Optional.empty();
 	}
 
@@ -234,6 +285,23 @@ class Warehouse implements Serializable {
 	/// Returns a stream over all transactions
 	Stream<Transaction> getTransactions() {
 		return _transactions.stream();
+	}
+
+	/// Registers a new purchase
+	public Purchase registerPurchase(Partner partner, Product product, int quantity, double unitPrice) {
+		// Create the batch for this purchase and add it
+		var batch = new Batch(product, quantity, partner, unitPrice);
+		_batches.add(batch);
+
+		var paymentDate = 0; // TODO:
+
+		// Then create the transaction for it
+		var purchase = new Purchase(_nextTransactionId, paymentDate, product, partner, quantity, quantity * unitPrice);
+		_nextTransactionId++;
+		partner.addPurchase(purchase);
+		_transactions.add(purchase);
+
+		return purchase;
 	}
 
 	/// Returns a transaction given it's id

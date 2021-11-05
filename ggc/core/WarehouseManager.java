@@ -14,6 +14,7 @@ import java.io.FileOutputStream;
 import ggc.core.exception.BadEntryException;
 import ggc.core.exception.ImportFileException;
 import ggc.core.exception.ParsingException;
+import ggc.core.util.Pair;
 import ggc.core.util.StreamIterator;
 
 /** Façade for access. */
@@ -90,6 +91,26 @@ public class WarehouseManager {
 		return _warehouse.getProduct(productId);
 	}
 
+	/// Registers a simple product given it's id
+	///
+	/// Returns the new product if successful, or empty if a product with the same name exists
+	public Optional<Product> registerProduct(String productId) {
+		var product = _warehouse.registerProduct(productId);
+		_warehouseIsDirty |= product.isPresent();
+		return product;
+	}
+
+	/// Registers a derived product given it's id, alpha and all components by id
+	///
+	/// Returns the new product if successful, or empty if a product with the same name exists, or a component
+	/// can't be found.
+	public Optional<Product> registerDerivedProduct(String productId, double costFactor,
+			Stream<Pair<String, Integer>> recipeProducts) {
+		var product = _warehouse.registerDerivedProduct(productId, costFactor, recipeProducts);
+		_warehouseIsDirty |= product.isPresent();
+		return product;
+	}
+
 	/// Returns a stream over all batches
 	public Stream<Batch> getBatches() {
 		return _warehouse.getBatches();
@@ -107,7 +128,7 @@ public class WarehouseManager {
 
 	/// Registers a new partner
 	///
-	/// Returns the new partner if successful, or empty is a partner with the same name exists
+	/// Returns the new partner if successful, or empty if a partner with the same name exists
 	public Optional<Partner> registerPartner(String partnerId, String partnerName, String partnerAddress) {
 		var partner = _warehouse.registerPartner(partnerId, partnerName, partnerAddress);
 		_warehouseIsDirty |= partner.isPresent();
@@ -117,6 +138,7 @@ public class WarehouseManager {
 	/// Toggles a partner's product notifications
 	public void togglePartnerNotifications(Partner partner, Product product) {
 		_warehouse.togglePartnerNotifications(partner, product);
+		_warehouseIsDirty = true;
 	}
 
 	/// Returns a stream over all transactions
@@ -127,6 +149,13 @@ public class WarehouseManager {
 	/// Returns a transaction given it's id
 	public Optional<Transaction> getTransaction(int transactionId) {
 		return _warehouse.getTransaction(transactionId);
+	}
+
+	/// Registers a new purchase
+	public Purchase registerPurchase(Partner partner, Product product, int quantity, double unitPrice) {
+		var purchase = _warehouse.registerPurchase(partner, product, quantity, unitPrice);
+		_warehouseIsDirty = true;
+		return purchase;
 	}
 
 	/// Returns the max price of a product
