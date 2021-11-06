@@ -18,7 +18,6 @@ import ggc.core.exception.PartnerAlreadyExistsException;
 import ggc.core.exception.ProductAlreadyExistsException;
 import ggc.core.exception.UnknownProductIdException;
 import ggc.core.util.Pair;
-import ggc.core.util.StreamIterator;
 
 /** Façade for access. */
 public class WarehouseManager {
@@ -169,34 +168,9 @@ public class WarehouseManager {
 		return _warehouse.productTotalQuantity(product);
 	}
 
-	/// Formats a product according to it's availability
-	public String formatProduct(Product product) {
-		// Get the product's max price and total quantity
-		// Note: If no batches exist, there is no max price, and so we'll return 0
-		double maxPrice = productMaxPrice(product).orElse(0.0);
-		int quantity = productTotalQuantity(product);
-
-		// Create the base string
-		StringBuilder repr = new StringBuilder(String.format("%s|%.0f|%d", product.getId(), maxPrice, quantity));
-
-		// Then add any extra fields the product may have
-		for (var field : StreamIterator.streamIt(product.extraFormatFields())) {
-			repr.append("|");
-			repr.append(field);
-		}
-
-		return repr.toString();
-	}
-
 	/// Returns a batch comparator by product id
 	public static Comparator<Product> productComparator() {
 		return Warehouse.productComparator();
-	}
-
-	/// Formats a batch according to it's availability
-	public String formatBatch(Batch batch) {
-		return String.format("%s|%s|%.0f|%d", batch.getProduct().getId(), batch.getPartner().getId(),
-				batch.getUnitPrice(), batch.getQuantity());
 	}
 
 	/// Returns a batch comparator by product id, partner id, unit price and then quantity
@@ -214,21 +188,6 @@ public class WarehouseManager {
 		return Warehouse.batchFilterProductId(productId);
 	}
 
-	/// Formats a partner
-	public String formatPartner(Partner partner) {
-		double totalPurchases = partner.getPurchases().mapToDouble(Transaction::getTotalPrice).sum();
-		double totalSales = 0.0;
-		double totalSalesPaid = 0.0;
-		for (var sale : StreamIterator.streamIt(partner.getSales())) {
-			totalSales += sale.getTotalPrice();
-			totalSalesPaid += sale.isPaid() ? sale.getTotalPrice() : 0.0;
-		}
-
-		return String.format("%s|%s|%s|%s|%.0f|%.0f|%.0f|%.0f", partner.getId(), partner.getName(),
-				partner.getAddress(), partner.getStatus(), partner.getPoints(), totalPurchases, totalSales,
-				totalSalesPaid);
-	}
-
 	/// Returns a partner comparator
 	public static Comparator<Partner> partnerComparator() {
 		return Warehouse.partnerComparator();
@@ -241,15 +200,9 @@ public class WarehouseManager {
 		return notifications;
 	}
 
-	/// Formats a notification
-	public String formatNotification(Notification notification) {
-		Batch batch = notification.getBatch();
-		return String.format("%s|%s|%.0f", notification.getType(), batch.getProduct(),
-				notification.getBatch().getUnitPrice());
-	}
-
-	/// Formats a transaction
-	public String formatTransaction(Transaction transaction) {
-		return transaction.format();
+	/// Formats a value
+	public <T extends WarehouseFormattable> String format(T value) {
+		// Note: Formatting won't
+		return value.format(new ConstWarehouse(_warehouse));
 	}
 }

@@ -24,7 +24,7 @@ public class DoShowTransaction extends Command<WarehouseManager> {
 				.orElseThrow(() -> new UnknownTransactionKeyException(transactionId));
 
 		// Then display it
-		_display.addLine(_receiver.formatTransaction(transaction));
+		_display.addLine(_receiver.format(transaction));
 		_display.display();
 	}
 

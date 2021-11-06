@@ -2,7 +2,7 @@ package ggc.core;
 
 import java.io.Serializable;
 
-public abstract class Transaction implements Serializable {
+public abstract class Transaction implements Serializable, WarehouseFormattable {
 	/// Serial number for serialization.
 	private static final long serialVersionUID = 2021_10_27_03_16L;
 
@@ -63,7 +63,4 @@ public abstract class Transaction implements Serializable {
 	double getTotalPrice() {
 		return _totalPrice;
 	}
-
-	/// Formats this transaction
-	abstract String format();
 }

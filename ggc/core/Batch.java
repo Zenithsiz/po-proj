@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /// Product batch
-public class Batch implements Serializable {
+public class Batch implements Serializable, WarehouseFormattable {
 	/// Serial number for serialization.
 	private static final long serialVersionUID = 2021_10_27_05_54L;
 
@@ -51,5 +51,10 @@ public class Batch implements Serializable {
 	/// Compares two batches by unit price
 	static int compareByUnitPrice(Batch lhs, Batch rhs) {
 		return Double.compare(lhs._unitPrice, rhs._unitPrice);
+	}
+
+	@Override
+	public String format(ConstWarehouse warehouse) {
+		return String.format("%s|%s|%.0f|%d", _product.getId(), _partner.getId(), _unitPrice, _quantity);
 	}
 }

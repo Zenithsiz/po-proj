@@ -281,6 +281,11 @@ class Warehouse implements Serializable {
 		return _transactions.stream();
 	}
 
+	/// Returns a transaction given it's id
+	Optional<Transaction> getTransaction(int transactionId) {
+		return transactionId < _transactions.size() ? Optional.of(_transactions.get(transactionId)) : Optional.empty();
+	}
+
 	/// Registers a new purchase
 	public Purchase registerPurchase(Partner partner, Product product, int quantity, double unitPrice) {
 		// Create the batch for this purchase and add it
@@ -296,11 +301,6 @@ class Warehouse implements Serializable {
 		_transactions.add(purchase);
 
 		return purchase;
-	}
-
-	/// Returns a transaction given it's id
-	Optional<Transaction> getTransaction(int transactionId) {
-		return transactionId < _transactions.size() ? Optional.of(_transactions.get(transactionId)) : Optional.empty();
 	}
 
 	/// Returns the max price of a product

@@ -14,7 +14,7 @@ class ShowBatches {
 			Predicate<? super Batch> predicate) {
 		Stream<Batch> batches = receiver.getBatches().filter(predicate).sorted(WarehouseManager.batchComparator());
 		for (var batch : StreamIterator.streamIt(batches)) {
-			display.addLine(receiver.formatBatch(batch));
+			display.addLine(receiver.format(batch));
 		}
 
 		display.display();

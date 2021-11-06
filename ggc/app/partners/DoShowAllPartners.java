@@ -20,7 +20,7 @@ class DoShowAllPartners extends Command<WarehouseManager> {
 	public void execute() throws CommandException {
 		Stream<Partner> partners = _receiver.getPartners().sorted(WarehouseManager.partnerComparator());
 		for (var partner : StreamIterator.streamIt(partners)) {
-			_display.addLine(_receiver.formatPartner(partner));
+			_display.addLine(_receiver.format(partner));
 		}
 
 		_display.display();

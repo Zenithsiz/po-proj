@@ -29,7 +29,7 @@ public class DerivedProduct extends Product {
 
 	/// Returns extra fields to format the product with
 	@Override
-	Stream<String> extraFormatFields() {
+	protected Stream<String> extraFormatFields() {
 		return Stream.of(Double.toString(_costFactor), _recipe.toString());
 	}
 }

@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /// Partner
-public class Partner implements Serializable {
+public class Partner implements Serializable, WarehouseFormattable {
 	/// Serial number for serialization.
 	private static final long serialVersionUID = 2021_10_27_03_12L;
 
@@ -128,5 +128,19 @@ public class Partner implements Serializable {
 				throw new RuntimeException("Unknown partner status");
 			}
 		}
+	}
+
+	@Override
+	public String format(ConstWarehouse warehouse) {
+		double totalPurchases = _purchases.stream().mapToDouble(Transaction::getTotalPrice).sum();
+		double totalSales = 0.0;
+		double totalSalesPaid = 0.0;
+		for (var sale : _sales) {
+			totalSales += sale.getTotalPrice();
+			totalSalesPaid += sale.isPaid() ? sale.getTotalPrice() : 0.0;
+		}
+
+		return String.format("%s|%s|%s|%s|%.0f|%.0f|%.0f|%.0f", _id, _name, _address, _status, _points, totalPurchases,
+				totalSales, totalSalesPaid);
 	}
 }

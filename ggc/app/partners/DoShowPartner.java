@@ -25,11 +25,11 @@ class DoShowPartner extends Command<WarehouseManager> {
 		Partner partner = _receiver.getPartner(partnerId).orElseThrow(() -> new UnknownPartnerKeyException(partnerId));
 
 		// Display them
-		_display.addLine(_receiver.formatPartner(partner));
+		_display.addLine(_receiver.format(partner));
 
 		// Then display their pending notifications
 		for (var notification : _receiver.clearPendingPartnerNotifications(partner)) {
-			_display.addLine(_receiver.formatNotification(notification));
+			_display.addLine(_receiver.format(notification));
 		}
 
 		_display.display();

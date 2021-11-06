@@ -22,7 +22,7 @@ class DoShowAllProducts extends Command<WarehouseManager> {
 	public final void execute() throws CommandException {
 		Stream<Product> products = _receiver.getProducts().sorted(WarehouseManager.productComparator());
 		for (var product : StreamIterator.streamIt(products)) {
-			_display.addLine(_receiver.formatProduct(product));
+			_display.addLine(_receiver.format(product));
 		}
 
 		_display.display();

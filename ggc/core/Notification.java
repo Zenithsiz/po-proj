@@ -1,6 +1,8 @@
 package ggc.core;
 
-public class Notification {
+import java.io.Serializable;
+
+public class Notification implements Serializable, WarehouseFormattable {
 	/// Batch of the product we're notifying about
 	private Batch _batch;
 
@@ -20,5 +22,10 @@ public class Notification {
 	/// Returns the type of this notification
 	String getType() {
 		return _type;
+	}
+
+	@Override
+	public String format(ConstWarehouse warehouse) {
+		return String.format("%s|%s|%.0f", _type, _batch.getProduct(), _batch.getUnitPrice());
 	}
 }

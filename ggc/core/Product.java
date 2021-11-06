@@ -3,8 +3,10 @@ package ggc.core;
 import java.io.Serializable;
 import java.util.stream.Stream;
 
+import ggc.core.util.StreamIterator;
+
 /// Base/Simple product
-public class Product implements Serializable {
+public class Product implements Serializable, WarehouseFormattable {
 	/// Serial number for serialization.
 	private static final long serialVersionUID = 2021_10_27_01_17L;
 
@@ -22,7 +24,25 @@ public class Product implements Serializable {
 	}
 
 	/// Returns extra fields to format the product with
-	Stream<String> extraFormatFields() {
+	protected Stream<String> extraFormatFields() {
 		return Stream.empty();
+	}
+
+	public String format(ConstWarehouse warehouse) {
+		// Get the our max price and total quantity
+		// Note: If no batches exist, there is no max price, and so we'll return 0
+		double maxPrice = warehouse.productMaxPrice(this).orElse(0.0);
+		int quantity = warehouse.productTotalQuantity(this);
+
+		// Create the base string
+		StringBuilder repr = new StringBuilder(String.format("%s|%.0f|%d", _id, maxPrice, quantity));
+
+		// Then add any extra fields we may have
+		for (var field : StreamIterator.streamIt(extraFormatFields())) {
+			repr.append("|");
+			repr.append(field);
+		}
+
+		return repr.toString();
 	}
 }
