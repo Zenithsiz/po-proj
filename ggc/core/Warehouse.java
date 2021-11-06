@@ -21,7 +21,7 @@ import ggc.core.exception.PartnerAlreadyExistsException;
 import ggc.core.exception.ProductAlreadyExistsException;
 import ggc.core.exception.UnknownPartnerIdException;
 import ggc.core.exception.UnknownProductIdException;
-import ggc.core.util.MultiMap;
+import ggc.core.util.SortedMultiMap;
 import ggc.core.util.Pair;
 import ggc.core.util.Result;
 
@@ -63,7 +63,16 @@ class Warehouse implements Serializable {
 	private Map<CollationKey, Product> _products = new HashMap<>();
 
 	/// All batches
-	private MultiMap<Product, Batch> _batches = new MultiMap<>();
+	private SortedMultiMap<Product, Batch> _batches = new SortedMultiMap<>(new BatchComparator());
+
+	/// Comparator for ordering batches by cheapest
+	private class BatchComparator implements Comparator<Batch> {
+		@Override
+		public int compare(Batch lhs, Batch rhs) {
+			// TODO: Check if this should be backwards?
+			return Double.compare(lhs.getUnitPrice(), rhs.getUnitPrice());
+		}
+	}
 
 	/**
 	 * @param fileName
@@ -182,7 +191,8 @@ class Warehouse implements Serializable {
 				.collect(Collectors.toMap(partner -> getCollationKey(partner.getId()), partner -> partner));
 		_products = products.stream()
 				.collect(Collectors.toMap(product -> getCollationKey(product.getId()), product -> product));
-		_batches = batches.stream().map(batch -> new Pair<>(batch.getProduct(), batch)).collect(MultiMap.collector());
+		_batches = batches.stream().map(batch -> new Pair<>(batch.getProduct(), batch))
+				.collect(SortedMultiMap.collector(new BatchComparator()));
 	}
 
 	/// Returns the current date
@@ -309,8 +319,7 @@ class Warehouse implements Serializable {
 		// TODO: Figure out whether or not to "reset" to the previous state if an error occurs
 		// midway through, for now we assume we don't reset for simplicity
 
-		// Go through all our batches to find our product
-		// _batches
+		// Go through all batches involving this product
 
 		// TODO:
 		return null;
