@@ -8,8 +8,9 @@ import ggc.app.exception.UnknownPartnerKeyException;
 import ggc.app.exception.UnknownProductKeyException;
 import ggc.core.Product;
 import ggc.core.WarehouseManager;
+import ggc.core.exception.ProductAlreadyExistsException;
+import ggc.core.exception.UnknownProductIdException;
 import ggc.core.util.Pair;
-import ggc.core.util.StreamIterator;
 
 /**
  * Register order.
@@ -39,7 +40,11 @@ public class DoRegisterAcquisitionTransaction extends Command<WarehouseManager> 
 		var productId = super.stringField(PRODUCT_ID);
 		var product = _receiver.getProduct(productId).orElse(null);
 		if (product == null) {
-			product = createProductIfInexistent(productId);
+			try {
+				product = createProductIfInexistent(productId);
+			} catch (ProductAlreadyExistsException _e) {
+				// Note: Can't happen, we just checked it didn't exist
+			}
 		}
 
 		// Then register a new purchase
@@ -49,7 +54,8 @@ public class DoRegisterAcquisitionTransaction extends Command<WarehouseManager> 
 
 	}
 
-	private Product createProductIfInexistent(String productId) throws CommandException {
+	/// Creates a product if the supplied id wasn't valid.
+	private Product createProductIfInexistent(String productId) throws CommandException, ProductAlreadyExistsException {
 		// If the user wants to add a recipe, ask for all components
 		if (Form.confirm(Message.requestAddRecipe())) {
 			var componentsLen = Form.requestInteger(Message.requestNumberOfComponents());
@@ -59,21 +65,16 @@ public class DoRegisterAcquisitionTransaction extends Command<WarehouseManager> 
 							Form.requestInteger(Message.requestAmount())));
 
 			// Note: If we get none, a component didn't exist
-			return _receiver.registerDerivedProduct(productId, costFactor, recipeProducts).orElseThrow(() -> {
-				// Find which component didn't exist
-				for (var pair : StreamIterator.streamIt(recipeProducts)) {
-					if (!_receiver.getProduct(pair.getLhs()).isPresent()) {
-						return new UnknownProductKeyException(pair.getLhs());
-					}
-				}
-
-				return new UnknownProductKeyException(productId);
-			});
+			try {
+				return _receiver.registerDerivedProduct(productId, costFactor, recipeProducts);
+			} catch (UnknownProductIdException e) {
+				throw new UnknownProductKeyException(e.getProductId());
+			}
 		}
 
 		// Else add a simple product
 		else {
-			return _receiver.registerProduct(productId).orElseThrow(() -> new UnknownProductKeyException(productId));
+			return _receiver.registerProduct(productId);
 		}
 	}
 

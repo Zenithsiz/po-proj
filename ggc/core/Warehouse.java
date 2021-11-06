@@ -17,9 +17,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import ggc.core.exception.BadEntryException;
 import ggc.core.exception.ParsingException;
+import ggc.core.exception.ProductAlreadyExistsException;
 import ggc.core.exception.UnknownPartnerIdException;
 import ggc.core.exception.UnknownProductIdException;
 import ggc.core.util.Pair;
+import ggc.core.util.Result;
 
 /**
  * Class Warehouse implements a warehouse.
@@ -202,49 +204,41 @@ class Warehouse implements Serializable {
 	}
 
 	/// Registers a simple product given it's id
-	///
-	/// Returns the new product if successful, or empty if a product with the same name exists
-	public Optional<Product> registerProduct(String productId) {
-		// If we didn't have the product, insert it and return it
-		if (getProduct(productId).isEmpty()) {
-			var product = new Product(productId);
-			_products.put(getCollationKey(productId), product);
-			return Optional.of(product);
+	public Product registerProduct(String productId) throws ProductAlreadyExistsException {
+		// If we already had the product, throw
+		if (getProduct(productId).isPresent()) {
+			throw new ProductAlreadyExistsException(productId);
 		}
 
-		// Else return empty
-		return Optional.empty();
+		// Else create it, insert it and return
+		var product = new Product(productId);
+		_products.put(getCollationKey(productId), product);
+		return product;
 	}
 
 	/// Registers a derived product given it's id, alpha and all components by id
-	///
-	/// Returns the new product if successful, or empty if a product with the same name exists, or a component
-	/// can't be found.
-	public Optional<Product> registerDerivedProduct(String productId, double costFactor,
-			Stream<Pair<String, Integer>> recipeProducts) {
-		// If any of the recipe products don't exist, return empty
-		// Note: We do this regardless if the product exists to ensure that the user specified
-		// products which already exist
-		if (recipeProducts.anyMatch(pair -> getProduct(pair.getLhs()).isEmpty())) {
-			return Optional.empty();
+	public Product registerDerivedProduct(String productId, double costFactor,
+			Stream<Pair<String, Integer>> recipeProducts)
+			throws ProductAlreadyExistsException, UnknownProductIdException {
+		// If we already had the product, throw
+		if (getProduct(productId).isPresent()) {
+			throw new ProductAlreadyExistsException(productId);
 		}
 
-		// If we didn't have the product, insert it and return it
-		if (getProduct(productId).isEmpty()) {
-			// Get all product quantities
-			// Note: We've already checked all recipe products exist, so `Optional::get` won't throw
-			Map<Product, Integer> productQuantities = recipeProducts
-					.map(pair -> pair.mapLeft(this::getProduct).mapLeft(Optional::get)) //
-					.collect(Pair.toMapCollector());
+		// Else get all product quantities, or throw if one of them didn't exist
+		Map<Product, Integer> productQuantities = recipeProducts //
+				.map(pair -> pair.mapLeft(recipeProductId -> Result.fromOptional( //
+						getProduct(recipeProductId), //
+						() -> new UnknownProductIdException(recipeProductId) //
+				))) //
+				.collect(Pair.toResultMapCollector()) //
+				.getOrThrow();
 
-			Recipe recipe = new Recipe(productQuantities);
-			var product = new DerivedProduct(productId, recipe, costFactor);
-			_products.put(getCollationKey(productId), product);
-			return Optional.of(product);
-		}
-
-		// Else return empty
-		return Optional.empty();
+		// Then create the product, insert it and return
+		Recipe recipe = new Recipe(productQuantities);
+		var product = new DerivedProduct(productId, recipe, costFactor);
+		_products.put(getCollationKey(productId), product);
+		return product;
 	}
 
 	/// Returns a stream over all batches

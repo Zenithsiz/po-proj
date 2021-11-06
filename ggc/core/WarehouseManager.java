@@ -14,6 +14,8 @@ import java.io.FileOutputStream;
 import ggc.core.exception.BadEntryException;
 import ggc.core.exception.ImportFileException;
 import ggc.core.exception.ParsingException;
+import ggc.core.exception.ProductAlreadyExistsException;
+import ggc.core.exception.UnknownProductIdException;
 import ggc.core.util.Pair;
 import ggc.core.util.StreamIterator;
 
@@ -92,22 +94,18 @@ public class WarehouseManager {
 	}
 
 	/// Registers a simple product given it's id
-	///
-	/// Returns the new product if successful, or empty if a product with the same name exists
-	public Optional<Product> registerProduct(String productId) {
+	public Product registerProduct(String productId) throws ProductAlreadyExistsException {
 		var product = _warehouse.registerProduct(productId);
-		_warehouseIsDirty |= product.isPresent();
+		_warehouseIsDirty = true;
 		return product;
 	}
 
 	/// Registers a derived product given it's id, alpha and all components by id
-	///
-	/// Returns the new product if successful, or empty if a product with the same name exists, or a component
-	/// can't be found.
-	public Optional<Product> registerDerivedProduct(String productId, double costFactor,
-			Stream<Pair<String, Integer>> recipeProducts) {
+	public Product registerDerivedProduct(String productId, double costFactor,
+			Stream<Pair<String, Integer>> recipeProducts)
+			throws ProductAlreadyExistsException, UnknownProductIdException {
 		var product = _warehouse.registerDerivedProduct(productId, costFactor, recipeProducts);
-		_warehouseIsDirty |= product.isPresent();
+		_warehouseIsDirty = true;
 		return product;
 	}
 
