@@ -14,6 +14,7 @@ import java.io.FileOutputStream;
 import ggc.core.exception.BadEntryException;
 import ggc.core.exception.ImportFileException;
 import ggc.core.exception.ParsingException;
+import ggc.core.exception.PartnerAlreadyExistsException;
 import ggc.core.exception.ProductAlreadyExistsException;
 import ggc.core.exception.UnknownProductIdException;
 import ggc.core.util.Pair;
@@ -125,11 +126,10 @@ public class WarehouseManager {
 	}
 
 	/// Registers a new partner
-	///
-	/// Returns the new partner if successful, or empty if a partner with the same name exists
-	public Optional<Partner> registerPartner(String partnerId, String partnerName, String partnerAddress) {
+	public Partner registerPartner(String partnerId, String partnerName, String partnerAddress)
+			throws PartnerAlreadyExistsException {
 		var partner = _warehouse.registerPartner(partnerId, partnerName, partnerAddress);
-		_warehouseIsDirty |= partner.isPresent();
+		_warehouseIsDirty = true;
 		return partner;
 	}
 

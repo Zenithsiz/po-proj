@@ -4,6 +4,7 @@ import pt.tecnico.uilib.menus.Command;
 import pt.tecnico.uilib.menus.CommandException;
 import ggc.app.exception.DuplicatePartnerKeyException;
 import ggc.core.WarehouseManager;
+import ggc.core.exception.PartnerAlreadyExistsException;
 
 /**
  * Register new partner.
@@ -27,8 +28,12 @@ class DoRegisterPartner extends Command<WarehouseManager> {
 		String partnerId = super.stringField(PARTNER_ID);
 		String partnerName = super.stringField(PARTNER_NAME);
 		String partnerAddress = super.stringField(PARTNER_ADDRESS);
-		_receiver.registerPartner(partnerId, partnerName, partnerAddress)
-				.orElseThrow(() -> new DuplicatePartnerKeyException(partnerId));
+
+		try {
+			_receiver.registerPartner(partnerId, partnerName, partnerAddress);
+		} catch (PartnerAlreadyExistsException e) {
+			throw new DuplicatePartnerKeyException(partnerId);
+		}
 	}
 
 }

@@ -17,6 +17,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import ggc.core.exception.BadEntryException;
 import ggc.core.exception.ParsingException;
+import ggc.core.exception.PartnerAlreadyExistsException;
 import ggc.core.exception.ProductAlreadyExistsException;
 import ggc.core.exception.UnknownPartnerIdException;
 import ggc.core.exception.UnknownProductIdException;
@@ -257,18 +258,17 @@ class Warehouse implements Serializable {
 	}
 
 	/// Registers a new partner
-	///
-	/// Returns the new partner if successful, or empty is a partner with the same name exists
-	Optional<Partner> registerPartner(String partnerId, String partnerName, String partnerAddress) {
-		// If we didn't have the product, insert it and return it
-		if (getPartner(partnerId).isEmpty()) {
-			var partner = new Partner(partnerId, partnerName, partnerAddress);
-			_partners.put(getCollationKey(partnerId), partner);
-			return Optional.of(partner);
+	Partner registerPartner(String partnerId, String partnerName, String partnerAddress)
+			throws PartnerAlreadyExistsException {
+		// If we already had the partner, throw
+		if (getPartner(partnerId).isPresent()) {
+			throw new PartnerAlreadyExistsException(partnerId);
 		}
 
-		// Else return empty
-		return Optional.empty();
+		// Else create it, insert it and return
+		var partner = new Partner(partnerId, partnerName, partnerAddress);
+		_partners.put(getCollationKey(partnerId), partner);
+		return partner;
 	}
 
 	/// Toggles a partner's product notifications

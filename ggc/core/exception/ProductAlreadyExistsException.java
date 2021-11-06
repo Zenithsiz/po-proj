@@ -6,7 +6,7 @@ public class ProductAlreadyExistsException extends Exception {
 	private String _productId;
 
 	public ProductAlreadyExistsException(String productId) {
-		super("Product id already exists: " + productId);
+		super("Product already exists: " + productId);
 		_productId = productId;
 	}
 
