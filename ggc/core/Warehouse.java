@@ -21,6 +21,7 @@ import ggc.core.exception.PartnerAlreadyExistsException;
 import ggc.core.exception.ProductAlreadyExistsException;
 import ggc.core.exception.UnknownPartnerIdException;
 import ggc.core.exception.UnknownProductIdException;
+import ggc.core.util.MultiMap;
 import ggc.core.util.Pair;
 import ggc.core.util.Result;
 
@@ -62,7 +63,7 @@ class Warehouse implements Serializable {
 	private Map<CollationKey, Product> _products = new HashMap<>();
 
 	/// All batches
-	private List<Batch> _batches = new ArrayList<>();
+	private MultiMap<Product, Batch> _batches = new MultiMap<>();
 
 	/**
 	 * @param fileName
@@ -103,7 +104,7 @@ class Warehouse implements Serializable {
 
 			// And create a new batch
 			Batch batch = new Batch(product, quantity, partner, unitPrice);
-			_warehouse._batches.add(batch);
+			_warehouse._batches.put(product, batch);
 		}
 
 		@Override
@@ -141,7 +142,7 @@ class Warehouse implements Serializable {
 
 			// And create a new batch
 			Batch batch = new Batch(product, quantity, partner, unitPrice);
-			_warehouse._batches.add(batch);
+			_warehouse._batches.put(product, batch);
 		}
 
 	}
@@ -160,7 +161,7 @@ class Warehouse implements Serializable {
 		out.writeObject(_transactions);
 		out.writeObject(new ArrayList<>(_partners.values()));
 		out.writeObject(new ArrayList<>(_products.values()));
-		out.writeObject(_batches);
+		out.writeObject(_batches.valuesStream().toList());
 	}
 
 	@SuppressWarnings("unchecked") // We're doing a raw cast without being able to properly check the underlying class
@@ -181,7 +182,7 @@ class Warehouse implements Serializable {
 				.collect(Collectors.toMap(partner -> getCollationKey(partner.getId()), partner -> partner));
 		_products = products.stream()
 				.collect(Collectors.toMap(product -> getCollationKey(product.getId()), product -> product));
-		_batches = batches;
+		_batches = batches.stream().map(batch -> new Pair<>(batch.getProduct(), batch)).collect(MultiMap.collector());
 	}
 
 	/// Returns the current date
@@ -244,7 +245,7 @@ class Warehouse implements Serializable {
 
 	/// Returns a stream over all batches
 	Stream<Batch> getBatches() {
-		return _batches.stream();
+		return _batches.valuesStream();
 	}
 
 	/// Returns a stream over all partners
@@ -290,7 +291,7 @@ class Warehouse implements Serializable {
 	public Purchase registerPurchase(Partner partner, Product product, int quantity, double unitPrice) {
 		// Create the batch for this purchase and add it
 		var batch = new Batch(product, quantity, partner, unitPrice);
-		_batches.add(batch);
+		_batches.put(product, batch);
 
 		var paymentDate = 0; // TODO:
 
@@ -303,9 +304,21 @@ class Warehouse implements Serializable {
 		return purchase;
 	}
 
+	/// Registers a new sale
+	public Sale registerSale(Partner partner, Product product, int quantity, int deadline) {
+		// TODO: Figure out whether or not to "reset" to the previous state if an error occurs
+		// midway through, for now we assume we don't reset for simplicity
+
+		// Go through all our batches to find our product
+		// _batches
+
+		// TODO:
+		return null;
+	}
+
 	/// Returns the max price of a product
 	Optional<Double> productMaxPrice(Product product) {
-		return _batches.stream() //
+		return _batches.valuesStream() //
 				.filter(batch -> batch.getProduct() == product) //
 				.max(Batch::compareByUnitPrice) //
 				.map(Batch::getUnitPrice);
@@ -313,7 +326,7 @@ class Warehouse implements Serializable {
 
 	/// Returns the total quantity of a product
 	int productTotalQuantity(Product product) {
-		return _batches.stream() //
+		return _batches.valuesStream() //
 				.filter(batch -> batch.getProduct() == product) //
 				.mapToInt(Batch::getQuantity) //
 				.sum();
