@@ -2,6 +2,7 @@ package ggc.app.products;
 
 import pt.tecnico.uilib.menus.Command;
 import pt.tecnico.uilib.menus.CommandException;
+import ggc.app.exception.UnknownPartnerKeyException;
 import ggc.core.WarehouseManager;
 
 /**
@@ -18,8 +19,12 @@ class DoShowBatchesByPartner extends Command<WarehouseManager> {
 
 	@Override
 	public final void execute() throws CommandException {
-		String partnerId = super.stringField(PARTNER_ID);
-		ShowBatches.executeFilter(_receiver, _display, _receiver.batchFilterPartnerId(partnerId));
+		// Get the partner
+		var partnerId = super.stringField(PARTNER_ID);
+		var partner = _receiver.getPartner(partnerId).orElseThrow(() -> new UnknownPartnerKeyException(partnerId));
+
+		// Then display them
+		ShowBatches.executeFilter(_receiver, _display, _receiver.batchFilterPartner(partner));
 	}
 
 }

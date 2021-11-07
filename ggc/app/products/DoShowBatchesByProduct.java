@@ -2,6 +2,7 @@ package ggc.app.products;
 
 import pt.tecnico.uilib.menus.Command;
 import pt.tecnico.uilib.menus.CommandException;
+import ggc.app.exception.UnknownProductKeyException;
 import ggc.core.WarehouseManager;
 
 /**
@@ -18,8 +19,12 @@ class DoShowBatchesByProduct extends Command<WarehouseManager> {
 
 	@Override
 	public final void execute() throws CommandException {
-		String productId = super.stringField(PRODUCT_ID);
-		ShowBatches.executeFilter(_receiver, _display, _receiver.batchFilterProductId(productId));
+		// Get the product
+		var productId = super.stringField(PRODUCT_ID);
+		var product = _receiver.getProduct(productId).orElseThrow(() -> new UnknownProductKeyException(productId));
+
+		// Then display them
+		ShowBatches.executeFilter(_receiver, _display, _receiver.batchFilterProduct(product));
 	}
 
 }

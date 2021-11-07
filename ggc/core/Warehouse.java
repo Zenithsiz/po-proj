@@ -375,14 +375,14 @@ class Warehouse implements Serializable {
 				.thenComparing(Batch::getQuantity);
 	}
 
-	/// Returns a batch filter by it's partner id
-	Predicate<Batch> batchFilterPartnerId(String partnerId) {
-		return batch -> collator.equals(batch.getPartner().getId(), partnerId);
+	/// Returns a batch filter by it's partner
+	Predicate<Batch> batchFilterPartner(Partner partner) {
+		return batch -> batch.getPartner() == partner;
 	}
 
-	/// Returns a batch filter by it's product id
-	Predicate<Batch> batchFilterProductId(String productId) {
-		return batch -> collator.equals(batch.getProduct().getId(), productId);
+	/// Returns a batch filter by it's product
+	Predicate<Batch> batchFilterProduct(Product product) {
+		return batch -> batch.getProduct() == product;
 	}
 
 	/// Returns a batch filter by it's price

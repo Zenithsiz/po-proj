@@ -212,14 +212,14 @@ public class WarehouseManager {
 		return _warehouse.batchComparator();
 	}
 
-	/// Returns a batch filter by it's partner id
-	public Predicate<Batch> batchFilterPartnerId(String partnerId) {
-		return _warehouse.batchFilterPartnerId(partnerId);
+	/// Returns a batch filter by it's partner
+	public Predicate<Batch> batchFilterPartner(Partner partner) {
+		return _warehouse.batchFilterPartner(partner);
 	}
 
-	/// Returns a batch filter by it's product id
-	public Predicate<Batch> batchFilterProductId(String productId) {
-		return _warehouse.batchFilterProductId(productId);
+	/// Returns a batch filter by it's product
+	public Predicate<Batch> batchFilterProduct(Product product) {
+		return _warehouse.batchFilterProduct(product);
 	}
 
 	/// Returns a batch filter by it's price
