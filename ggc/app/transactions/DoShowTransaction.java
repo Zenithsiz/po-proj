@@ -13,6 +13,7 @@ public class DoShowTransaction extends Command<WarehouseManager> {
 
 	public DoShowTransaction(WarehouseManager receiver) {
 		super(Label.SHOW_TRANSACTION, receiver);
+
 		super.addIntegerField(TRANSACTION_ID, Message.requestTransactionKey());
 	}
 
