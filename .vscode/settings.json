@@ -15,5 +15,8 @@
 	"files.exclude": {
 		"**/*.class": true
 	},
-	"editor.detectIndentation": false
+	"editor.detectIndentation": false,
+	"cSpell.enableFiletypes": [
+		"!plaintext"
+	]
 }

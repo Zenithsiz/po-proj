@@ -1,14 +1,14 @@
 package ggc.core.util;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -16,10 +16,11 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-/// A map from a key `K` to a set of sorted values `V`.
+/// A map from a key `K` to a list of sorted values `V`.
 public class SortedMultiMap<K, V> {
-	/// The underlying implementation as a map of sorted sets
-	private Map<K, SortedSet<V>> _map = new HashMap<>();
+	/// The underlying implementation as a map of sorted lists
+	// Note: Can't be a set, as we can have multiple equal keys
+	private Map<K, List<V>> _map = new HashMap<>();
 
 	/// Comparator
 	private Comparator<? super V> _comparator;
@@ -30,11 +31,19 @@ public class SortedMultiMap<K, V> {
 
 	/// Inserts a new value into the map
 	public void put(K key, V value) {
-		_map.computeIfAbsent(key, _key -> new TreeSet<>(_comparator)).add(value);
+		// Get the list, or create it
+		var list = _map.computeIfAbsent(key, _key -> new ArrayList<>());
+
+		// Then find the right position to add this value at
+		// Note: The return value is negative if it wasn't found, but it
+		//       contains the correct index to insert it at (-1) such that the
+		//       list remains sorted.
+		var insertionIdx = Collections.binarySearch(list, value, _comparator);
+		list.add(insertionIdx >= 0 ? insertionIdx : -(insertionIdx + 1), value);
 	}
 
 	/// Retrieves all values associated with a key
-	public Optional<SortedSet<V>> get(K key) {
+	public Optional<List<V>> get(K key) {
 		return Optional.ofNullable(_map.get(key));
 	}
 
