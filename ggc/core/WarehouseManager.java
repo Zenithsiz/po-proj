@@ -112,9 +112,9 @@ public class WarehouseManager {
 
 	/// Registers a derived product given it's id, alpha and all components by id
 	public Product registerDerivedProduct(String productId, double costFactor,
-			Stream<Pair<String, Integer>> recipeProducts)
+			Stream<Pair<String, Integer>> productQuantities)
 			throws ProductAlreadyExistsException, UnknownProductIdException {
-		var product = _warehouse.registerDerivedProduct(productId, costFactor, recipeProducts);
+		var product = _warehouse.registerDerivedProduct(productId, costFactor, productQuantities);
 		_warehouseIsDirty = true;
 		return product;
 	}

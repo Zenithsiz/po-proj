@@ -44,8 +44,8 @@ public class CreditSale extends Sale {
 	public String format(PackagePrivateWarehouseManagerWrapper warehouseManager) {
 		var partner = getPartner();
 		var product = getProduct();
-		var baseString = new StringBuilder(String.format("VENDA|%d|%s|%s|%d|%d|0.0|%d", getId(), partner.getId(),
-				product.getId(), getAmount(), Math.round(getTotalPrice()), getDeadline()));
+		var baseString = new StringBuilder(String.format("VENDA|%d|%s|%s|%d|%.0f|0.0|%d", getId(), partner.getId(),
+				product.getId(), getAmount(), getTotalPrice(), getDeadline()));
 
 		if (_paidAmount.isPresent()) {
 			baseString.append(String.format("|%d", getPaymentDate()));

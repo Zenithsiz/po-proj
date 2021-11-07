@@ -12,7 +12,7 @@ public class Purchase extends Transaction {
 	public String format(PackagePrivateWarehouseManagerWrapper warehouseManager) {
 		var partner = getPartner();
 		var product = getProduct();
-		return String.format("COMPRA|%d|%s|%s|%d|%f|%d", getId(), partner.getId(), product.getId(), getAmount(),
+		return String.format("COMPRA|%d|%s|%s|%d|%.0f|%d", getId(), partner.getId(), product.getId(), getAmount(),
 				getTotalPrice(), getPaymentDate());
 	}
 

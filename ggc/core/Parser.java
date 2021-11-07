@@ -99,15 +99,15 @@ class Parser {
 		double unitPrice = Integer.parseInt(args[3]);
 		int quantity = Integer.parseInt(args[4]);
 		double costFactor = Double.parseDouble(args[5]);
-		String allRecipeProducts = args[6];
+		String allProductQuantities = args[6];
 
 		// Get all recipe products/quantities by separating on `#`s, then separate
 		// them to parse the quantities and collect them into a map.
-		var recipeProducts = Arrays.stream(allRecipeProducts.split("#")) //
+		var productQuantities = Arrays.stream(allProductQuantities.split("#")) //
 				.map(recipeProduct -> recipeProduct.split(":")) //
 				.map(Pair::fromArray) //
 				.map(pair -> pair.mapRight(Integer::parseInt));
 
-		visitor.visitDerivedBatch(productId, partnerId, quantity, unitPrice, costFactor, recipeProducts);
+		visitor.visitDerivedBatch(productId, partnerId, quantity, unitPrice, costFactor, productQuantities);
 	}
 }

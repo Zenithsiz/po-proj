@@ -60,13 +60,13 @@ public class DoRegisterAcquisitionTransaction extends Command<WarehouseManager> 
 		if (Form.confirm(Message.requestAddRecipe())) {
 			var componentsLen = Form.requestInteger(Message.requestNumberOfComponents());
 			var costFactor = Form.requestReal(Message.requestAlpha());
-			var recipeProducts = IntStream.range(0, componentsLen)
+			var productQuantities = IntStream.range(0, componentsLen)
 					.mapToObj(_idx -> new Pair<String, Integer>(Form.requestString(Message.requestProductKey()),
 							Form.requestInteger(Message.requestAmount())));
 
 			// Note: If we get none, a component didn't exist
 			try {
-				return _receiver.registerDerivedProduct(productId, costFactor, recipeProducts);
+				return _receiver.registerDerivedProduct(productId, costFactor, productQuantities);
 			} catch (UnknownProductIdException e) {
 				throw new UnknownProductKeyException(e.getProductId());
 			}

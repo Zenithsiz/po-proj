@@ -14,5 +14,5 @@ interface ParserVisitor {
 
 	/// Visits a batch of derived products
 	void visitDerivedBatch(String productId, String partnerId, int quantity, double unitPrice, double costFactor,
-			Stream<Pair<String, Integer>> recipeProducts) throws Exception;
+			Stream<Pair<String, Integer>> productIdQuantities) throws Exception;
 }

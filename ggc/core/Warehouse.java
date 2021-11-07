@@ -23,7 +23,6 @@ import ggc.core.exception.UnknownPartnerIdException;
 import ggc.core.exception.UnknownProductIdException;
 import ggc.core.util.SortedMultiMap;
 import ggc.core.util.Pair;
-import ggc.core.util.Result;
 
 /**
  * Class Warehouse implements a warehouse.
@@ -122,12 +121,12 @@ class Warehouse implements Serializable {
 
 		@Override
 		public void visitDerivedBatch(String productId, String partnerId, int quantity, double unitPrice,
-				double costFactor, Stream<Pair<String, Integer>> recipeProducts)
+				double costFactor, Stream<Pair<String, Integer>> productQuantities)
 				throws UnknownPartnerIdException, UnknownProductIdException, ProductAlreadyExistsException {
 			// Get the product or register it
 			Product product = _warehouse.getProduct(productId).orElse(null);
 			if (product == null) {
-				product = _warehouse.registerDerivedProduct(productId, costFactor, recipeProducts);
+				product = _warehouse.registerDerivedProduct(productId, costFactor, productQuantities);
 			}
 
 			// Then get the partner and create a new batch for it
@@ -212,24 +211,16 @@ class Warehouse implements Serializable {
 	}
 
 	/// Registers a derived product given it's id, alpha and all components by id
-	Product registerDerivedProduct(String productId, double costFactor, Stream<Pair<String, Integer>> recipeProducts)
+	Product registerDerivedProduct(String productId, double costFactor,
+			Stream<Pair<String, Integer>> productIdQuantities)
 			throws ProductAlreadyExistsException, UnknownProductIdException {
 		// If we already had the product, throw
 		if (getProduct(productId).isPresent()) {
 			throw new ProductAlreadyExistsException(productId);
 		}
 
-		// Else get all product quantities, or throw if one of them didn't exist
-		Map<Product, Integer> productQuantities = recipeProducts //
-				.map(pair -> pair.mapLeft(recipeProductId -> Result.fromOptional( //
-						getProduct(recipeProductId), //
-						() -> new UnknownProductIdException(recipeProductId) //
-				))) //
-				.collect(Pair.toResultMapCollector()) //
-				.getOrThrow(UnknownProductIdException.class);
-
-		// Then create the product, insert it and return
-		Recipe recipe = new Recipe(productQuantities);
+		// Else create the product, insert it and return
+		var recipe = Recipe.fromProductIds(productIdQuantities, this::getProduct);
 		var product = new DerivedProduct(productId, recipe, costFactor);
 		_products.put(getCollationKey(productId), product);
 		return product;

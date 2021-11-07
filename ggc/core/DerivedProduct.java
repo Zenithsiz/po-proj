@@ -30,6 +30,8 @@ public class DerivedProduct extends Product {
 	/// Returns extra fields to format the product with
 	@Override
 	protected Stream<String> extraFormatFields() {
-		return Stream.of(Double.toString(_costFactor), _recipe.toString());
+		// TODO: The tests don't have the cost factor, but the standard says it should be there, which one to do?
+		//return Stream.of(Double.toString(_costFactor), _recipe.toString());
+		return Stream.of(_recipe.toString());
 	}
 }
