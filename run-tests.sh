@@ -7,19 +7,21 @@ let correct=0
 ./build.sh
 
 for x in tests/*.in; do
+	echo -n "$x: "
+	
 	if [ -e ${x%.in}.import ]; then
-		java -cp :po-uilib.jar:. -Dimport=${x%.in}.import -Din=$x -Dout=${x%.in}.outhyp ggc.app.App
+		java -cp :po-uilib.jar:. -Dimport=${x%.in}.import -Din=$x -Dout=${x%.in}.outhyp ggc.app.App || break
 	else
-		java -cp po-uilib.jar:. -Din=$x -Dout=${x%.in}.outhyp ggc.app.App
+		java -cp po-uilib.jar:. -Din=$x -Dout=${x%.in}.outhyp ggc.app.App || break
 	fi
 
 	diff -cwB ${x%.in}.out ${x%.in}.outhyp > ${x%.in}.diff
 	if [ -s ${x%.in}.diff ]; then
-		echo -n "F"
+		echo "Fail"
 		failures=$failures"Fail: $x: See file ${x%.in}.diff\n"
 	else
 		let correct++
-		echo -n "."
+		echo "Ok"
 		rm -f ${x%.in}.diff ${x%.in}.outhyp
 	fi
 	let total++
@@ -27,6 +29,7 @@ done
 
 # Remove any remaining `app*.dat` files
 rm -f app*.dat
+rm -f esgotado.ggc
 
 let res=100*$correct/$total
 echo ""
