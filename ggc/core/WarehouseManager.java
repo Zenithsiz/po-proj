@@ -182,6 +182,13 @@ public class WarehouseManager {
 		return sale;
 	}
 
+	/// Registers a new breakdown
+	public Sale registerBreakdown(Partner partner, Product product, int quantity) {
+		var sale = _warehouse.registerBreakdown(partner, product, quantity);
+		_warehouseIsDirty = true;
+		return sale;
+	}
+
 	/// Returns the max price of a product
 	///
 	/// Returns `Optional.EMPTY` if `product` does not exist

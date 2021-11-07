@@ -362,6 +362,12 @@ class Warehouse implements Serializable {
 		return null;
 	}
 
+	/// Registers a new breakdown
+	public Sale registerBreakdown(Partner partner, Product product, int quantity) {
+		// TODO:
+		return null;
+	}
+
 	/// Returns the max price of a product
 	Optional<Double> productMaxPrice(Product product) {
 		return _batches.valuesStream() //
