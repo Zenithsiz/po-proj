@@ -118,7 +118,7 @@ public class Pair<L, R> {
 
 		@Override
 		public Set<Characteristics> characteristics() {
-			return Collections.unmodifiableSet(EnumSet.of(Collector.Characteristics.IDENTITY_FINISH));
+			return Collections.emptySet();
 		}
 
 		/// Helper class to contain a `Result<HashMap<Lhs, Rhs>>` so we can set it to `Err` in the functions above

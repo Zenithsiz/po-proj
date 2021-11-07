@@ -136,7 +136,6 @@ public interface Result<T> {
 
 		public <E2 extends Throwable> T getOrThrow(Class<E2> errClass) throws E2, ClassCastException {
 			throw errClass.cast(_err);
-
 		}
 
 		public Result<T> getOkOrElse(Supplier<Result<T>> onErr) {
