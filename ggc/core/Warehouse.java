@@ -299,6 +299,10 @@ class Warehouse implements Serializable {
 		partner.addPurchase(purchase);
 		_transactions.add(purchase);
 
+		// And update our balance
+		_availableBalance -= unitPrice * quantity;
+		_accountingBalance -= unitPrice * quantity;
+
 		// If this is a new batch of an empty product, emit a `NEW` notification
 		if (prevProductQuantity == quantity) {
 
@@ -310,8 +314,10 @@ class Warehouse implements Serializable {
 			}
 		}
 
-		// If this product is the cheapest of all other products, emit a `BARGAIN` notification
-		if (prevLowestPrice.isEmpty() || unitPrice < prevLowestPrice.get()) {
+		// If this product is the cheapest of all other batches, and isn't the only batch,
+		// emit a `BARGAIN` notification
+		if (_batches.get(product).get().size() > 1
+				&& (prevLowestPrice.isEmpty() || unitPrice < prevLowestPrice.get())) {
 			for (var notificationPartner : _partners.values()) {
 				if (!notificationPartner.isProductNotificationBlacklisted(product)) {
 					var notification = new Notification(batch, "BARGAIN");
