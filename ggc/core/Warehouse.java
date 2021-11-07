@@ -293,6 +293,10 @@ class Warehouse implements Serializable {
 
 	/// Registers a new purchase
 	Purchase registerPurchase(Partner partner, Product product, int quantity, double unitPrice) {
+		// Get the previous quantities and lowest price
+		var prevProductQuantity = productTotalQuantity(product);
+		var prevLowestPrice = productMinPrice(product);
+
 		// Create the batch for this purchase and add it
 		var batch = new Batch(product, quantity, partner, unitPrice);
 		_batches.put(product, batch);
@@ -303,6 +307,27 @@ class Warehouse implements Serializable {
 		_nextTransactionId++;
 		partner.addPurchase(purchase);
 		_transactions.add(purchase);
+
+		// If this is a new batch of an empty product, emit a `NEW` notification
+		if (prevProductQuantity == quantity) {
+
+			for (var notificationPartner : _partners.values()) {
+				if (!notificationPartner.isProductNotificationBlacklisted(product)) {
+					var notification = new Notification(batch, "NEW");
+					notificationPartner.addNotifications(notification);
+				}
+			}
+		}
+
+		// If this product is the cheapest of all other products, emit a `BARGAIN` notification
+		if (prevLowestPrice.isEmpty() || unitPrice < prevLowestPrice.get()) {
+			for (var notificationPartner : _partners.values()) {
+				if (!notificationPartner.isProductNotificationBlacklisted(product)) {
+					var notification = new Notification(batch, "BARGAIN");
+					notificationPartner.addNotifications(notification);
+				}
+			}
+		}
 
 		return purchase;
 	}
@@ -349,18 +374,29 @@ class Warehouse implements Serializable {
 
 	/// Returns the max price of a product
 	Optional<Double> productMaxPrice(Product product) {
-		return _batches.valuesStream() //
-				.filter(batch -> batch.getProduct() == product) //
-				.max(Batch::compareByUnitPrice) //
-				.map(Batch::getUnitPrice);
+		return _batches.get(product) //
+				.map(batches -> batches.stream() //
+						.max(Batch::compareByUnitPrice) //
+						.map(Batch::getUnitPrice) //
+				).orElse(Optional.empty());
+	}
+
+	/// Returns the min price of a product
+	Optional<Double> productMinPrice(Product product) {
+		return _batches.get(product) //
+				.map(batches -> batches.stream() //
+						.min(Batch::compareByUnitPrice) //
+						.map(Batch::getUnitPrice) //
+				).orElse(Optional.empty());
 	}
 
 	/// Returns the total quantity of a product
 	int productTotalQuantity(Product product) {
-		return _batches.valuesStream() //
-				.filter(batch -> batch.getProduct() == product) //
-				.mapToInt(Batch::getQuantity) //
-				.sum();
+		return _batches.get(product) //
+				.map(batches -> batches.stream() //
+						.mapToInt(Batch::getQuantity) //
+						.sum() //
+				).orElse(0);
 	}
 
 	/// Returns a product comparator by it's id

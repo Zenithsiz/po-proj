@@ -97,9 +97,14 @@ public class Partner implements Serializable, WarehouseFormattable {
 		_sales.add(sale);
 	}
 
+	/// Adds a notification
+	public void addNotifications(Notification notification) {
+		_pendingNotifications.add(notification);
+	}
+
 	/// Returns all pending notifications and clears them
 	List<Notification> clearPendingNotifications() {
-		List<Notification> notifications = _pendingNotifications;
+		var notifications = _pendingNotifications;
 		_pendingNotifications = new ArrayList<>();
 		return notifications;
 	}
