@@ -212,12 +212,12 @@ class Warehouse implements Serializable {
 	}
 
 	/// Returns the available balance
-	public double getAvailableBalance() {
+	double getAvailableBalance() {
 		return _availableBalance;
 	}
 
 	/// Returns the accounting balance
-	public double getAccountingBalance() {
+	double getAccountingBalance() {
 		return _accountingBalance;
 	}
 
@@ -232,7 +232,7 @@ class Warehouse implements Serializable {
 	}
 
 	/// Registers a simple product given it's id
-	public Product registerProduct(String productId) throws ProductAlreadyExistsException {
+	Product registerProduct(String productId) throws ProductAlreadyExistsException {
 		// If we already had the product, throw
 		if (getProduct(productId).isPresent()) {
 			throw new ProductAlreadyExistsException(productId);
@@ -245,7 +245,7 @@ class Warehouse implements Serializable {
 	}
 
 	/// Registers a derived product given it's id, alpha and all components by id
-	public Product registerDerivedProduct(String productId, double costFactor,
+	Product registerDerivedProduct(String productId, double costFactor,
 			Stream<Pair<String, Integer>> recipeProducts)
 			throws ProductAlreadyExistsException, UnknownProductIdException {
 		// If we already had the product, throw
@@ -285,12 +285,12 @@ class Warehouse implements Serializable {
 	}
 
 	/// Returns a partner's purchases
-	public Stream<Purchase> getPartnerPurchases(Partner partner) {
+	Stream<Purchase> getPartnerPurchases(Partner partner) {
 		return partner.getPurchases();
 	}
 
 	/// Returns a partner's sales
-	public Stream<Sale> getPartnerSales(Partner partner) {
+	Stream<Sale> getPartnerSales(Partner partner) {
 		return partner.getSales();
 	}
 
@@ -324,7 +324,7 @@ class Warehouse implements Serializable {
 	}
 
 	/// Registers a new purchase
-	public Purchase registerPurchase(Partner partner, Product product, int quantity, double unitPrice) {
+	Purchase registerPurchase(Partner partner, Product product, int quantity, double unitPrice) {
 		// Create the batch for this purchase and add it
 		var batch = new Batch(product, quantity, partner, unitPrice);
 		_batches.put(product, batch);
@@ -341,7 +341,7 @@ class Warehouse implements Serializable {
 	}
 
 	/// Registers a new sale
-	public Sale registerSale(Partner partner, Product product, int quantity, int deadline) {
+	Sale registerSale(Partner partner, Product product, int quantity, int deadline) {
 		// TODO: Figure out whether or not to "reset" to the previous state if an error occurs
 		// midway through, for now we assume we don't reset for simplicity
 
@@ -363,7 +363,7 @@ class Warehouse implements Serializable {
 	}
 
 	/// Registers a new breakdown
-	public Sale registerBreakdown(Partner partner, Product product, int quantity) {
+	Sale registerBreakdown(Partner partner, Product product, int quantity) {
 		// TODO:
 		return null;
 	}
@@ -385,41 +385,40 @@ class Warehouse implements Serializable {
 	}
 
 	/// Returns a product comparator by it's id
-	static Comparator<Product> productComparator() {
+	Comparator<Product> productComparator() {
 		return Comparator.comparing(product -> getCollationKey(product.getId()));
 	}
 
 	/// Returns a batch comparator by it's product id, partner id, unit price and then quantity
-	static Comparator<Batch> batchComparator() {
+	Comparator<Batch> batchComparator() {
 		return Comparator.<Batch, CollationKey>comparing(batch -> getCollationKey(batch.getProduct().getId()))
 				.thenComparing(batch -> getCollationKey(batch.getPartner().getId())).thenComparing(Batch::getUnitPrice)
 				.thenComparing(Batch::getQuantity);
 	}
 
 	/// Returns a batch filter by it's partner id
-	static Predicate<Batch> batchFilterPartnerId(String partnerId) {
+	Predicate<Batch> batchFilterPartnerId(String partnerId) {
 		return batch -> collator.equals(batch.getPartner().getId(), partnerId);
 	}
 
 	/// Returns a batch filter by it's product id
-	static Predicate<Batch> batchFilterProductId(String productId) {
+	Predicate<Batch> batchFilterProductId(String productId) {
 		return batch -> collator.equals(batch.getProduct().getId(), productId);
 	}
 
 	/// Returns a batch filter by it's price
-	static Predicate<Batch> batchFilterPrice(Predicate<Double> predicate) {
+	Predicate<Batch> batchFilterPrice(Predicate<Double> predicate) {
 		return batch -> predicate.test(batch.getUnitPrice());
 	}
 
 	/// Returns a partner comparator by it's id
-	static Comparator<Partner> partnerComparator() {
+	Comparator<Partner> partnerComparator() {
 		// Note: Id is unique, so we don't need to compare by anything else
 		return Comparator.comparing(partner -> getCollationKey(partner.getId()));
 	}
 
 	/// Returns a sale filter for paid sales
-	// TODO: Make all of these non-static.
-	public static Predicate<Sale> saleFilterPaid() {
+	Predicate<Sale> saleFilterPaid() {
 		return sale -> sale.isPaid();
 	}
 }

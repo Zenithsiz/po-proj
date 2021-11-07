@@ -19,7 +19,7 @@ class DoShowBatchesByProduct extends Command<WarehouseManager> {
 	@Override
 	public final void execute() throws CommandException {
 		String productId = super.stringField(PRODUCT_ID);
-		ShowBatches.executeFilter(_receiver, _display, WarehouseManager.batchFilterProductId(productId));
+		ShowBatches.executeFilter(_receiver, _display, _receiver.batchFilterProductId(productId));
 	}
 
 }

@@ -203,39 +203,38 @@ public class WarehouseManager {
 	}
 
 	/// Returns a batch comparator by product id
-	public static Comparator<Product> productComparator() {
-		return Warehouse.productComparator();
+	public Comparator<Product> productComparator() {
+		return _warehouse.productComparator();
 	}
 
 	/// Returns a batch comparator by product id, partner id, unit price and then quantity
-	public static Comparator<Batch> batchComparator() {
-		return Warehouse.batchComparator();
+	public Comparator<Batch> batchComparator() {
+		return _warehouse.batchComparator();
 	}
 
 	/// Returns a batch filter by it's partner id
-	public static Predicate<Batch> batchFilterPartnerId(String partnerId) {
-		return Warehouse.batchFilterPartnerId(partnerId);
+	public Predicate<Batch> batchFilterPartnerId(String partnerId) {
+		return _warehouse.batchFilterPartnerId(partnerId);
 	}
 
 	/// Returns a batch filter by it's product id
-	public static Predicate<Batch> batchFilterProductId(String productId) {
-		return Warehouse.batchFilterProductId(productId);
+	public Predicate<Batch> batchFilterProductId(String productId) {
+		return _warehouse.batchFilterProductId(productId);
 	}
 
 	/// Returns a batch filter by it's price
-	public static Predicate<Batch> batchFilterPrice(Predicate<Double> predicate) {
-		return Warehouse.batchFilterPrice(predicate);
+	public Predicate<Batch> batchFilterPrice(Predicate<Double> predicate) {
+		return _warehouse.batchFilterPrice(predicate);
 	}
 
 	/// Returns a partner comparator
-	public static Comparator<Partner> partnerComparator() {
-		return Warehouse.partnerComparator();
+	public Comparator<Partner> partnerComparator() {
+		return _warehouse.partnerComparator();
 	}
 
 	/// Returns a sale filter for paid sales
-	// TODO: Make all of these non-static.
-	public static Predicate<Sale> saleFilterPaid() {
-		return Warehouse.saleFilterPaid();
+	public Predicate<Sale> saleFilterPaid() {
+		return _warehouse.saleFilterPaid();
 	}
 
 	/// Clears pending partner notifications and returns them

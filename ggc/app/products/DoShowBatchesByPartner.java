@@ -19,7 +19,7 @@ class DoShowBatchesByPartner extends Command<WarehouseManager> {
 	@Override
 	public final void execute() throws CommandException {
 		String partnerId = super.stringField(PARTNER_ID);
-		ShowBatches.executeFilter(_receiver, _display, WarehouseManager.batchFilterPartnerId(partnerId));
+		ShowBatches.executeFilter(_receiver, _display, _receiver.batchFilterPartnerId(partnerId));
 	}
 
 }

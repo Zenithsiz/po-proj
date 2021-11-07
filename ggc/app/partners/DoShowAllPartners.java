@@ -18,7 +18,7 @@ class DoShowAllPartners extends Command<WarehouseManager> {
 
 	@Override
 	public void execute() throws CommandException {
-		Stream<Partner> partners = _receiver.getPartners().sorted(WarehouseManager.partnerComparator());
+		Stream<Partner> partners = _receiver.getPartners().sorted(_receiver.partnerComparator());
 		for (var partner : StreamIterator.streamIt(partners)) {
 			_display.addLine(_receiver.format(partner));
 		}

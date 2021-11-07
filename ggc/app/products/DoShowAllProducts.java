@@ -20,7 +20,7 @@ class DoShowAllProducts extends Command<WarehouseManager> {
 
 	@Override
 	public final void execute() throws CommandException {
-		Stream<Product> products = _receiver.getProducts().sorted(WarehouseManager.productComparator());
+		Stream<Product> products = _receiver.getProducts().sorted(_receiver.productComparator());
 		for (var product : StreamIterator.streamIt(products)) {
 			_display.addLine(_receiver.format(product));
 		}

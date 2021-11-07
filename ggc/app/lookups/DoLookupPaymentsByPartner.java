@@ -25,7 +25,7 @@ public class DoLookupPaymentsByPartner extends Command<WarehouseManager> {
 		var partner = _receiver.getPartner(partnerId).orElseThrow(() -> new UnknownPartnerKeyException(partnerId));
 
 		// Filter all sales that are paid
-		var sales = _receiver.getPartnerSales(partner).filter(WarehouseManager.saleFilterPaid());
+		var sales = _receiver.getPartnerSales(partner).filter(_receiver.saleFilterPaid());
 
 		// Then get their sales and display them
 		for (var sale : StreamIterator.streamIt(sales)) {

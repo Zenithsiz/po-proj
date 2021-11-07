@@ -22,8 +22,7 @@ public class DoLookupProductBatchesUnderGivenPrice extends Command<WarehouseMana
 		// Get all batches under the price limit
 		var priceLimit = super.integerField(PRICE_LIMIT);
 		var batches = _receiver.getBatches() //
-				.filter(WarehouseManager.batchFilterPrice(price -> price < priceLimit))
-				.sorted(WarehouseManager.batchComparator());
+				.filter(_receiver.batchFilterPrice(price -> price < priceLimit)).sorted(_receiver.batchComparator());
 
 		// Then display them all
 		for (var batch : StreamIterator.streamIt(batches)) {

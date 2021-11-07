@@ -12,7 +12,7 @@ class ShowBatches {
 	/// Shows all batches from `receiver` to `display`, filtering using `predicate`.
 	public static final void executeFilter(WarehouseManager receiver, Display display,
 			Predicate<? super Batch> predicate) {
-		Stream<Batch> batches = receiver.getBatches().filter(predicate).sorted(WarehouseManager.batchComparator());
+		Stream<Batch> batches = receiver.getBatches().filter(predicate).sorted(receiver.batchComparator());
 		for (var batch : StreamIterator.streamIt(batches)) {
 			display.addLine(receiver.format(batch));
 		}
