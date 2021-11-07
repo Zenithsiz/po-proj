@@ -209,7 +209,6 @@ public class WarehouseManager {
 
 	/// Formats a value
 	public <T extends WarehouseFormattable> String format(T value) {
-		// Note: Formatting won't
-		return value.format(new ConstWarehouse(_warehouse));
+		return value.format(new PackagePrivateWarehouseManagerWrapper(this));
 	}
 }

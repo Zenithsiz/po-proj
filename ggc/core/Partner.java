@@ -131,7 +131,7 @@ public class Partner implements Serializable, WarehouseFormattable {
 	}
 
 	@Override
-	public String format(ConstWarehouse warehouse) {
+	public String format(PackagePrivateWarehouseManagerWrapper warehouseManager) {
 		double totalPurchases = _purchases.stream().mapToDouble(Transaction::getTotalPrice).sum();
 		double totalSales = 0.0;
 		double totalSalesPaid = 0.0;

@@ -54,7 +54,7 @@ public class Batch implements Serializable, WarehouseFormattable {
 	}
 
 	@Override
-	public String format(ConstWarehouse warehouse) {
+	public String format(PackagePrivateWarehouseManagerWrapper warehouseManager) {
 		return String.format("%s|%s|%.0f|%d", _product.getId(), _partner.getId(), _unitPrice, _quantity);
 	}
 }

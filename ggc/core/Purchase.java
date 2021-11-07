@@ -9,7 +9,7 @@ public class Purchase extends Transaction {
 	}
 
 	@Override
-	public String format(ConstWarehouse warehouse) {
+	public String format(PackagePrivateWarehouseManagerWrapper warehouseManager) {
 		var partner = getPartner();
 		var product = getProduct();
 		return String.format("COMPRA|%d|%s|%s|%d|%f|%d", getId(), partner.getId(), product.getId(), getAmount(),

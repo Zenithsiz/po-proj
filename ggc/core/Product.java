@@ -28,11 +28,11 @@ public class Product implements Serializable, WarehouseFormattable {
 		return Stream.empty();
 	}
 
-	public String format(ConstWarehouse warehouse) {
+	public String format(PackagePrivateWarehouseManagerWrapper warehouseManager) {
 		// Get the our max price and total quantity
 		// Note: If no batches exist, there is no max price, and so we'll return 0
-		double maxPrice = warehouse.productMaxPrice(this).orElse(0.0);
-		int quantity = warehouse.productTotalQuantity(this);
+		double maxPrice = warehouseManager.getWarehouseManager().productMaxPrice(this).orElse(0.0);
+		int quantity = warehouseManager.getWarehouseManager().productTotalQuantity(this);
 
 		// Create the base string
 		StringBuilder repr = new StringBuilder(String.format("%s|%.0f|%d", _id, maxPrice, quantity));
