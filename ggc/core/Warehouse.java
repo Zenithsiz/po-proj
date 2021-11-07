@@ -286,7 +286,9 @@ class Warehouse implements Serializable {
 
 	/// Returns a transaction given it's id
 	Optional<Transaction> getTransaction(int transactionId) {
-		return transactionId < _transactions.size() ? Optional.of(_transactions.get(transactionId)) : Optional.empty();
+		return transactionId >= 0 && transactionId < _transactions.size()
+				? Optional.of(_transactions.get(transactionId))
+				: Optional.empty();
 	}
 
 	/// Registers a new purchase
