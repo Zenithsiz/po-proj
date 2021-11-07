@@ -60,13 +60,19 @@ class Warehouse implements Serializable {
 	private List<Transaction> _transactions = new ArrayList<>();
 
 	/// All partners
-	private Map<CollationKey, Partner> _partners = new HashMap<>();
+	// Note: `transient` as `CollationKey`s aren't [de]serializable and the keys
+	//       are redundant either way.
+	private transient Map<CollationKey, Partner> _partners = new HashMap<>();
 
 	/// All products
-	private Map<CollationKey, Product> _products = new HashMap<>();
+	// Note: `transient` as `CollationKey`s aren't [de]serializable and the keys
+	//       are redundant either way.
+	private transient Map<CollationKey, Product> _products = new HashMap<>();
 
 	/// All batches
-	private SortedMultiMap<Product, Batch> _batches = new SortedMultiMap<>(new BatchComparator());
+	// Note: `transient` as `SortedMultiMap` isn't [de]serializable and the keys
+	//       are redundant either way.
+	private transient SortedMultiMap<Product, Batch> _batches = new SortedMultiMap<>(new BatchComparator());
 
 	/// Comparator for ordering batches by cheapest
 	private class BatchComparator implements Comparator<Batch> {
@@ -139,13 +145,8 @@ class Warehouse implements Serializable {
 
 	// Note: We need to override the saving and loading because we use `RuleBasedCollationKey`s,
 	// and either way, the hashmaps could be saved as lists, the keys are redundant.
-	// TODO: transient
 	private void writeObject(ObjectOutputStream out) throws IOException {
-		out.writeObject(_date);
-		out.writeObject(_availableBalance);
-		out.writeObject(_accountingBalance);
-		out.writeObject(_nextTransactionId);
-		out.writeObject(_transactions);
+		out.defaultWriteObject();
 		out.writeObject(new ArrayList<>(_partners.values()));
 		out.writeObject(new ArrayList<>(_products.values()));
 		out.writeObject(_batches.valuesStream().toList());
@@ -153,20 +154,11 @@ class Warehouse implements Serializable {
 
 	@SuppressWarnings("unchecked") // We're doing a raw cast without being able to properly check the underlying class
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		var date = (Integer) in.readObject();
-		var availableBalance = (Integer) in.readObject();
-		var accountingBalance = (Integer) in.readObject();
-		var nextTransactionId = (Integer) in.readObject();
-		var transactions = (List<Transaction>) in.readObject();
+		in.defaultReadObject();
 		var partners = (List<Partner>) in.readObject();
 		var products = (List<Product>) in.readObject();
 		var batches = (List<Batch>) in.readObject();
 
-		_date = date;
-		_availableBalance = availableBalance;
-		_accountingBalance = accountingBalance;
-		_nextTransactionId = nextTransactionId;
-		_transactions = transactions;
 		_partners = partners.stream()
 				.collect(Collectors.toMap(partner -> getCollationKey(partner.getId()), partner -> partner));
 		_products = products.stream()
