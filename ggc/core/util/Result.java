@@ -52,9 +52,9 @@ public interface Result<T> {
 
 	/// Returns the value in this result, or throws, if it's an error.
 	/// 
-	/// Throws `NoSuchElementException` if the result is an `Err`, but the
+	/// Throws `ClassCastException` if the result is an `Err`, but the
 	/// contained error isn't `errClass`.
-	public <E extends Throwable> T getOrThrow(Class<E> errClass) throws E, NoSuchElementException;
+	public <E extends Throwable> T getOrThrow(Class<E> errClass) throws E, ClassCastException;
 
 	/// If this result is `Ok`, returns it, or else calls `onErr`
 	public Result<T> getOkOrElse(Supplier<Result<T>> onErr);
@@ -134,13 +134,9 @@ public interface Result<T> {
 			return true;
 		}
 
-		@SuppressWarnings("unchecked") // We're manually checking
-		public <E2 extends Throwable> T getOrThrow(Class<E2> errClass) throws E2, NoSuchElementException {
-			if (errClass.isInstance(_err)) {
-				throw (E2) _err;
-			}
+		public <E2 extends Throwable> T getOrThrow(Class<E2> errClass) throws E2, ClassCastException {
+			throw errClass.cast(_err);
 
-			throw new NoSuchElementException("Error specified was not correct");
 		}
 
 		public Result<T> getOkOrElse(Supplier<Result<T>> onErr) {

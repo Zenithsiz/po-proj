@@ -108,9 +108,10 @@ class Warehouse implements Serializable {
 		public void visitBatch(String productId, String partnerId, int quantity, double unitPrice)
 				throws UnknownPartnerIdException, ProductAlreadyExistsException {
 			// Get the product or register it
-			var product = Result.fromOptional(_warehouse.getProduct(productId), () -> null) //
-					.getOkOrElse(() -> Result.fromThrowing(() -> _warehouse.registerProduct(productId))) //
-					.getOrThrow(ProductAlreadyExistsException.class);
+			Product product = _warehouse.getProduct(productId).orElse(null);
+			if (product == null) {
+				product = _warehouse.registerProduct(productId);
+			}
 
 			// Then get the partner and create a new batch for it
 			Partner partner = _warehouse.getPartner(partnerId)
@@ -124,10 +125,10 @@ class Warehouse implements Serializable {
 				double costFactor, Stream<Pair<String, Integer>> recipeProducts)
 				throws UnknownPartnerIdException, UnknownProductIdException, ProductAlreadyExistsException {
 			// Get the product or register it
-			var product = Result.fromOptional(_warehouse.getProduct(productId), () -> null) //
-					.getOkOrElse(() -> Result.fromThrowing(
-							() -> _warehouse.registerDerivedProduct(productId, costFactor, recipeProducts))) //
-					.getOrThrow(ProductAlreadyExistsException.class);
+			Product product = _warehouse.getProduct(productId).orElse(null);
+			if (product == null) {
+				product = _warehouse.registerDerivedProduct(productId, costFactor, recipeProducts);
+			}
 
 			// Then get the partner and create a new batch for it
 			Partner partner = _warehouse.getPartner(partnerId)
