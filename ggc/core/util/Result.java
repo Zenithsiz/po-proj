@@ -26,6 +26,15 @@ public interface Result<T> {
 		}
 	}
 
+	/// Returns an `Ok` result if `supplier` returns a valid object, or returns `Err` if it throws
+	public static <T, E extends Throwable> Result<T> fromThrowing(ThrowableSupplier<T, E> supplier) {
+		try {
+			return Result.ofOk(supplier.get());
+		} catch (Throwable err) {
+			return Result.ofErr(err);
+		}
+	}
+
 	/// Maps this result with `onOk` if it's `Ok`.
 	public <U> Result<U> map(Function<T, U> mapper);
 
@@ -46,6 +55,9 @@ public interface Result<T> {
 	/// Throws `NoSuchElementException` if the result is an `Err`, but the
 	/// contained error isn't `errClass`.
 	public <E extends Throwable> T getOrThrow(Class<E> errClass) throws E, NoSuchElementException;
+
+	/// If this result is `Ok`, returns it, or else calls `onErr`
+	public Result<T> getOkOrElse(Supplier<Result<T>> onErr);
 
 	/// `Ok` type of the result
 	public class Ok<T> implements Result<T> {
@@ -82,6 +94,10 @@ public interface Result<T> {
 
 		public <E extends Throwable> T getOrThrow(Class<E> errClass) {
 			return _value;
+		}
+
+		public Result<T> getOkOrElse(Supplier<Result<T>> onErr) {
+			return this;
 		}
 	}
 
@@ -125,6 +141,10 @@ public interface Result<T> {
 			}
 
 			throw new NoSuchElementException("Error specified was not correct");
+		}
+
+		public Result<T> getOkOrElse(Supplier<Result<T>> onErr) {
+			return onErr.get();
 		}
 	}
 }

@@ -77,12 +77,7 @@ class Warehouse implements Serializable {
 		}
 	}
 
-	/**
-	 * @param fileName
-	 *            filename to be loaded.
-	 * @throws IOException
-	 * @throws BadEntryException
-	 */
+	/// Imports a file onto this warehouse
 	void importFile(String fileName) throws IOException, BadEntryException, ParsingException {
 		// Create a parser and visit all lines
 		var parser = new Parser(fileName);
@@ -105,54 +100,32 @@ class Warehouse implements Serializable {
 
 		@Override
 		public void visitBatch(String productId, String partnerId, int quantity, double unitPrice)
-				throws UnknownPartnerIdException {
-			// Get an existing product, or register it
-			Product product = _warehouse._products.computeIfAbsent(getCollationKey(productId),
-					_key -> new Product(productId));
+				throws UnknownPartnerIdException, ProductAlreadyExistsException {
+			// Get the product or register it
+			var product = Result.fromOptional(_warehouse.getProduct(productId), () -> null) //
+					.getOkOrElse(() -> Result.fromThrowing(() -> _warehouse.registerProduct(productId))) //
+					.getOrThrow(ProductAlreadyExistsException.class);
 
-			// Then get the partner
-			Partner partner = Optional.ofNullable(_warehouse._partners.get(getCollationKey(partnerId)))
+			// Then get the partner and create a new batch for it
+			Partner partner = _warehouse.getPartner(partnerId)
 					.orElseThrow(() -> new UnknownPartnerIdException(partnerId));
-
-			// And create a new batch
 			Batch batch = new Batch(product, quantity, partner, unitPrice);
 			_warehouse._batches.put(product, batch);
 		}
 
 		@Override
 		public void visitDerivedBatch(String productId, String partnerId, int quantity, double unitPrice,
-				double costFactor, Map<String, Integer> recipeProducts)
-				throws UnknownPartnerIdException, UnknownProductIdException {
-			// If any of the recipe products don't exist, throw
-			// Note: We do this regardless if the product exist to ensure that the user specified
-			// products which already exist
-			for (var entry : recipeProducts.entrySet()) {
-				String recipeProductId = entry.getKey();
-				if (!_warehouse._products.containsKey(getCollationKey(recipeProductId))) {
-					throw new UnknownProductIdException(recipeProductId);
-				}
-			}
+				double costFactor, Stream<Pair<String, Integer>> recipeProducts)
+				throws UnknownPartnerIdException, UnknownProductIdException, ProductAlreadyExistsException {
+			// Get the product or register it
+			var product = Result.fromOptional(_warehouse.getProduct(productId), () -> null) //
+					.getOkOrElse(() -> Result.fromThrowing(
+							() -> _warehouse.registerDerivedProduct(productId, costFactor, recipeProducts))) //
+					.getOrThrow(ProductAlreadyExistsException.class);
 
-			// Get an existing product, or register it
-			Product product = _warehouse._products.computeIfAbsent(getCollationKey(productId), _key -> {
-				// Get all product quantities
-				// Note: We've already checked all recipe products exist, so this contains no `null`s.
-				Map<Product, Integer> productQuantities = recipeProducts.entrySet().stream() //
-						.map(entry -> {
-							String recipeProductId = entry.getKey();
-							Product recipeProduct = _warehouse._products.get(getCollationKey(recipeProductId));
-							return new Pair<>(recipeProduct, entry.getValue());
-						}).collect(Pair.toMapCollector());
-
-				Recipe recipe = new Recipe(productQuantities);
-				return new DerivedProduct(productId, recipe, costFactor);
-			});
-
-			// Then get the partner
-			Partner partner = Optional.ofNullable(_warehouse._partners.get(getCollationKey(partnerId)))
+			// Then get the partner and create a new batch for it
+			Partner partner = _warehouse.getPartner(partnerId)
 					.orElseThrow(() -> new UnknownPartnerIdException(partnerId));
-
-			// And create a new batch
 			Batch batch = new Batch(product, quantity, partner, unitPrice);
 			_warehouse._batches.put(product, batch);
 		}
@@ -245,8 +218,7 @@ class Warehouse implements Serializable {
 	}
 
 	/// Registers a derived product given it's id, alpha and all components by id
-	Product registerDerivedProduct(String productId, double costFactor,
-			Stream<Pair<String, Integer>> recipeProducts)
+	Product registerDerivedProduct(String productId, double costFactor, Stream<Pair<String, Integer>> recipeProducts)
 			throws ProductAlreadyExistsException, UnknownProductIdException {
 		// If we already had the product, throw
 		if (getProduct(productId).isPresent()) {

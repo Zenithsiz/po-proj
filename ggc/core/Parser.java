@@ -106,8 +106,7 @@ class Parser {
 		var recipeProducts = Arrays.stream(allRecipeProducts.split("#")) //
 				.map(recipeProduct -> recipeProduct.split(":")) //
 				.map(Pair::fromArray) //
-				.map(pair -> pair.mapRight(Integer::parseInt)) //
-				.collect(Pair.toMapCollector());
+				.map(pair -> pair.mapRight(Integer::parseInt));
 
 		visitor.visitDerivedBatch(productId, partnerId, quantity, unitPrice, costFactor, recipeProducts);
 	}

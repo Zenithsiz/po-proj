@@ -1,6 +1,7 @@
 package ggc.core;
 
-import java.util.Map;
+import java.util.stream.Stream;
+import ggc.core.util.Pair;
 
 /// Parser visitor
 // Note: Package private because we don't need it outside of core
@@ -13,5 +14,5 @@ interface ParserVisitor {
 
 	/// Visits a batch of derived products
 	void visitDerivedBatch(String productId, String partnerId, int quantity, double unitPrice, double costFactor,
-			Map<String, Integer> recipeProducts) throws Exception;
+			Stream<Pair<String, Integer>> recipeProducts) throws Exception;
 }
