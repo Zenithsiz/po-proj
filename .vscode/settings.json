@@ -2,7 +2,8 @@
 	"cSpell.words": [
 		"COMPRA",
 		"javac",
-		"uilib"
+		"uilib",
+		"VENDA"
 	],
 	"java.project.referencedLibraries": [
 		"po-uilib.jar",

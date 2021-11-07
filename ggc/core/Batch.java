@@ -48,6 +48,11 @@ public class Batch implements Serializable, WarehouseFormattable {
 		return _quantity;
 	}
 
+	/// Takes `quantity` products away from this batch
+	public void takeQuantity(int quantity) {
+		_quantity -= quantity;
+	}
+
 	/// Compares two batches by unit price
 	static int compareByUnitPrice(Batch lhs, Batch rhs) {
 		return Double.compare(lhs._unitPrice, rhs._unitPrice);

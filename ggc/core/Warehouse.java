@@ -139,6 +139,7 @@ class Warehouse implements Serializable {
 
 	// Note: We need to override the saving and loading because we use `RuleBasedCollationKey`s,
 	// and either way, the hashmaps could be saved as lists, the keys are redundant.
+	// TODO: transient
 	private void writeObject(ObjectOutputStream out) throws IOException {
 		out.writeObject(_date);
 		out.writeObject(_availableBalance);
@@ -301,10 +302,9 @@ class Warehouse implements Serializable {
 		var batch = new Batch(product, quantity, partner, unitPrice);
 		_batches.put(product, batch);
 
-		var paymentDate = 0; // TODO:
-
 		// Then create the transaction for it
-		var purchase = new Purchase(_nextTransactionId, paymentDate, product, partner, quantity, quantity * unitPrice);
+		// TODO: Verify that the date of the purchase is the current day
+		var purchase = new Purchase(_nextTransactionId, _date, product, partner, quantity, quantity * unitPrice);
 		_nextTransactionId++;
 		partner.addPurchase(purchase);
 		_transactions.add(purchase);
@@ -317,21 +317,33 @@ class Warehouse implements Serializable {
 		// TODO: Figure out whether or not to "reset" to the previous state if an error occurs
 		// midway through, for now we assume we don't reset for simplicity
 
-		/*
+		// The total price of the sale so far and the current quantity of products gotten
+		var totalPrice = 0.0;
+		var curQuantity = 0;
+
 		// Go through all batches involving this product
-		double totalPrice = 0.0;
-		int curQuantity = 0;
 		for (var batch : _batches.get(product).get()) {
-			// Check the quantity to put
+			// If we have enough, quit
+			if (curQuantity == quantity) {
+				break;
+			}
+
+			// Check the max quantity we can take from this batch
 			int batchQuantity = Math.min(quantity - curQuantity, batch.getQuantity());
-			
+
 			totalPrice += batchQuantity * batch.getUnitPrice();
 			batch.takeQuantity(batchQuantity);
 		}
-		*/
 
-		// TODO:
-		return null;
+		var paymentDate = 0; // TODO:
+
+		// Create the sale
+		var sale = new CreditSale(_nextTransactionId, paymentDate, product, partner, quantity, totalPrice, deadline);
+		_nextTransactionId++;
+		partner.addSale(sale);
+		_transactions.add(sale);
+
+		return sale;
 	}
 
 	/// Registers a new breakdown
