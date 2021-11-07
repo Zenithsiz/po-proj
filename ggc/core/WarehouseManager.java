@@ -83,6 +83,16 @@ public class WarehouseManager {
 		_warehouseIsDirty = true;
 	}
 
+	/// Returns the available balance
+	public double getAvailableBalance() {
+		return _warehouse.getAvailableBalance();
+	}
+
+	/// Returns the accounting balance
+	public double getAccountingBalance() {
+		return _warehouse.getAccountingBalance();
+	}
+
 	/// Returns a stream over all products
 	public Stream<Product> getProducts() {
 		return _warehouse.getProducts();

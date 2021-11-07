@@ -47,8 +47,11 @@ class Warehouse implements Serializable {
 	/// Current date
 	private int _date;
 
-	/// Current balance
-	private int _balance;
+	/// Available balance
+	private int _availableBalance;
+
+	/// Accounting balance
+	private int _accountingBalance;
 
 	/// Next transaction id
 	private int _nextTransactionId;
@@ -165,7 +168,8 @@ class Warehouse implements Serializable {
 	// and either way, the hashmaps could be saved as lists, the keys are redundant.
 	private void writeObject(ObjectOutputStream out) throws IOException {
 		out.writeObject(_date);
-		out.writeObject(_balance);
+		out.writeObject(_availableBalance);
+		out.writeObject(_accountingBalance);
 		out.writeObject(_nextTransactionId);
 		out.writeObject(_transactions);
 		out.writeObject(new ArrayList<>(_partners.values()));
@@ -176,7 +180,8 @@ class Warehouse implements Serializable {
 	@SuppressWarnings("unchecked") // We're doing a raw cast without being able to properly check the underlying class
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		var date = (Integer) in.readObject();
-		var balance = (Integer) in.readObject();
+		var availableBalance = (Integer) in.readObject();
+		var accountingBalance = (Integer) in.readObject();
 		var nextTransactionId = (Integer) in.readObject();
 		var transactions = (List<Transaction>) in.readObject();
 		var partners = (List<Partner>) in.readObject();
@@ -184,7 +189,8 @@ class Warehouse implements Serializable {
 		var batches = (List<Batch>) in.readObject();
 
 		_date = date;
-		_balance = balance;
+		_availableBalance = availableBalance;
+		_accountingBalance = accountingBalance;
 		_nextTransactionId = nextTransactionId;
 		_transactions = transactions;
 		_partners = partners.stream()
@@ -203,6 +209,16 @@ class Warehouse implements Serializable {
 	/// Advances the current date
 	void advanceDate(int offset) {
 		_date += offset;
+	}
+
+	/// Returns the available balance
+	public double getAvailableBalance() {
+		return _availableBalance;
+	}
+
+	/// Returns the accounting balance
+	public double getAccountingBalance() {
+		return _accountingBalance;
 	}
 
 	/// Returns a stream over all products

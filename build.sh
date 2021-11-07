@@ -3,4 +3,4 @@
 set -e
 
 # Compile all files
-javac -cp po-uilib.jar $(find ggc/ -iname "*.java")
+javac -Xlint:unchecked -cp po-uilib.jar $(find ggc/ -iname "*.java")
