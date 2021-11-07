@@ -222,6 +222,11 @@ public class WarehouseManager {
 		return Warehouse.batchFilterProductId(productId);
 	}
 
+	/// Returns a batch filter by it's price
+	public static Predicate<Batch> batchFilterPrice(Predicate<Double> predicate) {
+		return Warehouse.batchFilterPrice(predicate);
+	}
+
 	/// Returns a partner comparator
 	public static Comparator<Partner> partnerComparator() {
 		return Warehouse.partnerComparator();

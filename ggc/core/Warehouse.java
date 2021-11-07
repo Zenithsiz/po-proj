@@ -406,6 +406,11 @@ class Warehouse implements Serializable {
 		return batch -> collator.equals(batch.getProduct().getId(), productId);
 	}
 
+	/// Returns a batch filter by it's price
+	static Predicate<Batch> batchFilterPrice(Predicate<Double> predicate) {
+		return batch -> predicate.test(batch.getUnitPrice());
+	}
+
 	/// Returns a partner comparator by it's id
 	static Comparator<Partner> partnerComparator() {
 		// Note: Id is unique, so we don't need to compare by anything else
