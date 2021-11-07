@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -30,6 +31,11 @@ public class SortedMultiMap<K, V> {
 	/// Inserts a new value into the map
 	public void put(K key, V value) {
 		_map.computeIfAbsent(key, _key -> new TreeSet<>(_comparator)).add(value);
+	}
+
+	/// Retrieves all values associated with a key
+	public Optional<SortedSet<V>> get(K key) {
+		return Optional.ofNullable(_map.get(key));
 	}
 
 	/// Returns a stream over all keys and values in this map

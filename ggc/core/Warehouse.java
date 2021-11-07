@@ -319,7 +319,18 @@ class Warehouse implements Serializable {
 		// TODO: Figure out whether or not to "reset" to the previous state if an error occurs
 		// midway through, for now we assume we don't reset for simplicity
 
+		/*
 		// Go through all batches involving this product
+		double totalPrice = 0.0;
+		int curQuantity = 0;
+		for (var batch : _batches.get(product).get()) {
+			// Check the quantity to put
+			int batchQuantity = Math.min(quantity - curQuantity, batch.getQuantity());
+			
+			totalPrice += batchQuantity * batch.getUnitPrice();
+			batch.takeQuantity(batchQuantity);
+		}
+		*/
 
 		// TODO:
 		return null;
