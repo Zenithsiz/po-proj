@@ -18,16 +18,16 @@ import ggc.core.util.Pair;
 public class DoRegisterAcquisitionTransaction extends Command<WarehouseManager> {
 	private static final String PARTNER_ID = "partnerId";
 	private static final String PRODUCT_ID = "productId";
-	private static final String QUANTITY = "quantity";
 	private static final String UNIT_PRICE = "unitPrice";
+	private static final String QUANTITY = "quantity";
 
 	public DoRegisterAcquisitionTransaction(WarehouseManager receiver) {
 		super(Label.REGISTER_ACQUISITION_TRANSACTION, receiver);
 
 		super.addStringField(PARTNER_ID, Message.requestPartnerKey());
 		super.addStringField(PRODUCT_ID, Message.requestProductKey());
-		super.addIntegerField(QUANTITY, Message.requestAmount());
 		super.addRealField(UNIT_PRICE, Message.requestPrice());
+		super.addIntegerField(QUANTITY, Message.requestAmount());
 	}
 
 	@Override
@@ -42,8 +42,9 @@ public class DoRegisterAcquisitionTransaction extends Command<WarehouseManager> 
 		if (product == null) {
 			try {
 				product = createProductIfInexistent(productId);
-			} catch (ProductAlreadyExistsException _e) {
+			} catch (ProductAlreadyExistsException e) {
 				// Note: Can't happen, we just checked it didn't exist
+				e.printStackTrace();
 			}
 		}
 
@@ -51,7 +52,6 @@ public class DoRegisterAcquisitionTransaction extends Command<WarehouseManager> 
 		var quantity = super.integerField(QUANTITY);
 		var unitPrice = super.realField(UNIT_PRICE);
 		_receiver.registerPurchase(partner, product, quantity, unitPrice);
-
 	}
 
 	/// Creates a product if the supplied id wasn't valid.
