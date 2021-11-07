@@ -244,7 +244,7 @@ class Warehouse implements Serializable {
 						() -> new UnknownProductIdException(recipeProductId) //
 				))) //
 				.collect(Pair.toResultMapCollector()) //
-				.getOrThrow();
+				.getOrThrow(UnknownProductIdException.class);
 
 		// Then create the product, insert it and return
 		Recipe recipe = new Recipe(productQuantities);

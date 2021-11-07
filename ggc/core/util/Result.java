@@ -41,8 +41,11 @@ public interface Result<T> {
 	/// Returns if this result is an `Err`
 	public boolean isErr();
 
-	/// Returns the value in this result, or throws, if it's an error
-	public <E extends Throwable> T getOrThrow() throws E;
+	/// Returns the value in this result, or throws, if it's an error.
+	/// 
+	/// Throws `NoSuchElementException` if the result is an `Err`, but the
+	/// contained error isn't `errClass`.
+	public <E extends Throwable> T getOrThrow(Class<E> errClass) throws E, NoSuchElementException;
 
 	/// `Ok` type of the result
 	public class Ok<T> implements Result<T> {
@@ -77,7 +80,7 @@ public interface Result<T> {
 			return false;
 		}
 
-		public T getOrThrow() {
+		public <E extends Throwable> T getOrThrow(Class<E> errClass) {
 			return _value;
 		}
 	}
@@ -115,8 +118,13 @@ public interface Result<T> {
 			return true;
 		}
 
-		public T getOrThrow() throws E {
-			throw _err;
+		@SuppressWarnings("unchecked") // We're manually checking
+		public <E2 extends Throwable> T getOrThrow(Class<E2> errClass) throws E2, NoSuchElementException {
+			if (errClass.isInstance(_err)) {
+				throw (E2) _err;
+			}
+
+			throw new NoSuchElementException("Error specified was not correct");
 		}
 	}
 }
