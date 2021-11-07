@@ -11,17 +11,17 @@ import ggc.core.WarehouseManager;
  */
 public class DoRegisterSaleTransaction extends Command<WarehouseManager> {
 	private static final String PARTNER_ID = "partnerId";
+	private static final String DEADLINE = "deadline";
 	private static final String PRODUCT_ID = "productId";
 	private static final String QUANTITY = "quantity";
-	private static final String DEADLINE = "deadline";
 
 	public DoRegisterSaleTransaction(WarehouseManager receiver) {
 		super(Label.REGISTER_SALE_TRANSACTION, receiver);
 
 		super.addStringField(PARTNER_ID, Message.requestPartnerKey());
+		super.addIntegerField(DEADLINE, Message.requestPaymentDeadline());
 		super.addStringField(PRODUCT_ID, Message.requestProductKey());
 		super.addIntegerField(QUANTITY, Message.requestAmount());
-		super.addIntegerField(DEADLINE, Message.requestPaymentDeadline());
 	}
 
 	@Override
