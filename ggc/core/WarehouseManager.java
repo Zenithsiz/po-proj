@@ -232,6 +232,12 @@ public class WarehouseManager {
 		return Warehouse.partnerComparator();
 	}
 
+	/// Returns a sale filter for paid sales
+	// TODO: Make all of these non-static.
+	public static Predicate<Sale> saleFilterPaid() {
+		return Warehouse.saleFilterPaid();
+	}
+
 	/// Clears pending partner notifications and returns them
 	public List<Notification> clearPendingPartnerNotifications(Partner partner) {
 		var notifications = partner.clearPendingNotifications();

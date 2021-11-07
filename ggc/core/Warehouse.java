@@ -416,4 +416,10 @@ class Warehouse implements Serializable {
 		// Note: Id is unique, so we don't need to compare by anything else
 		return Comparator.comparing(partner -> getCollationKey(partner.getId()));
 	}
+
+	/// Returns a sale filter for paid sales
+	// TODO: Make all of these non-static.
+	public static Predicate<Sale> saleFilterPaid() {
+		return sale -> sale.isPaid();
+	}
 }
