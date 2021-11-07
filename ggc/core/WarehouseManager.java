@@ -134,6 +134,16 @@ public class WarehouseManager {
 		return _warehouse.getPartner(partnerId);
 	}
 
+	/// Returns a partner's purchases
+	public Stream<Purchase> getPartnerPurchases(Partner partner) {
+		return _warehouse.getPartnerPurchases(partner);
+	}
+
+	/// Returns a partner's sales
+	public Stream<Sale> getPartnerSales(Partner partner) {
+		return _warehouse.getPartnerSales(partner);
+	}
+
 	/// Registers a new partner
 	public Partner registerPartner(String partnerId, String partnerName, String partnerAddress)
 			throws PartnerAlreadyExistsException {

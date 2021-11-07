@@ -284,6 +284,16 @@ class Warehouse implements Serializable {
 		return Optional.ofNullable(_partners.get(getCollationKey(partnerId)));
 	}
 
+	/// Returns a partner's purchases
+	public Stream<Purchase> getPartnerPurchases(Partner partner) {
+		return partner.getPurchases();
+	}
+
+	/// Returns a partner's sales
+	public Stream<Sale> getPartnerSales(Partner partner) {
+		return partner.getSales();
+	}
+
 	/// Registers a new partner
 	Partner registerPartner(String partnerId, String partnerName, String partnerAddress)
 			throws PartnerAlreadyExistsException {
