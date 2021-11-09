@@ -149,7 +149,7 @@ class Warehouse implements Serializable {
 		out.defaultWriteObject();
 		out.writeObject(new ArrayList<>(_partners.values()));
 		out.writeObject(new ArrayList<>(_products.values()));
-		out.writeObject(_batches.valuesStream().toList());
+		out.writeObject(_batches.valuesStream().collect(Collectors.toList()));
 	}
 
 	@SuppressWarnings("unchecked") // We're doing a raw cast without being able to properly check the underlying class
