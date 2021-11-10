@@ -9,8 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -51,10 +53,6 @@ class Warehouse implements Serializable {
 
 	/// Available balance
 	private int _availableBalance;
-
-	/// Accounting balance
-	// TODO: Not have this, just calculate it when requested
-	private int _accountingBalance;
 
 	/// Next transaction id
 	private int _nextTransactionId;
@@ -188,7 +186,8 @@ class Warehouse implements Serializable {
 
 	/// Returns the accounting balance
 	double getAccountingBalance() {
-		return _accountingBalance;
+		return _availableBalance
+				+ _transactions.stream().flatMapToDouble(transactionFilterUnpaidCreditSalePaymentAmounts()).sum();
 	}
 
 	/// Returns a stream over all products
@@ -317,7 +316,6 @@ class Warehouse implements Serializable {
 
 		// And update our balance
 		_availableBalance -= unitPrice * quantity;
-		_accountingBalance -= unitPrice * quantity;
 
 		// If this is a new batch of an empty product, emit a `NEW` notification
 		if (prevProductQuantity == quantity) {
@@ -349,9 +347,6 @@ class Warehouse implements Serializable {
 			throws InsufficientProductsException {
 		// Remove `quantity` of `product`
 		var totalPrice = removeProduct(product, quantity);
-
-		// Then update our balance
-		_accountingBalance += totalPrice;
 
 		// And create the sale
 		var sale = new CreditSale(_nextTransactionId, product, partner, quantity, totalPrice, deadline);
@@ -520,5 +515,19 @@ class Warehouse implements Serializable {
 	/// Returns a sale filter for paid sales
 	Predicate<Sale> saleFilterPaid() {
 		return sale -> sale.isPaid();
+	}
+
+	/// Returns a transaction flat map for payment amounts unpaid sales
+	private Function<Transaction, DoubleStream> transactionFilterUnpaidCreditSalePaymentAmounts() {
+		return transaction -> {
+			if (transaction instanceof CreditSale) {
+				var sale = (CreditSale) transaction;
+				if (!sale.isPaid()) {
+					return DoubleStream.of(sale.getPaymentAmount(getDate()));
+				}
+			}
+
+			return DoubleStream.empty();
+		};
 	}
 }
