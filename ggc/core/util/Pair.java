@@ -1,6 +1,7 @@
 package ggc.core.util;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -25,6 +26,11 @@ public class Pair<L, R> {
 		}
 
 		return new Pair<>(array[0], array[1]);
+	}
+
+	/// Constructs a pair from a map entry.
+	public static <Lhs, Rhs> Pair<Lhs, Rhs> fromMapEntry(Entry<Lhs, Rhs> entry) {
+		return new Pair<>(entry.getKey(), entry.getValue());
 	}
 
 	/// Returns the left value
