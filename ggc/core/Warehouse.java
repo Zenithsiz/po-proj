@@ -368,9 +368,16 @@ class Warehouse implements Serializable {
 		}
 	}
 
-	/// Registers a new breakdown
-	BreakdownSale registerBreakdown(Partner partner, Product product, int quantity)
+	/// Registers a new breakdown, if `product`
+	BreakdownSale registerBreakdown(Partner partner, DerivedProduct product, int quantity)
 			throws InsufficientProductsException {
+		// If we don't have `quantity` products, throw
+		var quantityAvailable = _batches.get(product).get().stream().mapToInt(Batch::getQuantity).sum();
+		if (quantityAvailable < quantity) {
+			throw new InsufficientProductsException(product.getId(), quantity, quantityAvailable);
+		}
+
+		// TODO:
 		return null;
 	}
 

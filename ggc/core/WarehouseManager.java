@@ -178,11 +178,10 @@ public class WarehouseManager {
 	}
 
 	/// Registers a new sale
-	public Sale registerSale(Partner partner, Product product, int quantity, int deadline)
+	public void registerSale(Partner partner, Product product, int quantity, int deadline)
 			throws InsufficientProductsException {
-		var sale = _warehouse.registerSale(partner, product, quantity, deadline);
+		_warehouse.registerSale(partner, product, quantity, deadline);
 		_warehouseIsDirty = true;
-		return sale;
 	}
 
 	/// Pays an existing sale
@@ -192,10 +191,16 @@ public class WarehouseManager {
 	}
 
 	/// Registers a new breakdown
-	public Sale registerBreakdown(Partner partner, Product product, int quantity) throws InsufficientProductsException {
-		var sale = _warehouse.registerBreakdown(partner, product, quantity);
+	public void registerBreakdown(Partner partner, Product product, int quantity) throws InsufficientProductsException {
+		// If ` product` isn't derived, return
+		var productAsDerived = product.getAsDerived();
+		if (productAsDerived.isEmpty()) {
+			return;
+		}
+
+		// Else register it
+		_warehouse.registerBreakdown(partner, productAsDerived.get(), quantity);
 		_warehouseIsDirty = true;
-		return sale;
 	}
 
 	/// Returns the total quantity of a product
