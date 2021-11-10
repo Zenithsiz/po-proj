@@ -8,6 +8,5 @@ public abstract class Sale extends Transaction {
 	}
 
 	/// Returns if this sale is paid
-	// TODO: Move this to `CreditSale`, as `BreakdownSale`s are always paid
 	abstract boolean isPaid();
 }

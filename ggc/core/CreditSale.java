@@ -79,7 +79,7 @@ public class CreditSale extends Sale {
 		var baseString = new StringBuilder(String.format("VENDA|%d|%s|%s|%d|%.0f|%.0f|%d", getId(), partner.getId(),
 				product.getId(), getAmount(), getTotalPrice(), paymentAmount, getDeadline()));
 
-		if (_paidAmount.isPresent() && _paymentDate.isPresent()) {
+		if (isPaid()) {
 			baseString.append(String.format("|%d", _paymentDate.getAsInt()));
 		}
 
@@ -88,7 +88,7 @@ public class CreditSale extends Sale {
 
 	@Override
 	boolean isPaid() {
-		return _paidAmount.isPresent();
+		return _paidAmount.isPresent() && _paymentDate.isPresent();
 	}
 
 }
