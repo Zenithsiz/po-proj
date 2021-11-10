@@ -73,6 +73,19 @@ public class Partner implements Serializable, WarehouseFormattable {
 		return _status;
 	}
 
+	/// Attempts to promote this partner
+	private void tryPromotePartner() {
+		// Keep promoting until we can't promote anymore
+		// TODO: Check if this should be recursive
+		while (true) {
+			var promotion = _status.checkPromotion(_points);
+			if (promotion.isEmpty()) {
+				break;
+			}
+			_status = promotion.get();
+		}
+	}
+
 	/// Returns the partner's points
 	double getPoints() {
 		return _points;
@@ -96,6 +109,19 @@ public class Partner implements Serializable, WarehouseFormattable {
 	/// Adds a sale to this partner
 	public void addSale(Sale sale) {
 		_sales.add(sale);
+	}
+
+	/// Pays a sale and returns the value paid
+	public double paySale(CreditSale sale, int date) {
+		// Pay and get the paid amount
+		var paidAmount = sale.pay(date);
+
+		// Add the point and check for promotion
+		// TODO: Only add it if it isn't late
+		_points += 10 * sale.getTotalPrice();
+		tryPromotePartner();
+
+		return paidAmount;
 	}
 
 	/// Adds a notification

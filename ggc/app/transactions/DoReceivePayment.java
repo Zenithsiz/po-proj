@@ -25,7 +25,7 @@ public class DoReceivePayment extends Command<WarehouseManager> {
 				.orElseThrow(() -> new UnknownTransactionKeyException(saleId));
 
 		// Then try to pay it
-		// TODO:
+		_receiver.paySale(transaction);
 	}
 
 }

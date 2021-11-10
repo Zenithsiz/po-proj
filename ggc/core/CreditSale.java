@@ -58,6 +58,16 @@ public class CreditSale extends Sale {
 		return getTotalPrice() * (1.0 - discount) * (1.0 + penalty);
 	}
 
+	/// Sets this sale as paid and returns the amount paid
+	double pay(int date) {
+		var paymentAmount = getPaymentAmount(date);
+
+		_paidAmount = OptionalDouble.of(paymentAmount);
+		_paymentDate = OptionalInt.of(date);
+
+		return paymentAmount;
+	}
+
 	@Override
 	public String format(WarehouseManager warehouseManager) {
 		var partner = getPartner();

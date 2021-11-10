@@ -1,10 +1,16 @@
 package ggc.core.partnerStatus;
 
 import ggc.core.WarehouseManager;
+
+import java.util.Optional;
+
 import ggc.core.PartnerStatus;
 import ggc.core.TimePeriod;
 
 public class ElitePartnerStatus implements PartnerStatus {
+	/// Points required to rank up to elite
+	public static final int POINTS = 25000;
+
 	@Override
 	public double getDiscount(int date, int paymentDate, int factor) {
 		// Check which time period we're on
@@ -34,6 +40,17 @@ public class ElitePartnerStatus implements PartnerStatus {
 	@Override
 	public String format(WarehouseManager warehouseManager) {
 		return "ELITE";
+	}
+
+	@Override
+	public Optional<PartnerStatus> checkPromotion(double points) {
+		// Note: We can't promote from elite
+		return Optional.empty();
+	}
+
+	@Override
+	public PartnerStatus demote() {
+		return new SelectionPartnerStatus();
 	}
 
 }

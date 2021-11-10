@@ -1,6 +1,7 @@
 package ggc.core.partnerStatus;
 
 import ggc.core.WarehouseManager;
+import java.util.Optional;
 import ggc.core.PartnerStatus;
 import ggc.core.TimePeriod;
 
@@ -44,6 +45,23 @@ public class NormalPartnerStatus implements PartnerStatus {
 	@Override
 	public String format(WarehouseManager warehouseManager) {
 		return "NORMAL";
+	}
+
+	@Override
+	public Optional<PartnerStatus> checkPromotion(double points) {
+		// If we have more than `2000` points, go to `Selection`
+		if (points >= 2000) {
+			return Optional.of(new SelectionPartnerStatus());
+		}
+
+		// Else we don't rank up
+		return Optional.empty();
+	}
+
+	@Override
+	public PartnerStatus demote() {
+		// Note: If we get demoted, we're still a normal
+		return this;
 	}
 
 }

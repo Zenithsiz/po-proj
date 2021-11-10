@@ -362,6 +362,17 @@ class Warehouse implements Serializable {
 		return sale;
 	}
 
+	/// Pays an existing sale
+	public void paySale(Transaction sale) {
+		// If it's a credit sale, pay it
+		if (sale instanceof CreditSale) {
+			var partner = sale.getPartner();
+			var amountPaid = partner.paySale((CreditSale) sale, getDate());
+
+			_availableBalance += amountPaid;
+		}
+	}
+
 	/// Registers a new breakdown
 	BreakdownSale registerBreakdown(Partner partner, Product product, int quantity)
 			throws InsufficientProductsException {

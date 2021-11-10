@@ -185,6 +185,12 @@ public class WarehouseManager {
 		return sale;
 	}
 
+	/// Pays an existing sale
+	public void paySale(Transaction sale) {
+		_warehouse.paySale(sale);
+		_warehouseIsDirty = true;
+	}
+
 	/// Registers a new breakdown
 	public Sale registerBreakdown(Partner partner, Product product, int quantity) throws InsufficientProductsException {
 		var sale = _warehouse.registerBreakdown(partner, product, quantity);

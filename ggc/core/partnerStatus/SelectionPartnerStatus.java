@@ -1,6 +1,7 @@
 package ggc.core.partnerStatus;
 
 import ggc.core.WarehouseManager;
+import java.util.Optional;
 import ggc.core.PartnerStatus;
 import ggc.core.TimePeriod;
 
@@ -49,6 +50,22 @@ public class SelectionPartnerStatus implements PartnerStatus {
 	@Override
 	public String format(WarehouseManager warehouseManager) {
 		return "SELECTION";
+	}
+
+	@Override
+	public Optional<PartnerStatus> checkPromotion(double points) {
+		// If we have more than `25000` points, go to `Elite`
+		if (points >= 25000) {
+			return Optional.of(new ElitePartnerStatus());
+		}
+
+		// Else we don't rank up
+		return Optional.empty();
+	}
+
+	@Override
+	public PartnerStatus demote() {
+		return new NormalPartnerStatus();
 	}
 
 }
