@@ -4,34 +4,41 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.OptionalDouble;
+import java.util.OptionalInt;
 
 /// A sale by credit
 public class CreditSale extends Sale {
 	/// Sale deadline
 	private int _deadline;
 
+	/// Payment date
+	private transient OptionalInt _paymentDate;
+
 	/// Amount paid, if any
 	// Note: transient because we can't [de]serialize an optional
 	private transient OptionalDouble _paidAmount;
 
-	CreditSale(int id, int paymentDate, Product product, Partner partner, int quantity, double totalPrice,
-			int deadline) {
-		super(id, paymentDate, product, partner, quantity, totalPrice);
+	CreditSale(int id, Product product, Partner partner, int quantity, double totalPrice, int deadline) {
+		super(id, product, partner, quantity, totalPrice);
 		_deadline = deadline;
+		_paymentDate = OptionalInt.empty();
 		_paidAmount = OptionalDouble.empty();
 	}
 
 	// Note: We need to override the saving and loading because we use a `OptionalDouble`.
 	// Note: We use `NaN` as a sentinel value for the paid amount, as that shouldn't ever be a valid
-	//       amount to paid
+	//       amount to paid. We also use `-1` for the payment date, as that shouldn't be a valid date
 	private void writeObject(ObjectOutputStream out) throws IOException {
 		out.defaultWriteObject();
-		out.writeObject(_paidAmount.orElse(Double.NaN));
+		out.writeInt(_paymentDate.orElse(-1));
+		out.writeDouble(_paidAmount.orElse(Double.NaN));
 	}
 
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
+		var paymentDate = in.readInt();
 		var paidAmount = in.readDouble();
+		_paymentDate = paymentDate == -1 ? OptionalInt.empty() : OptionalInt.of(paymentDate);
 		_paidAmount = Double.isNaN(paidAmount) ? OptionalDouble.empty() : OptionalDouble.of(paidAmount);
 	}
 
@@ -47,8 +54,8 @@ public class CreditSale extends Sale {
 		var baseString = new StringBuilder(String.format("VENDA|%d|%s|%s|%d|%.0f|0.0|%d", getId(), partner.getId(),
 				product.getId(), getAmount(), getTotalPrice(), getDeadline()));
 
-		if (_paidAmount.isPresent()) {
-			baseString.append(String.format("|%d", getPaymentDate()));
+		if (_paidAmount.isPresent() && _paymentDate.isPresent()) {
+			baseString.append(String.format("|%d", _paymentDate.getAsInt()));
 		}
 
 		return baseString.toString();

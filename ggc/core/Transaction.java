@@ -9,9 +9,6 @@ public abstract class Transaction implements Serializable, WarehouseFormattable 
 	/// Id
 	private int _id;
 
-	/// Payment date
-	private int _paymentDate;
-
 	/// Product of this transaction
 	private Product _product;
 
@@ -25,9 +22,8 @@ public abstract class Transaction implements Serializable, WarehouseFormattable 
 	private double _totalPrice;
 
 	// Note: Package private to ensure we don't construct it outside of `core`.
-	Transaction(int id, int paymentDate, Product product, Partner partner, int quantity, double totalPrice) {
+	Transaction(int id, Product product, Partner partner, int quantity, double totalPrice) {
 		_id = id;
-		_paymentDate = paymentDate;
 		_product = product;
 		_partner = partner;
 		_quantity = quantity;
@@ -37,11 +33,6 @@ public abstract class Transaction implements Serializable, WarehouseFormattable 
 	/// Returns this transaction's id
 	int getId() {
 		return _id;
-	}
-
-	/// Returns this transaction's payment date
-	int getPaymentDate() {
-		return _paymentDate;
 	}
 
 	/// Returns this transaction's product
