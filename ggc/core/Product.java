@@ -1,6 +1,7 @@
 package ggc.core;
 
 import java.io.Serializable;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import ggc.core.util.StreamIterator;
@@ -21,6 +22,12 @@ public class Product implements Serializable, WarehouseFormattable {
 	/// Returns this product's id
 	String getId() {
 		return _id;
+	}
+
+	/// Returns the recipe of this product, if any
+	// TODO: Maybe rename?
+	Optional<Recipe> getOptionalRecipe() {
+		return Optional.empty();
 	}
 
 	/// Returns extra fields to format the product with

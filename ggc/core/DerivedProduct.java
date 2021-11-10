@@ -1,5 +1,6 @@
 package ggc.core;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /// Derived product, able to be created via a recipe of other products.
@@ -20,6 +21,10 @@ public class DerivedProduct extends Product {
 	/// Returns the recipe used by this derived product
 	Recipe getRecipe() {
 		return _recipe;
+	}
+
+	Optional<Recipe> getOptionalRecipe() {
+		return Optional.of(_recipe);
 	}
 
 	/// Returns the cost factor used by this derived product
