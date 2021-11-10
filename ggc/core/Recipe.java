@@ -40,8 +40,13 @@ public class Recipe implements Serializable {
 		_productQuantities = productQuantities;
 	}
 
+	/// Returns a stream of all products and their quantities in this recipe
+	Stream<Pair<Product, Integer>> getProductQuantities() {
+		return _productQuantities.entrySet().stream().map(Pair::fromMapEntry);
+	}
+
 	/// Returns a stream of all products in this recipe
-	Stream<Product> products() {
+	Stream<Product> getProducts() {
 		return _productQuantities.keySet().stream();
 	}
 
