@@ -20,7 +20,8 @@ public class BreakdownSale extends Sale {
 	public String format(WarehouseManager warehouseManager) {
 		var partner = getPartner();
 		var product = getProduct();
-		var baseString = new StringBuilder(String.format("DESAGREGAÇÃO|%s|%s|%s|%d|%.0f|%.0f"));
+		//var baseString = new StringBuilder(String.format("DESAGREGAÇÃO|%s|%s|%s|%d|%.0f|%.0f"));
+		var baseString = new StringBuilder(String.format("DESAGREGAÇÃO"));
 
 		// DESAGREGAÇÃO|id|idPa|idPr|quantidade|vbase|vpag|data|idC1:q1:v1#...#idCN:qN:vN
 
