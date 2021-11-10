@@ -116,10 +116,13 @@ public class Partner implements Serializable, WarehouseFormattable {
 		// Pay and get the paid amount
 		var paidAmount = sale.pay(date);
 
-		// Add the point and check for promotion
-		// TODO: Only add it if it isn't late
-		_points += 10 * sale.getTotalPrice();
-		tryPromotePartner();
+		// Add the point and check for promotion if on time, else demote
+		if (date < sale.getDeadline()) {
+			_points += 10 * sale.getTotalPrice();
+			tryPromotePartner();
+		} else {
+			_status = _status.demote();
+		}
 
 		return paidAmount;
 	}
