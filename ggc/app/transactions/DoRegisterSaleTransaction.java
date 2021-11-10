@@ -2,9 +2,11 @@ package ggc.app.transactions;
 
 import pt.tecnico.uilib.menus.Command;
 import pt.tecnico.uilib.menus.CommandException;
+import ggc.app.exception.UnavailableProductException;
 import ggc.app.exception.UnknownPartnerKeyException;
 import ggc.app.exception.UnknownProductKeyException;
 import ggc.core.WarehouseManager;
+import ggc.core.exception.InsufficientProductsException;
 
 /**
  * 
@@ -37,7 +39,10 @@ public class DoRegisterSaleTransaction extends Command<WarehouseManager> {
 		// Then register a new purchase
 		var quantity = super.integerField(QUANTITY);
 		var deadline = super.integerField(DEADLINE);
-		_receiver.registerSale(partner, product, quantity, deadline);
+		try {
+			_receiver.registerSale(partner, product, quantity, deadline);
+		} catch (InsufficientProductsException e) {
+			throw new UnavailableProductException(e.getProductId(), e.getQuantityRequested(), e.getQuantityAvailable());
+		}
 	}
-
 }

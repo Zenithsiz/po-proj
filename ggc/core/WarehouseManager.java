@@ -11,6 +11,8 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+
+import ggc.core.exception.InsufficientProductsException;
 import ggc.core.exception.BadEntryException;
 import ggc.core.exception.ImportFileException;
 import ggc.core.exception.ParsingException;
@@ -176,14 +178,15 @@ public class WarehouseManager {
 	}
 
 	/// Registers a new sale
-	public Sale registerSale(Partner partner, Product product, int quantity, int deadline) {
+	public Sale registerSale(Partner partner, Product product, int quantity, int deadline)
+			throws InsufficientProductsException {
 		var sale = _warehouse.registerSale(partner, product, quantity, deadline);
 		_warehouseIsDirty = true;
 		return sale;
 	}
 
 	/// Registers a new breakdown
-	public Sale registerBreakdown(Partner partner, Product product, int quantity) {
+	public Sale registerBreakdown(Partner partner, Product product, int quantity) throws InsufficientProductsException {
 		var sale = _warehouse.registerBreakdown(partner, product, quantity);
 		_warehouseIsDirty = true;
 		return sale;

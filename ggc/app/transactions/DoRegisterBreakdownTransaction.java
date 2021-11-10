@@ -2,9 +2,11 @@ package ggc.app.transactions;
 
 import pt.tecnico.uilib.menus.Command;
 import pt.tecnico.uilib.menus.CommandException;
+import ggc.app.exception.UnavailableProductException;
 import ggc.app.exception.UnknownPartnerKeyException;
 import ggc.app.exception.UnknownProductKeyException;
 import ggc.core.WarehouseManager;
+import ggc.core.exception.InsufficientProductsException;
 
 /**
  * Register order.
@@ -34,7 +36,11 @@ public class DoRegisterBreakdownTransaction extends Command<WarehouseManager> {
 
 		// Then register a new breakdown
 		var quantity = super.integerField(QUANTITY);
-		_receiver.registerBreakdown(partner, product, quantity);
+		try {
+			_receiver.registerBreakdown(partner, product, quantity);
+		} catch (InsufficientProductsException e) {
+			throw new UnavailableProductException(e.getProductId(), e.getQuantityRequested(), e.getQuantityAvailable());
+		}
 	}
 
 }
