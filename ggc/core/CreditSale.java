@@ -47,12 +47,27 @@ public class CreditSale extends Sale {
 		return _deadline;
 	}
 
+	/// Returns the payment amount for this sale.
+	/// 
+	/// This is either the paid amount, or the amount to pay, if paid today
+	double getPaymentAmount(int date) {
+		int paymentFactor = getProduct().getPaymentFactor();
+		var discount = getPartner().getStatus().getDiscount(date, _deadline, paymentFactor);
+		var penalty = getPartner().getStatus().getPenalty(date, _deadline, paymentFactor);
+
+		return getTotalPrice() * (1.0 - discount) * (1.0 + penalty);
+	}
+
 	@Override
-	public String format(PackagePrivateWarehouseManagerWrapper warehouseManager) {
+	public String format(WarehouseManager warehouseManager) {
 		var partner = getPartner();
 		var product = getProduct();
-		var baseString = new StringBuilder(String.format("VENDA|%d|%s|%s|%d|%.0f|0.0|%d", getId(), partner.getId(),
-				product.getId(), getAmount(), getTotalPrice(), getDeadline()));
+
+		// Either the payed amount, or the amount to pay
+		var paymentAmount = _paidAmount.orElseGet(() -> getPaymentAmount(warehouseManager.getDate()));
+
+		var baseString = new StringBuilder(String.format("VENDA|%d|%s|%s|%d|%.0f|%.0f|%d", getId(), partner.getId(),
+				product.getId(), getAmount(), getTotalPrice(), paymentAmount, getDeadline()));
 
 		if (_paidAmount.isPresent() && _paymentDate.isPresent()) {
 			baseString.append(String.format("|%d", _paymentDate.getAsInt()));

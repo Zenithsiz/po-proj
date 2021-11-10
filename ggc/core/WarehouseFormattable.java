@@ -5,7 +5,7 @@ package ggc.core;
 interface WarehouseFormattable {
 	/// Formats this type, with `warehouse` as it's owner
 	// Note: This method will be `public` even if we remove the `public` modifier,
-	//       so instead we use a package-private wrapper class over `WarehouseManager` that cannot
-	//       be constructed outside of this class.
-	public String format(PackagePrivateWarehouseManagerWrapper warehouseManager);
+	//       so we cannot restrict it outside of `core`, we're simply careful to
+	//       not use it outside of `core`.
+	public String format(WarehouseManager warehouseManager);
 }

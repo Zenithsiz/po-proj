@@ -43,14 +43,19 @@ public class Product implements Serializable, WarehouseFormattable {
 		return Optional.empty();
 	}
 
+	/// Returns the payment factor for this product
+	public int getPaymentFactor() {
+		return 5;
+	}
+
 	/// Returns extra fields to format the product with
 	protected Stream<String> extraFormatFields() {
 		return Stream.empty();
 	}
 
-	public String format(PackagePrivateWarehouseManagerWrapper warehouseManager) {
+	public String format(WarehouseManager warehouseManager) {
 		// Get the our max price and total quantity
-		int quantity = warehouseManager.getWarehouseManager().productTotalQuantity(this);
+		int quantity = warehouseManager.productTotalQuantity(this);
 
 		// Create the base string
 		StringBuilder repr = new StringBuilder(String.format("%s|%.0f|%d", _id, _maxPrice, quantity));

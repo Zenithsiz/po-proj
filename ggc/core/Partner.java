@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
+import ggc.core.partnerStatus.NormalPartnerStatus;
 
 /// Partner
 public class Partner implements Serializable, WarehouseFormattable {
@@ -44,7 +45,7 @@ public class Partner implements Serializable, WarehouseFormattable {
 		_name = name;
 		_address = address;
 		_id = id;
-		_status = PartnerStatus.Normal;
+		_status = new NormalPartnerStatus();
 		_points = 0.0;
 		_purchases = new ArrayList<>();
 		_sales = new ArrayList<>();
@@ -122,26 +123,8 @@ public class Partner implements Serializable, WarehouseFormattable {
 		return _blacklistedProductNotifications.contains(product);
 	}
 
-	/// Partner status
-	enum PartnerStatus {
-		Normal, Selection, Elite;
-
-		public String toString() {
-			switch (this) {
-			case Normal:
-				return "NORMAL";
-			case Selection:
-				return "SELECTION";
-			case Elite:
-				return "ELITE";
-			default:
-				throw new RuntimeException("Unknown partner status");
-			}
-		}
-	}
-
 	@Override
-	public String format(PackagePrivateWarehouseManagerWrapper warehouseManager) {
+	public String format(WarehouseManager warehouseManager) {
 		double totalPurchases = _purchases.stream().mapToDouble(Transaction::getTotalPrice).sum();
 		double totalSales = 0.0;
 		double totalSalesPaid = 0.0;
@@ -150,7 +133,7 @@ public class Partner implements Serializable, WarehouseFormattable {
 			totalSalesPaid += sale.isPaid() ? sale.getTotalPrice() : 0.0;
 		}
 
-		return String.format("%s|%s|%s|%s|%.0f|%.0f|%.0f|%.0f", _id, _name, _address, _status, _points, totalPurchases,
-				totalSales, totalSalesPaid);
+		return String.format("%s|%s|%s|%s|%.0f|%.0f|%.0f|%.0f", _id, _name, _address, _status.format(warehouseManager),
+				_points, totalPurchases, totalSales, totalSalesPaid);
 	}
 }

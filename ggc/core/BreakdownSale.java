@@ -17,7 +17,7 @@ public class BreakdownSale extends Sale {
 	}
 
 	@Override
-	public String format(PackagePrivateWarehouseManagerWrapper warehouseManager) {
+	public String format(WarehouseManager warehouseManager) {
 		var partner = getPartner();
 		var product = getProduct();
 		var baseString = new StringBuilder(String.format("DESAGREGAÇÃO|%s|%s|%s|%d|%.0f|%.0f"));

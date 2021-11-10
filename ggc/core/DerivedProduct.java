@@ -28,6 +28,11 @@ public class DerivedProduct extends Product {
 		return Optional.of(this);
 	}
 
+	@Override
+	public int getPaymentFactor() {
+		return 3;
+	}
+
 	/// Returns the cost factor used by this derived product
 	double getCostFactor() {
 		return _costFactor;

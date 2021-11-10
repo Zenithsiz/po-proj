@@ -25,7 +25,7 @@ public class Notification implements Serializable, WarehouseFormattable {
 	}
 
 	@Override
-	public String format(PackagePrivateWarehouseManagerWrapper warehouseManager) {
+	public String format(WarehouseManager warehouseManager) {
 		return String.format("%s|%s|%.0f", _type, _batch.getProduct().getId(), _batch.getUnitPrice());
 	}
 }
