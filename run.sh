@@ -8,4 +8,4 @@ echo "Building"
 
 # Then run
 echo "Running"
-java "$@" -cp po-uilib.jar:. ggc.app.App
+java "$@" -ea -cp po-uilib.jar:. ggc.app.App

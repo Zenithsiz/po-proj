@@ -15,13 +15,16 @@ import java.util.stream.Stream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
 import ggc.core.exception.BadEntryException;
+import ggc.core.exception.InsufficientProductsException;
 import ggc.core.exception.ParsingException;
 import ggc.core.exception.PartnerAlreadyExistsException;
 import ggc.core.exception.ProductAlreadyExistsException;
 import ggc.core.exception.UnknownPartnerIdException;
 import ggc.core.exception.UnknownProductIdException;
 import ggc.core.util.SortedMultiMap;
+import ggc.core.util.StreamIterator;
 import ggc.core.util.Pair;
 
 /**
@@ -50,6 +53,7 @@ class Warehouse implements Serializable {
 	private int _availableBalance;
 
 	/// Accounting balance
+	// TODO: Not have this, just calculate it when requested
 	private int _accountingBalance;
 
 	/// Next transaction id
@@ -116,7 +120,7 @@ class Warehouse implements Serializable {
 			Partner partner = _warehouse.getPartner(partnerId)
 					.orElseThrow(() -> new UnknownPartnerIdException(partnerId));
 			Batch batch = new Batch(product, quantity, partner, unitPrice);
-			_warehouse._batches.put(product, batch);
+			_warehouse.insertBatch(batch);
 		}
 
 		@Override
@@ -133,7 +137,7 @@ class Warehouse implements Serializable {
 			Partner partner = _warehouse.getPartner(partnerId)
 					.orElseThrow(() -> new UnknownPartnerIdException(partnerId));
 			Batch batch = new Batch(product, quantity, partner, unitPrice);
-			_warehouse._batches.put(product, batch);
+			_warehouse.insertBatch(batch);
 		}
 
 	}
@@ -231,6 +235,19 @@ class Warehouse implements Serializable {
 		return _batches.valuesStream();
 	}
 
+	/// Inserts a new batch
+	private void insertBatch(Batch batch) {
+		// Insert the batch
+		Product product = batch.getProduct();
+		_batches.put(product, batch);
+
+		// If the price of the batch is the highest yet, set it
+		double unitPrice = batch.getUnitPrice();
+		if (unitPrice > product.getMaxPrice()) {
+			product.setMaxPrice(unitPrice);
+		}
+	}
+
 	/// Returns a stream over all partners
 	Stream<Partner> getPartners() {
 		return _partners.values().stream();
@@ -290,10 +307,9 @@ class Warehouse implements Serializable {
 
 		// Create the batch for this purchase and add it
 		var batch = new Batch(product, quantity, partner, unitPrice);
-		_batches.put(product, batch);
+		insertBatch(batch);
 
 		// Then create the transaction for it
-		// TODO: Verify that the date of the purchase is the current day
 		var purchase = new Purchase(_nextTransactionId, _date, product, partner, quantity, quantity * unitPrice);
 		_nextTransactionId++;
 		partner.addPurchase(purchase);
@@ -305,7 +321,6 @@ class Warehouse implements Serializable {
 
 		// If this is a new batch of an empty product, emit a `NEW` notification
 		if (prevProductQuantity == quantity) {
-
 			for (var notificationPartner : _partners.values()) {
 				if (!notificationPartner.isProductNotificationBlacklisted(product)) {
 					var notification = new Notification(batch, "NEW");
@@ -330,32 +345,16 @@ class Warehouse implements Serializable {
 	}
 
 	/// Registers a new sale
-	Sale registerSale(Partner partner, Product product, int quantity, int deadline) {
-		// TODO: Figure out whether or not to "reset" to the previous state if an error occurs
-		// midway through, for now we assume we don't reset for simplicity
+	CreditSale registerSale(Partner partner, Product product, int quantity, int deadline)
+			throws InsufficientProductsException {
+		// Remove `quantity` of `product`
+		var totalPrice = removeProduct(product, quantity);
 
-		// The total price of the sale so far and the current quantity of products gotten
-		var totalPrice = 0.0;
-		var curQuantity = 0;
+		// Then update our balance
+		_accountingBalance += totalPrice;
 
-		// Go through all batches involving this product
-		for (var batch : _batches.get(product).get()) {
-			// If we have enough, quit
-			if (curQuantity == quantity) {
-				break;
-			}
-
-			// Check the max quantity we can take from this batch
-			int batchQuantity = Math.min(quantity - curQuantity, batch.getQuantity());
-
-			totalPrice += batchQuantity * batch.getUnitPrice();
-			batch.takeQuantity(batchQuantity);
-		}
-
-		var paymentDate = 0; // TODO:
-
-		// Create the sale
-		var sale = new CreditSale(_nextTransactionId, paymentDate, product, partner, quantity, totalPrice, deadline);
+		// And create the sale
+		var sale = new CreditSale(_nextTransactionId, product, partner, quantity, totalPrice, deadline);
 		_nextTransactionId++;
 		partner.addSale(sale);
 		_transactions.add(sale);
@@ -364,18 +363,96 @@ class Warehouse implements Serializable {
 	}
 
 	/// Registers a new breakdown
-	Sale registerBreakdown(Partner partner, Product product, int quantity) {
-		// TODO:
+	BreakdownSale registerBreakdown(Partner partner, Product product, int quantity)
+			throws InsufficientProductsException {
 		return null;
 	}
 
-	/// Returns the max price of a product
-	Optional<Double> productMaxPrice(Product product) {
-		return _batches.get(product) //
-				.map(batches -> batches.stream() //
-						.max(Batch::compareByUnitPrice) //
-						.map(Batch::getUnitPrice) //
-				).orElse(Optional.empty());
+	/// Removes `quantity` items of `product` from stock, manufacturing if not enough exist.
+	/// 
+	/// Returns the total price of the removed items
+	private double removeProduct(Product product, int quantity) throws InsufficientProductsException {
+		// If we're removing 0, return
+		assert quantity >= 0;
+		if (quantity == 0) {
+			return 0.0;
+		}
+
+		// Check that we have enough products
+		assertProductQuantity(product, quantity);
+
+		// Go through all batches involving this product
+		var batches = _batches.get(product);
+		var totalPrice = 0.0;
+		var curQuantity = 0;
+		if (batches.isPresent()) {
+			for (var batch : batches.get()) {
+				// If we have enough, stop removing
+				if (curQuantity == quantity) {
+					break;
+				}
+
+				// Take at most what we need or however much the batch has.
+				int batchQuantity = Math.min(quantity - curQuantity, batch.getQuantity());
+
+				// Then remove them and update our quantity and price
+				totalPrice += batchQuantity * batch.getUnitPrice();
+				curQuantity += batchQuantity;
+				batch.takeQuantity(batchQuantity);
+			}
+
+			// Then remove all empty batches
+			batches.get().removeIf(batch -> batch.getQuantity() == 0);
+		}
+
+		// If we didn't have enough, manufacture them
+		// Note: Given that we asserted we had enough quantity above, if we don't
+		//       have enough quantity currently, we know that there's enough quantity
+		//       to manufacture it here, and that the product is derived.
+		if (curQuantity < quantity) {
+			totalPrice += removeProductRecipeComponents(product.getAsDerived().get(), quantity - curQuantity);
+		}
+
+		return totalPrice;
+	}
+
+	/// Asserts that there are enough quantity of `product` to supply, including possibly manufacturing.
+	private void assertProductQuantity(Product product, int quantity) throws InsufficientProductsException {
+		// If we have enough quantity, return
+		var quantityAvailable = _batches.get(product).get().stream().mapToInt(Batch::getQuantity).sum();
+		if (quantityAvailable >= quantity) {
+			return;
+		}
+
+		// Else get the product as a derived one, or throw given that we can't manufacture it, otherwise
+		var derivedProduct = product.getAsDerived()
+				.orElseThrow(() -> new InsufficientProductsException(product.getId(), quantity, quantityAvailable));
+
+		// Finally check if there's enough of each component to manufacture enough product
+		int quantityRemaining = quantity - quantityAvailable;
+		for (var pair : StreamIterator.streamIt(derivedProduct.getRecipe().getProductQuantities())) {
+			var recipeProduct = pair.getLhs();
+			var recipeQuantity = pair.getRhs();
+
+			assertProductQuantity(recipeProduct, quantityRemaining * recipeQuantity);
+		}
+	}
+
+	/// Manufactures `quantity` of `Product` by removing all of it's components.
+	/// 
+	/// Returns the total price of the manufactured products.
+	private double removeProductRecipeComponents(DerivedProduct product, int quantity)
+			throws InsufficientProductsException {
+		// Go through all products of the recipe
+		double totalPrice = 0;
+		for (var pair : StreamIterator.streamIt(product.getRecipe().getProductQuantities())) {
+			var recipeQuantity = pair.getRhs();
+
+			totalPrice += removeProduct(product, quantity * recipeQuantity);
+		}
+
+		// TODO: Check if this should be `(1 + costFactor) * totalPrice`
+		return product.getCostFactor() * totalPrice;
 	}
 
 	/// Returns the min price of a product

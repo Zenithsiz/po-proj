@@ -14,6 +14,9 @@ public class Product implements Serializable, WarehouseFormattable {
 	/// Product id
 	private String _id;
 
+	/// Max price seen of the product
+	private double _maxPrice = 0;
+
 	// Note: Package private to ensure we don't construct it outside of `core`.
 	Product(String id) {
 		_id = id;
@@ -24,9 +27,19 @@ public class Product implements Serializable, WarehouseFormattable {
 		return _id;
 	}
 
-	/// Returns the recipe of this product, if any
-	// TODO: Maybe rename?
-	Optional<Recipe> getOptionalRecipe() {
+	/// Returns this product's max price
+	double getMaxPrice() {
+		return _maxPrice;
+	}
+
+	/// Sets the max price of the product
+	void setMaxPrice(double maxPrice) {
+		assert maxPrice >= _maxPrice;
+		_maxPrice = maxPrice;
+	}
+
+	/// Returns this product as a derived product, if it is one
+	Optional<DerivedProduct> getAsDerived() {
 		return Optional.empty();
 	}
 
@@ -37,12 +50,10 @@ public class Product implements Serializable, WarehouseFormattable {
 
 	public String format(PackagePrivateWarehouseManagerWrapper warehouseManager) {
 		// Get the our max price and total quantity
-		// Note: If no batches exist, there is no max price, and so we'll return 0
-		double maxPrice = warehouseManager.getWarehouseManager().productMaxPrice(this).orElse(0.0);
 		int quantity = warehouseManager.getWarehouseManager().productTotalQuantity(this);
 
 		// Create the base string
-		StringBuilder repr = new StringBuilder(String.format("%s|%.0f|%d", _id, maxPrice, quantity));
+		StringBuilder repr = new StringBuilder(String.format("%s|%.0f|%d", _id, _maxPrice, quantity));
 
 		// Then add any extra fields we may have
 		for (var field : StreamIterator.streamIt(extraFormatFields())) {

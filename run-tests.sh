@@ -10,9 +10,9 @@ for x in tests/*.in; do
 	echo -n "$x: "
 	
 	if [ -e ${x%.in}.import ]; then
-		java -cp :po-uilib.jar:. -Dimport=${x%.in}.import -Din=$x -Dout=${x%.in}.outhyp ggc.app.App || break
+		java -ea -cp :po-uilib.jar:. -Dimport=${x%.in}.import -Din=$x -Dout=${x%.in}.outhyp ggc.app.App || break
 	else
-		java -cp po-uilib.jar:. -Din=$x -Dout=${x%.in}.outhyp ggc.app.App || break
+		java -ea -cp po-uilib.jar:. -Din=$x -Dout=${x%.in}.outhyp ggc.app.App || break
 	fi
 
 	diff -cwB ${x%.in}.out ${x%.in}.outhyp > ${x%.in}.diff

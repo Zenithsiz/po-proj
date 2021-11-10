@@ -51,6 +51,7 @@ public class Batch implements Serializable, WarehouseFormattable {
 	/// Takes `quantity` products away from this batch
 	public void takeQuantity(int quantity) {
 		_quantity -= quantity;
+		assert _quantity >= 0;
 	}
 
 	/// Compares two batches by unit price

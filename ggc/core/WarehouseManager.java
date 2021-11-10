@@ -192,14 +192,6 @@ public class WarehouseManager {
 		return sale;
 	}
 
-	/// Returns the max price of a product
-	///
-	/// Returns `Optional.EMPTY` if `product` does not exist
-	/// in any batch in the warehouse.
-	public Optional<Double> productMaxPrice(Product product) {
-		return _warehouse.productMaxPrice(product);
-	}
-
 	/// Returns the total quantity of a product
 	public int productTotalQuantity(Product product) {
 		return _warehouse.productTotalQuantity(product);

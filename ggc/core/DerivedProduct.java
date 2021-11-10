@@ -23,8 +23,9 @@ public class DerivedProduct extends Product {
 		return _recipe;
 	}
 
-	Optional<Recipe> getOptionalRecipe() {
-		return Optional.of(_recipe);
+	@Override
+	Optional<DerivedProduct> getAsDerived() {
+		return Optional.of(this);
 	}
 
 	/// Returns the cost factor used by this derived product
