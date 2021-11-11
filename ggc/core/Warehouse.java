@@ -82,7 +82,6 @@ class Warehouse implements Serializable {
 	private class BatchComparator implements Comparator<Batch> {
 		@Override
 		public int compare(Batch lhs, Batch rhs) {
-			// TODO: Check if this should be backwards?
 			return Double.compare(lhs.getUnitPrice(), rhs.getUnitPrice());
 		}
 	}
@@ -357,8 +356,20 @@ class Warehouse implements Serializable {
 		Product product = batch.getProduct();
 		_batches.put(product, batch);
 
-		// If the price of the batch is the highest/lowest yet, set it
+		// Then update the min/max price
 		double unitPrice = batch.getUnitPrice();
+		updateProductMinMaxPrice(product, unitPrice);
+	}
+
+	/**
+	 * Updates a product's min/max price
+	 * 
+	 * @param product
+	 *            The product to update
+	 * @param unitPrice
+	 *            The per-unit price to update
+	 */
+	private void updateProductMinMaxPrice(Product product, double unitPrice) {
 		var minPrice = product.getMinPrice();
 		var maxPrice = product.getMaxPrice();
 		if (minPrice.isEmpty() || unitPrice < minPrice.getAsDouble()) {
@@ -602,7 +613,6 @@ class Warehouse implements Serializable {
 			var recipeQuantity = quantity * recipeUnitQuantity;
 
 			// Get the price to create the new batch with
-			// TODO: Check if we create a new batch here, or just use the cheapest if it exists
 			// TODO: If we have no bundles and no max price, what do we use?
 			var recipeUnitPrice = _batches.get(recipeProduct).stream() //
 					.flatMap(List::stream) //
@@ -682,8 +692,13 @@ class Warehouse implements Serializable {
 		// Note: Given that we asserted we had enough quantity above, if we don't
 		//       have enough quantity currently, we know that there's enough quantity
 		//       to manufacture it here, and that the product is derived.
-		if (curQuantity < quantity) {
-			totalPrice += removeProductRecipeComponents(product.getAsDerived().get(), quantity - curQuantity);
+		var remainingQuantity = quantity - curQuantity;
+		if (remainingQuantity > 0) {
+			var manufacturePrice = removeProductRecipeComponents(product.getAsDerived().get(), remainingQuantity);
+			totalPrice += manufacturePrice;
+
+			// Update the product's min/max price
+			updateProductMinMaxPrice(product, manufacturePrice / remainingQuantity);
 		}
 
 		return totalPrice;
@@ -835,11 +850,11 @@ class Warehouse implements Serializable {
 	}
 
 	/**
-	 * Retrieves a transaction flat map for payment amounts unpaid sales
+	 * Retrieves a transaction function that returns a one element stream (to be used by `flatMap`) of the current
+	 * payment amount of a sale if it is unpaid, else returns an empty stream.
 	 * 
 	 * @return A function from a transaction to it's payment amount, if it's unpaid
 	 */
-	// TODO: Stream isn't the best for this, but `flatMap` might require it, check.
 	private Function<Transaction, DoubleStream> transactionFilterUnpaidCreditSalePaymentAmounts() {
 		return transaction -> {
 			if (transaction instanceof CreditSale) {
