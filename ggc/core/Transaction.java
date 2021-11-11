@@ -48,7 +48,6 @@ public abstract class Transaction implements Serializable, WarehouseFormattable 
 	 *            The total price of this transaction
 	 */
 	// Note: Package private to ensure we don't construct it outside of `core`.
-	// TODO: Swap `partner` and quantity like in `Batch`
 	Transaction(int id, Product product, Partner partner, int quantity, double totalPrice) {
 		_id = id;
 		_product = product;

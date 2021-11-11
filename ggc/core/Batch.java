@@ -43,15 +43,13 @@ public class Batch implements Serializable, WarehouseFormattable {
 	 *            the unit price of each product in this batch
 	 */
 	// Note: Package private to ensure we don't construct it outside of `core`.
-	Batch(Product product, int quantity, Partner partner, double unitPrice) {
-		Objects.requireNonNull(product);
+	Batch(Product product, Partner partner, int quantity, double unitPrice) {
 		assert quantity >= 0;
-		Objects.requireNonNull(partner);
 		assert unitPrice >= 0.0;
 
 		_product = Objects.requireNonNull(product);
-		_quantity = quantity;
 		_partner = Objects.requireNonNull(partner);
+		_quantity = quantity;
 		_unitPrice = unitPrice;
 	}
 

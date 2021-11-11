@@ -34,7 +34,6 @@ interface ParserVisitor {
 	 * @throws Exception
 	 *             On any error
 	 */
-	// TODO: Maybe swap this to be the same order a `Batch`?
 	void visitBatch(String productId, String partnerId, int quantity, double unitPrice) throws Exception;
 
 	/**
@@ -55,7 +54,6 @@ interface ParserVisitor {
 	 * @throws Exception
 	 *             On any error
 	 */
-	// TODO: Maybe swap this to be the same order a `Batch`?
 	void visitDerivedBatch(String productId, String partnerId, int quantity, double unitPrice, double costFactor,
 			Stream<Pair<String, Integer>> recipeProductIdQuantities) throws Exception;
 }

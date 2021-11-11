@@ -40,7 +40,6 @@ public class CreditSale extends Sale {
 	 * @param paymentDeadline
 	 *            The payment deadline for this sale
 	 */
-	// TODO: Swap `partner` and `quantity`, like in `Bundle`.
 	CreditSale(int id, Product product, Partner partner, int quantity, double totalPrice, int paymentDeadline) {
 		super(id, product, partner, quantity, totalPrice);
 		_paymentDeadline = paymentDeadline;

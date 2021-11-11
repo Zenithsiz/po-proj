@@ -136,7 +136,7 @@ class Warehouse implements Serializable {
 			// Then get the partner and create a new batch for it
 			Partner partner = _warehouse.getPartner(partnerId)
 					.orElseThrow(() -> new UnknownPartnerIdException(partnerId));
-			Batch batch = new Batch(product, quantity, partner, unitPrice);
+			Batch batch = new Batch(product, partner, quantity, unitPrice);
 			_warehouse.insertBatch(batch);
 		}
 
@@ -153,7 +153,7 @@ class Warehouse implements Serializable {
 			// Then get the partner and create a new batch for it
 			Partner partner = _warehouse.getPartner(partnerId)
 					.orElseThrow(() -> new UnknownPartnerIdException(partnerId));
-			Batch batch = new Batch(product, quantity, partner, unitPrice);
+			Batch batch = new Batch(product, partner, quantity, unitPrice);
 			_warehouse.insertBatch(batch);
 		}
 
@@ -469,7 +469,7 @@ class Warehouse implements Serializable {
 		var prevLowestPrice = productMinPrice(product);
 
 		// Create the batch for this purchase and add it
-		var batch = new Batch(product, quantity, partner, unitPrice);
+		var batch = new Batch(product, partner, quantity, unitPrice);
 		insertBatch(batch);
 
 		// Then create the transaction for it
@@ -593,7 +593,7 @@ class Warehouse implements Serializable {
 			var recipePrice = recipeQuantity * recipeUnitPrice;
 
 			// Then create it and insert it
-			var batch = new Batch(recipeProduct, recipeQuantity, partner, recipePrice);
+			var batch = new Batch(recipeProduct, partner, recipeQuantity, recipePrice);
 			insertBatch(batch);
 			components.add(new Pair<>(recipeProduct, new Pair<>(recipeQuantity, recipePrice)));
 		}
