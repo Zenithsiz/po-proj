@@ -15,6 +15,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
+import static ggc.core.util.StreamIterator.streamIt;
 
 /** A map from a key `K` to a list of sorted values `V`. */
 public class SortedMultiMap<K, V> {
@@ -86,7 +87,7 @@ public class SortedMultiMap<K, V> {
 		@Override
 		public BinaryOperator<SortedMultiMap<K, V>> combiner() {
 			return (lhsMap, rhsMap) -> {
-				for (var pair : StreamIterator.streamIt(rhsMap.keyValuesStream())) {
+				for (var pair : streamIt(rhsMap.keyValuesStream())) {
 					lhsMap.put(pair.getLhs(), pair.getRhs());
 				}
 				return lhsMap;

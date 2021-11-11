@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.stream.Stream;
-import ggc.core.util.StreamIterator;
+import static ggc.core.util.StreamIterator.streamIt;
 
 /**
  * A product.
@@ -172,7 +172,7 @@ public class Product implements Serializable, WarehouseFormattable {
 		StringBuilder repr = new StringBuilder(String.format("%s|%.0f|%d", _id, _maxPrice.orElse(0.0), quantity));
 
 		// Then add any extra fields we may have
-		for (var field : StreamIterator.streamIt(extraFormatFields(warehouseManager))) {
+		for (var field : streamIt(extraFormatFields(warehouseManager))) {
 			repr.append("|");
 			repr.append(field);
 		}

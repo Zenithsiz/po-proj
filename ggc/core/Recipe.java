@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ggc.core.exception.UnknownProductIdException;
 import ggc.core.util.Pair;
-import ggc.core.util.StreamIterator;
+import static ggc.core.util.StreamIterator.streamIt;
 
 /** Recipe for a derived product */
 public class Recipe implements Serializable, WarehouseFormattable {
@@ -34,7 +34,7 @@ public class Recipe implements Serializable, WarehouseFormattable {
 	static Recipe fromProductIds(Stream<Pair<String, Integer>> productIdQuantities,
 			Function<String, Optional<Product>> productGetter) throws UnknownProductIdException {
 		var productQuantities = new LinkedHashMap<Product, Integer>();
-		for (var pair : StreamIterator.streamIt(productIdQuantities)) {
+		for (var pair : streamIt(productIdQuantities)) {
 			String recipeProductId = pair.getLhs();
 			var product = productGetter.apply(recipeProductId);
 			if (product.isEmpty()) {

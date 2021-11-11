@@ -4,7 +4,7 @@ import pt.tecnico.uilib.menus.Command;
 import pt.tecnico.uilib.menus.CommandException;
 import ggc.app.exception.UnknownPartnerKeyException;
 import ggc.core.WarehouseManager;
-import ggc.core.util.StreamIterator;
+import static ggc.core.util.StreamIterator.streamIt;
 
 /**
  * Lookup payments by given partner.
@@ -28,7 +28,7 @@ public class DoLookupPaymentsByPartner extends Command<WarehouseManager> {
 		var sales = _receiver.getPartnerSales(partner).filter(_receiver.saleFilterPaid());
 
 		// Then get their sales and display them
-		for (var sale : StreamIterator.streamIt(sales)) {
+		for (var sale : streamIt(sales)) {
 			_display.addLine(_receiver.format(sale));
 		}
 

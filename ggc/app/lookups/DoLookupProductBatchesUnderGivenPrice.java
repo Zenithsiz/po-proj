@@ -3,7 +3,7 @@ package ggc.app.lookups;
 import pt.tecnico.uilib.menus.Command;
 import pt.tecnico.uilib.menus.CommandException;
 import ggc.core.WarehouseManager;
-import ggc.core.util.StreamIterator;
+import static ggc.core.util.StreamIterator.streamIt;
 
 /**
  * Lookup products cheaper than a given price.
@@ -25,7 +25,7 @@ public class DoLookupProductBatchesUnderGivenPrice extends Command<WarehouseMana
 				.filter(_receiver.batchFilterPrice(price -> price < priceLimit)).sorted(_receiver.batchComparator());
 
 		// Then display them all
-		for (var batch : StreamIterator.streamIt(batches)) {
+		for (var batch : streamIt(batches)) {
 			_display.addLine(_receiver.format(batch));
 		}
 

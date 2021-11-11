@@ -4,7 +4,7 @@ import pt.tecnico.uilib.menus.Command;
 import pt.tecnico.uilib.menus.CommandException;
 import ggc.app.exception.UnknownPartnerKeyException;
 import ggc.core.WarehouseManager;
-import ggc.core.util.StreamIterator;
+import static ggc.core.util.StreamIterator.streamIt;
 
 /**
  * Show all transactions for a specific partner.
@@ -25,7 +25,7 @@ class DoShowPartnerAcquisitions extends Command<WarehouseManager> {
 		var partner = _receiver.getPartner(partnerId).orElseThrow(() -> new UnknownPartnerKeyException(partnerId));
 
 		// Then get their purchases and display them
-		for (var purchase : StreamIterator.streamIt(_receiver.getPartnerPurchases(partner))) {
+		for (var purchase : streamIt(_receiver.getPartnerPurchases(partner))) {
 			_display.addLine(_receiver.format(purchase));
 		}
 

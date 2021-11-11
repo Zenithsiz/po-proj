@@ -28,7 +28,7 @@ import ggc.core.exception.UnknownProductIdException;
 import ggc.core.notification.BargainNotification;
 import ggc.core.notification.NewNotification;
 import ggc.core.util.SortedMultiMap;
-import ggc.core.util.StreamIterator;
+import static ggc.core.util.StreamIterator.streamIt;
 import ggc.core.util.Pair;
 
 /**
@@ -597,7 +597,7 @@ class Warehouse implements Serializable {
 		removeProduct(product, quantity);
 		double totalPrice = -product.getCostFactor() * quantity;
 		var components = new ArrayList<Pair<Product, Pair<Integer, Double>>>();
-		for (var pair : StreamIterator.streamIt(product.getRecipe().getProductQuantities())) {
+		for (var pair : streamIt(product.getRecipe().getProductQuantities())) {
 			var recipeProduct = pair.getLhs();
 			var recipeUnitQuantity = pair.getRhs();
 			var recipeQuantity = quantity * recipeUnitQuantity;
@@ -709,7 +709,7 @@ class Warehouse implements Serializable {
 
 		// Finally check if there's enough of each component to manufacture enough product
 		int quantityRemaining = quantity - quantityAvailable;
-		for (var pair : StreamIterator.streamIt(derivedProduct.getRecipe().getProductQuantities())) {
+		for (var pair : streamIt(derivedProduct.getRecipe().getProductQuantities())) {
 			var recipeProduct = pair.getLhs();
 			var recipeUnitQuantity = pair.getRhs();
 			var recipeQuantity = quantityRemaining * recipeUnitQuantity;
@@ -733,7 +733,7 @@ class Warehouse implements Serializable {
 			throws InsufficientProductsException {
 		// Go through all products of the recipe
 		double totalPrice = 0;
-		for (var pair : StreamIterator.streamIt(product.getRecipe().getProductQuantities())) {
+		for (var pair : streamIt(product.getRecipe().getProductQuantities())) {
 			var recipeProduct = pair.getLhs();
 			var recipeUnitQuantity = pair.getRhs();
 			var recipeQuantity = quantity * recipeUnitQuantity;
