@@ -46,8 +46,6 @@ class Parser {
 			String line;
 			while ((line = reader.readLine()) != null)
 				parseLine(line, visitor);
-		} catch (IOException | BadEntryException e) {
-			throw e;
 		}
 		// Wrap any other exceptions from the visitor in `ParsingException`.
 		catch (Exception e) {
