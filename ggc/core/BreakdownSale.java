@@ -39,8 +39,9 @@ public class BreakdownSale extends Sale {
 	public String format(WarehouseManager warehouseManager) {
 		var partner = getPartner();
 		var product = getProduct();
-		var baseString = new StringBuilder(String.format("DESAGREGAÇÃO|%s|%s|%s|%d|%.0f|%.0f|%d|", getId(),
-				partner.getId(), product.getId(), getAmount(), _differentialTotalPrice, getTotalPrice(), _paymentDate));
+		var baseString = new StringBuilder(
+				String.format("DESAGREGAÇÃO|%s|%s|%s|%d|%.0f|%.0f|%d|", getId(), partner.getId(), product.getId(),
+						getQuantity(), _differentialTotalPrice, getTotalPrice(), _paymentDate));
 
 		String components = _productsCreated.stream().map(pair -> String.format("%s:%d:%.0f", pair.getLhs().getId(),
 				pair.getRhs().getLhs(), pair.getRhs().getRhs())).collect(Collectors.joining("#"));

@@ -77,7 +77,7 @@ public class CreditSale extends Sale {
 		var paymentAmount = _paidAmount.orElseGet(() -> getPaymentAmount(warehouseManager.getDate()));
 
 		var baseString = new StringBuilder(String.format("VENDA|%d|%s|%s|%d|%.0f|%.0f|%d", getId(), partner.getId(),
-				product.getId(), getAmount(), getTotalPrice(), paymentAmount, getDeadline()));
+				product.getId(), getQuantity(), getTotalPrice(), paymentAmount, getDeadline()));
 
 		if (isPaid()) {
 			baseString.append(String.format("|%d", _paymentDate.getAsInt()));

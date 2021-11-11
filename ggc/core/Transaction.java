@@ -45,8 +45,8 @@ public abstract class Transaction implements Serializable, WarehouseFormattable 
 		return _partner;
 	}
 
-	/// Returns this transaction's product amount
-	int getAmount() {
+	/// Returns this transaction's product quantity
+	int getQuantity() {
 		return _quantity;
 	}
 
