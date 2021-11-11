@@ -257,7 +257,7 @@ public class Partner implements Serializable, WarehouseFormattable {
 			totalSalesPaid += sale.isPaid() ? sale.getTotalPrice() : 0.0;
 		}
 
-		return String.format("%s|%s|%s|%s|%.0f|%.0f|%.0f|%.0f", _id, _name, _address, _status.format(warehouseManager),
-				_points, totalPurchases, totalSales, totalSalesPaid);
+		return String.format("%s|%s|%s|%s|%d|%d|%d|%d", _id, _name, _address, _status.format(warehouseManager),
+				Math.round(_points), Math.round(totalPurchases), Math.round(totalSales), Math.round(totalSalesPaid));
 	}
 }

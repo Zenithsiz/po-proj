@@ -65,11 +65,12 @@ public class BreakdownSale extends Sale {
 	public String format(WarehouseManager warehouseManager) {
 		var partner = getPartner();
 		var product = getProduct();
-		var baseString = new StringBuilder(String.format("DESAGREGAÇÃO|%s|%s|%s|%d|%.0f|%.0f|%d|", getId(),
-				partner.getId(), product.getId(), getQuantity(), _differentialTotalPrice, getTotalPrice(), _date));
+		var baseString = new StringBuilder(
+				String.format("DESAGREGAÇÃO|%s|%s|%s|%d|%d|%d|%d|", getId(), partner.getId(), product.getId(),
+						getQuantity(), Math.round(_differentialTotalPrice), Math.round(getTotalPrice()), _date));
 
-		String components = _productsCreated.stream().map(pair -> String.format("%s:%d:%.0f", pair.getLhs().getId(),
-				pair.getRhs().getLhs(), pair.getRhs().getRhs())).collect(Collectors.joining("#"));
+		String components = _productsCreated.stream().map(pair -> String.format("%s:%d:%d", pair.getLhs().getId(),
+				pair.getRhs().getLhs(), Math.round(pair.getRhs().getRhs()))).collect(Collectors.joining("#"));
 
 		baseString.append(components);
 

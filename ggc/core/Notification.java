@@ -40,6 +40,6 @@ public abstract class Notification implements Serializable, WarehouseFormattable
 
 	@Override
 	public String format(WarehouseManager warehouseManager) {
-		return String.format("%s|%s|%.0f", getType(), _batch.getProduct().getId(), _batch.getUnitPrice());
+		return String.format("%s|%s|%d", getType(), _batch.getProduct().getId(), Math.round(_batch.getUnitPrice()));
 	}
 }

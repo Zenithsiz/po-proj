@@ -169,7 +169,8 @@ public class Product implements Serializable, WarehouseFormattable {
 		int quantity = warehouseManager.productTotalQuantity(this);
 
 		// Create the base string
-		StringBuilder repr = new StringBuilder(String.format("%s|%.0f|%d", _id, _maxPrice.orElse(0.0), quantity));
+		StringBuilder repr = new StringBuilder(
+				String.format("%s|%d|%d", _id, Math.round(_maxPrice.orElse(0.0)), quantity));
 
 		// Then add any extra fields we may have
 		for (var field : streamIt(extraFormatFields(warehouseManager))) {
