@@ -25,6 +25,8 @@ import ggc.core.exception.PartnerAlreadyExistsException;
 import ggc.core.exception.ProductAlreadyExistsException;
 import ggc.core.exception.UnknownPartnerIdException;
 import ggc.core.exception.UnknownProductIdException;
+import ggc.core.notification.BargainNotification;
+import ggc.core.notification.NewNotification;
 import ggc.core.util.SortedMultiMap;
 import ggc.core.util.StreamIterator;
 import ggc.core.util.Pair;
@@ -334,6 +336,17 @@ class Warehouse implements Serializable {
 	}
 
 	/**
+	 * Retrieves a stream over all batches of a product
+	 * 
+	 * @param product
+	 *            The product
+	 * @return All batches
+	 */
+	Stream<Batch> getBatchesForProduct(Product product) {
+		return _batches.get(product).map(List::stream).orElseGet(Stream::empty);
+	}
+
+	/**
 	 * Inserts a new batch.
 	 * 
 	 * @param batch
@@ -465,7 +478,7 @@ class Warehouse implements Serializable {
 	 * @param quantity
 	 *            The purchase's quantity
 	 * @param unitPrice
-	 *            The purchase's unit price
+	 *            The purchase's unit price The purchase's unit price
 	 * @return The purchase
 	 */
 	Purchase registerPurchase(Partner partner, Product product, int quantity, double unitPrice) {
@@ -486,12 +499,13 @@ class Warehouse implements Serializable {
 		// And update our balance
 		_availableBalance -= unitPrice * quantity;
 
-		// If this is a new batch of an empty product, emit a `NEW` notification
-		// TODO: Move this to all the subclasses
-		if (prevProductQuantity == quantity) {
+		// If this is a new batch of an empty product, emit a `NEW` notification,
+		// as long as we've had the product in stock before (i.e. the min price exists)
+		// TODO: Think about moving this to subclasses somehow?
+		if (prevLowestPrice.isPresent() && prevProductQuantity == 0) {
 			for (var notificationPartner : _partners.values()) {
 				if (!notificationPartner.isProductNotificationBlacklisted(product)) {
-					var notification = new Notification(batch, "NEW");
+					var notification = new NewNotification(batch);
 					notificationPartner.addNotifications(notification);
 				}
 			}
@@ -503,7 +517,7 @@ class Warehouse implements Serializable {
 				&& (prevLowestPrice.isEmpty() || unitPrice < prevLowestPrice.getAsDouble())) {
 			for (var notificationPartner : _partners.values()) {
 				if (!notificationPartner.isProductNotificationBlacklisted(product)) {
-					var notification = new Notification(batch, "BARGAIN");
+					var notification = new BargainNotification(batch);
 					notificationPartner.addNotifications(notification);
 				}
 			}

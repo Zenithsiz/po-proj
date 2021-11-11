@@ -208,6 +208,17 @@ public class WarehouseManager {
 	}
 
 	/**
+	 * Retrieves a stream over all batches of a product
+	 * 
+	 * @param product
+	 *            The product
+	 * @return All batches
+	 */
+	public Stream<Batch> getBatchesForProduct(Product product) {
+		return _warehouse.getBatchesForProduct(product);
+	}
+
+	/**
 	 * Retrieves a stream over all partners
 	 * 
 	 * @return All partners
