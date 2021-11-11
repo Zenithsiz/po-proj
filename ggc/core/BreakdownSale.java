@@ -6,31 +6,57 @@ import java.util.stream.Collectors;
 
 import ggc.core.util.Pair;
 
-/// A sale from a breakdown
+/** A sale from a breakdown */
 public class BreakdownSale extends Sale {
-	/// Payment date
-	private int _paymentDate;
+	/** The date this sale took place */
+	private int _date;
 
-	/// Differential total price
+	/** TODO: Once figured out, comment this */
 	private double _differentialTotalPrice;
 
-	/// Product quantities created by this breakdown
+	/** All of the products we created in this sale, along with their total price. */
 	private List<Pair<Product, Pair<Integer, Double>>> _productsCreated;
 
-	BreakdownSale(int id, int paymentDate, Product product, Partner partner, int quantity, double totalPrice,
+	/**
+	 * Creates a new breakdown sale.
+	 * 
+	 * @param id
+	 *            The id of this sale
+	 * @param date
+	 *            the date this sale was created
+	 * @param product
+	 *            The product that was broken down.
+	 * @param partner
+	 *            The partner that requested the breakdown
+	 * @param quantity
+	 *            The quantity of product that was broken down
+	 * @param totalPrice
+	 *            TODO: Once figured out, comment this
+	 * @param productsCreated
+	 *            A map of all products created in this break down, with their quantities and total prices.
+	 */
+	BreakdownSale(int id, int date, Product product, Partner partner, int quantity, double totalPrice,
 			List<Pair<Product, Pair<Integer, Double>>> productsCreated) {
 		super(id, product, partner, quantity, Math.abs(totalPrice));
-		_paymentDate = paymentDate;
+		_date = date;
 		_differentialTotalPrice = totalPrice;
 		_productsCreated = new ArrayList<>(productsCreated);
 	}
 
-	/// Returns the payment date of this sale
-	int getPaymentDate() {
-		return _paymentDate;
+	/**
+	 * Retrieves the payment date of this sale
+	 * 
+	 * @return The date this sale was created
+	 */
+	int getDate() {
+		return _date;
 	}
 
-	/// Returns the differential total price of this sale
+	/**
+	 * TODO:
+	 * 
+	 * @return TODO:
+	 */
 	double getDifferentialTotalPrice() {
 		return _differentialTotalPrice;
 	}
@@ -39,9 +65,8 @@ public class BreakdownSale extends Sale {
 	public String format(WarehouseManager warehouseManager) {
 		var partner = getPartner();
 		var product = getProduct();
-		var baseString = new StringBuilder(
-				String.format("DESAGREGAÇÃO|%s|%s|%s|%d|%.0f|%.0f|%d|", getId(), partner.getId(), product.getId(),
-						getQuantity(), _differentialTotalPrice, getTotalPrice(), _paymentDate));
+		var baseString = new StringBuilder(String.format("DESAGREGAÇÃO|%s|%s|%s|%d|%.0f|%.0f|%d|", getId(),
+				partner.getId(), product.getId(), getQuantity(), _differentialTotalPrice, getTotalPrice(), _date));
 
 		String components = _productsCreated.stream().map(pair -> String.format("%s:%d:%.0f", pair.getLhs().getId(),
 				pair.getRhs().getLhs(), pair.getRhs().getRhs())).collect(Collectors.joining("#"));

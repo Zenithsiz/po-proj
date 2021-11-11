@@ -2,7 +2,7 @@ package ggc.core.exception;
 
 public class ProductAlreadyExistsException extends Exception {
 
-	/// Product id
+	/** Product id */
 	private String _productId;
 
 	public ProductAlreadyExistsException(String productId) {

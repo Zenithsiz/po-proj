@@ -3,58 +3,114 @@ package ggc.core;
 import java.io.Serializable;
 import java.util.Objects;
 
-/// Product batch
+/**
+ * <h2>Product batch.</h2>
+ * 
+ * Stores a quantity of products, supplied by a partner at a given unit price. <br>
+ * It is the only source of "storage" for products within the warehouse. <br>
+ * When it's quantity reaches 0, it is removed from the warehouse.
+ */
 public class Batch implements Serializable, WarehouseFormattable {
-	/// Serial number for serialization.
+	/** Serial number for serialization. */
 	private static final long serialVersionUID = 2021_10_27_05_54L;
 
-	/// The product in this batch
+	/** The product this batch stores */
 	private Product _product;
 
-	/// Quantity of product in this batch
+	/**
+	 * The quantity of product in this batch.
+	 * 
+	 * Always <code> > 0 </code>
+	 */
 	private int _quantity;
 
-	/// Partner of this batch
+	/** The partner that supplies this batch */
 	private Partner _partner;
 
-	/// Price of each unit
+	/** Per-unit price of the products in this batch */
 	private double _unitPrice;
 
+	/**
+	 * Constructs a new batch
+	 * 
+	 * @param product
+	 *            The product of this batch
+	 * @param quantity
+	 *            The quantity of product in this batch
+	 * @param partner
+	 *            The partner of this batch
+	 * @param unitPrice
+	 *            the unit price of each product in this batch
+	 */
 	// Note: Package private to ensure we don't construct it outside of `core`.
 	Batch(Product product, int quantity, Partner partner, double unitPrice) {
+		Objects.requireNonNull(product);
+		assert quantity >= 0;
+		Objects.requireNonNull(partner);
+		assert unitPrice >= 0.0;
+
 		_product = Objects.requireNonNull(product);
 		_quantity = quantity;
 		_partner = Objects.requireNonNull(partner);
 		_unitPrice = unitPrice;
 	}
 
-	/// Returns the product of this batch
+	/**
+	 * Retrieves this batch's product
+	 * 
+	 * @return The product this batch supplies
+	 */
 	Product getProduct() {
 		return _product;
 	}
 
-	/// Returns the partner of this batch
+	/**
+	 * Retrieves this batch's partner
+	 * 
+	 * @return The partner supplying this batch
+	 */
 	Partner getPartner() {
 		return _partner;
 	}
 
-	/// Returns the per-unit price of this batch
+	/**
+	 * Retrieves this batch's unit price
+	 * 
+	 * @return The per-unit price of the products in this batch
+	 */
 	double getUnitPrice() {
 		return _unitPrice;
 	}
 
-	/// Returns the quantity of product in this batch
+	/**
+	 * Retrieves this batch's quantity
+	 * 
+	 * @return The quantity of product in this batch
+	 */
 	int getQuantity() {
 		return _quantity;
 	}
 
-	/// Takes `quantity` products away from this batch
+	/**
+	 * Takes `quantity` products away from this batch
+	 * 
+	 * @param quantity
+	 *            The quantity of product to take
+	 */
 	public void takeQuantity(int quantity) {
 		_quantity -= quantity;
 		assert _quantity >= 0;
 	}
 
-	/// Compares two batches by unit price
+	/**
+	 * Compares two batches by unit price
+	 * 
+	 * @param lhs
+	 *            The first batch to compare
+	 * @param rhs
+	 *            The second batch to compare
+	 * @return The result of <code>Double.compare</code> of both arguments
+	 */
 	static int compareByUnitPrice(Batch lhs, Batch rhs) {
 		return Double.compare(lhs._unitPrice, rhs._unitPrice);
 	}

@@ -16,20 +16,20 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-/// A map from a key `K` to a list of sorted values `V`.
+/** A map from a key `K` to a list of sorted values `V`. */
 public class SortedMultiMap<K, V> {
-	/// The underlying implementation as a map of sorted lists
+	/** The underlying implementation as a map of sorted lists */
 	// Note: Can't be a set, as we can have multiple equal keys
 	private Map<K, List<V>> _map = new HashMap<>();
 
-	/// Comparator
+	/** Comparator */
 	private Comparator<? super V> _comparator;
 
 	public SortedMultiMap(Comparator<? super V> comparator) {
 		_comparator = comparator;
 	}
 
-	/// Inserts a new value into the map
+	/** Inserts a new value into the map */
 	public void put(K key, V value) {
 		// Get the list, or create it
 		var list = _map.computeIfAbsent(key, _key -> new ArrayList<>());
@@ -42,31 +42,31 @@ public class SortedMultiMap<K, V> {
 		list.add(insertionIdx >= 0 ? insertionIdx : -(insertionIdx + 1), value);
 	}
 
-	/// Retrieves all values associated with a key
+	/** Retrieves all values associated with a key */
 	public Optional<List<V>> get(K key) {
 		return Optional.ofNullable(_map.get(key));
 	}
 
-	/// Returns a stream over all keys and values in this map
+	/** Returns a stream over all keys and values in this map */
 	public Stream<Pair<K, V>> keyValuesStream() {
 		return _map.entrySet().stream().flatMap(
 				keyValues -> keyValues.getValue().stream().map(value -> new Pair<>(keyValues.getKey(), value)));
 	}
 
-	/// Returns a stream over all values in this map
+	/** Returns a stream over all values in this map */
 	public Stream<V> valuesStream() {
 		return _map.values().stream().flatMap(values -> values.stream());
 	}
 
-	/// Returns a collector for this map
+	/** Returns a collector for this map */
 	public static <K, V> Collector<Pair<K, V>, ?, SortedMultiMap<K, V>> collector(Comparator<? super V> comparator) {
 		return new CollectorImpl<>(comparator);
 	}
 
-	/// Collector for `collector`
+	/** Collector for `collector` */
 	private static class CollectorImpl<K, V>
 			implements Collector<Pair<K, V>, SortedMultiMap<K, V>, SortedMultiMap<K, V>> {
-		/// Comparator
+		/** Comparator */
 		Comparator<? super V> _comparator;
 
 		public CollectorImpl(Comparator<? super V> _comparator) {

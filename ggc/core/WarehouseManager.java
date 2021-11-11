@@ -30,10 +30,17 @@ public class WarehouseManager {
 	/** The warehouse itself. */
 	private Warehouse _warehouse = new Warehouse();
 
-	/// If any changes were performed on the warehouse since the last save
+	/** If any changes were performed on the warehouse since the last save */
 	private boolean _warehouseIsDirty;
 
-	/// Saves the file into the associated file, or, if inexistent, gets it from `supplier`
+	/**
+	 * Saves the file into the associated file, or, if inexistent, gets it from the supplier
+	 * 
+	 * @param supplier
+	 *            The filename supplier, if none is associated
+	 * @throws IOException
+	 *             If unable to save
+	 */
 	public void save(Supplier<? extends String> supplier) throws IOException {
 		// Get our associated file, or use the supplier if we don't have it.
 		var fileName = _fileName.orElseGet(supplier);
@@ -47,7 +54,16 @@ public class WarehouseManager {
 		}
 	}
 
-	/// Loads from `fileName` and then associated filename
+	/**
+	 * Loads from the file name and then associates it
+	 * 
+	 * @param fileName
+	 *            The filename to load from
+	 * @throws IOException
+	 *             If unable to load
+	 * @throws ClassNotFoundException
+	 *             If a class wasn't found during loading
+	 */
 	public void loadFrom(String fileName) throws IOException, ClassNotFoundException {
 		try (var file = new FileInputStream(fileName); var stream = new ObjectInputStream(file)) {
 			// Try to read the warehouse
@@ -58,139 +74,295 @@ public class WarehouseManager {
 		}
 	}
 
-	/// Imports the file `textFile` onto the warehouse.
-	public void importFile(String textFile) throws ImportFileException {
+	/**
+	 * Imports a file onto this warehouse
+	 * 
+	 * @param fileName
+	 *            The filename to import
+	 * @throws ImportFileException
+	 *             If unable to import the file
+	 */
+	public void importFile(String fileName) throws ImportFileException {
 		// Import and set ourselves as dirty
 		try {
-			_warehouse.importFile(textFile);
+			_warehouse.importFile(fileName);
 			_warehouseIsDirty = true;
 		} catch (IOException | BadEntryException | ParsingException e) {
-			throw new ImportFileException(textFile, e);
+			throw new ImportFileException(fileName, e);
 		}
 	}
 
-	/// Returns if any changes were made to the warehouse
+	/**
+	 * Returns if any changes were made to the warehouse
+	 * 
+	 * @return If the warehouse is dirty since the last save
+	 */
 	public boolean isWarehouseDirty() {
 		return _warehouseIsDirty;
 	}
 
-	/// Returns the current date
+	/**
+	 * Retrieves the current date
+	 * 
+	 * @return The current date
+	 */
 	public int getDate() {
 		return _warehouse.getDate();
 	}
 
-	/// Advances the current date
+	/**
+	 * Advances the current date
+	 * 
+	 * @param offset
+	 *            The offset to add to the date
+	 */
 	public void advanceDate(int offset) {
 		_warehouse.advanceDate(offset);
 		_warehouseIsDirty = true;
 	}
 
-	/// Returns the available balance
+	/**
+	 * Retrieves the available balance
+	 * 
+	 * @return The available balance
+	 */
 	public double getAvailableBalance() {
 		return _warehouse.getAvailableBalance();
 	}
 
-	/// Returns the accounting balance
+	/**
+	 * Retrieves the accounting balance
+	 * 
+	 * @return The accounting balance
+	 */
 	public double getAccountingBalance() {
 		return _warehouse.getAccountingBalance();
 	}
 
-	/// Returns a stream over all products
+	/**
+	 * Retrieves a stream over all products
+	 * 
+	 * @return All products
+	 */
 	public Stream<Product> getProducts() {
 		return _warehouse.getProducts();
 	}
 
-	/// Returns a product given it's id
+	/**
+	 * Retrieves a product given it's id
+	 * 
+	 * @param productId
+	 *            The id of the product
+	 * @return The product, if it exists
+	 */
 	public Optional<Product> getProduct(String productId) {
 		return _warehouse.getProduct(productId);
 	}
 
-	/// Registers a simple product given it's id
+	/**
+	 * Registers a simple product given it's id
+	 * 
+	 * @param productId
+	 *            The product id
+	 * @return The created product
+	 * @throws ProductAlreadyExistsException
+	 *             If the product already exists
+	 */
 	public Product registerProduct(String productId) throws ProductAlreadyExistsException {
 		var product = _warehouse.registerProduct(productId);
 		_warehouseIsDirty = true;
 		return product;
 	}
 
-	/// Registers a derived product given it's id, alpha and all components by id
+	/**
+	 * Registers a derived product
+	 * 
+	 * @param productId
+	 *            The product id
+	 * @param costFactor
+	 *            The product cost factor
+	 * @param recipeProductIdQuantities
+	 *            The recipe product id quantities
+	 * 
+	 * @return The created product
+	 * @throws ProductAlreadyExistsException
+	 *             If the product already exists
+	 * @throws UnknownProductIdException
+	 *             If any product in the recipe doesn't exist
+	 */
 	public Product registerDerivedProduct(String productId, double costFactor,
-			Stream<Pair<String, Integer>> productQuantities)
+			Stream<Pair<String, Integer>> recipeProductIdQuantities)
 			throws ProductAlreadyExistsException, UnknownProductIdException {
-		var product = _warehouse.registerDerivedProduct(productId, costFactor, productQuantities);
+		var product = _warehouse.registerDerivedProduct(productId, costFactor, recipeProductIdQuantities);
 		_warehouseIsDirty = true;
 		return product;
 	}
 
-	/// Returns a stream over all batches
+	/**
+	 * Retrieves a stream over all batches
+	 * 
+	 * @return All batches
+	 */
 	public Stream<Batch> getBatches() {
 		return _warehouse.getBatches();
 	}
 
-	/// Returns a stream over all partners
+	/**
+	 * Retrieves a stream over all partners
+	 * 
+	 * @return All partners
+	 */
 	public Stream<Partner> getPartners() {
 		return _warehouse.getPartners();
 	}
 
-	/// Returns a partner given it's id
+	/**
+	 * Retrieves a partner given it's id
+	 * 
+	 * @param partnerId
+	 *            Id of the partner
+	 * @return The partner, if they exist
+	 */
 	public Optional<Partner> getPartner(String partnerId) {
 		return _warehouse.getPartner(partnerId);
 	}
 
-	/// Returns a partner's purchases
+	/**
+	 * Retrieves a partner's purchases
+	 * 
+	 * @param partner
+	 *            The partner to get the purchases
+	 * @return All purchases of the partner
+	 */
 	public Stream<Purchase> getPartnerPurchases(Partner partner) {
 		return _warehouse.getPartnerPurchases(partner);
 	}
 
-	/// Returns a partner's sales
+	/**
+	 * Retrieves a partner's sales
+	 * 
+	 * @param partner
+	 *            The partner to get the sales
+	 * @return All sales of the partner
+	 */
 	public Stream<Sale> getPartnerSales(Partner partner) {
 		return _warehouse.getPartnerSales(partner);
 	}
 
-	/// Registers a new partner
-	public Partner registerPartner(String partnerId, String partnerName, String partnerAddress)
-			throws PartnerAlreadyExistsException {
-		var partner = _warehouse.registerPartner(partnerId, partnerName, partnerAddress);
+	/**
+	 * Registers a new partner
+	 * 
+	 * @param id
+	 *            The id of the partner
+	 * @param name
+	 *            The name of the partner
+	 * @param address
+	 *            The address of the partner
+	 * @return The partner created
+	 * @throws PartnerAlreadyExistsException
+	 *             If the partner already exists
+	 */
+	public Partner registerPartner(String id, String name, String address) throws PartnerAlreadyExistsException {
+		var partner = _warehouse.registerPartner(id, name, address);
 		_warehouseIsDirty = true;
 		return partner;
 	}
 
-	/// Toggles a partner's product notifications
+	/**
+	 * Toggles a partner's product notifications
+	 * 
+	 * @param partner
+	 *            The partner to toggle notifications for
+	 * @param product
+	 *            The product to toggle notifications for
+	 */
 	public void togglePartnerNotifications(Partner partner, Product product) {
 		_warehouse.togglePartnerNotifications(partner, product);
 		_warehouseIsDirty = true;
 	}
 
-	/// Returns a stream over all transactions
+	/**
+	 * Retrieves a stream over all transactions
+	 * 
+	 * @return All transactions
+	 */
 	public Stream<Transaction> getTransactions() {
 		return _warehouse.getTransactions();
 	}
 
-	/// Returns a transaction given it's id
-	public Optional<Transaction> getTransaction(int transactionId) {
-		return _warehouse.getTransaction(transactionId);
+	/**
+	 * Retrieves a transaction given it's id
+	 * 
+	 * @param id
+	 *            The id of the transaction
+	 * @return The transaction, if valid
+	 */
+	public Optional<Transaction> getTransaction(int id) {
+		return _warehouse.getTransaction(id);
 	}
 
-	/// Registers a new purchase
+	/**
+	 * Registers a new purchase
+	 * 
+	 * @param partner
+	 *            The purchase's partner
+	 * @param product
+	 *            The purchase's product
+	 * @param quantity
+	 *            The purchase's quantity
+	 * @param unitPrice
+	 *            The purchase's unit price
+	 * @return The purchase
+	 */
 	public Purchase registerPurchase(Partner partner, Product product, int quantity, double unitPrice) {
 		var purchase = _warehouse.registerPurchase(partner, product, quantity, unitPrice);
 		_warehouseIsDirty = true;
 		return purchase;
 	}
 
-	/// Registers a new sale
+	/**
+	 * Registers a new sale
+	 * 
+	 * @param partner
+	 *            The sale's partner
+	 * @param product
+	 *            The sale's product
+	 * @param quantity
+	 *            The sale's quantity
+	 * @param deadline
+	 *            The sale's deadline
+	 * @throws InsufficientProductsException
+	 *             If there isn't enough quantity of the product for the sale.
+	 */
 	public void registerSale(Partner partner, Product product, int quantity, int deadline)
 			throws InsufficientProductsException {
 		_warehouse.registerSale(partner, product, quantity, deadline);
 		_warehouseIsDirty = true;
 	}
 
-	/// Pays an existing sale
+	/**
+	 * Pays a transaction if it's a sale
+	 * 
+	 * @param sale
+	 *            The transaction to pay
+	 */
 	public void paySale(Transaction sale) {
 		_warehouse.paySale(sale);
 		_warehouseIsDirty = true;
 	}
 
-	/// Registers a new breakdown
+	/**
+	 * Registers a new breakdown
+	 * 
+	 * @param partner
+	 *            The partner that requested the breakdown
+	 * @param product
+	 *            The product to break down
+	 * @param quantity
+	 *            The quantity of product to break down
+	 * @throws InsufficientProductsException
+	 *             If there aren't enough products to break down
+	 */
 	public void registerBreakdown(Partner partner, Product product, int quantity) throws InsufficientProductsException {
 		// If ` product` isn't derived, return
 		var productAsDerived = product.getAsDerived();
@@ -203,54 +375,108 @@ public class WarehouseManager {
 		_warehouseIsDirty = true;
 	}
 
-	/// Returns the total quantity of a product
+	/**
+	 * Retrieves the total quantity of a product
+	 * 
+	 * @param product
+	 *            The product to get the quantity of
+	 * @return The quantity of the product
+	 */
 	public int productTotalQuantity(Product product) {
 		return _warehouse.productTotalQuantity(product);
 	}
 
-	/// Returns a batch comparator by product id
+	/**
+	 * Retrieves a product comparator by it's id
+	 * 
+	 * @return A product comparator by id
+	 */
 	public Comparator<Product> productComparator() {
 		return _warehouse.productComparator();
 	}
 
-	/// Returns a batch comparator by product id, partner id, unit price and then quantity
+	/**
+	 * Retrieves a batch comparator by it's product id, partner id, unit price and then quantity
+	 * 
+	 * @return A batch comparator
+	 */
 	public Comparator<Batch> batchComparator() {
 		return _warehouse.batchComparator();
 	}
 
-	/// Returns a batch filter by it's partner
+	/**
+	 * Retrieves a batch filter by it's partner
+	 * 
+	 * @param partner
+	 *            The partner to filter by
+	 * @return A batch filter by partner
+	 */
 	public Predicate<Batch> batchFilterPartner(Partner partner) {
 		return _warehouse.batchFilterPartner(partner);
 	}
 
-	/// Returns a batch filter by it's product
+	/**
+	 * Retrieves a batch filter by it's product
+	 * 
+	 * @param product
+	 *            The product to filter by
+	 * @return A batch filter by product
+	 */
 	public Predicate<Batch> batchFilterProduct(Product product) {
 		return _warehouse.batchFilterProduct(product);
 	}
 
-	/// Returns a batch filter by it's price
+	/**
+	 * Retrieves a batch filter by it's price
+	 * 
+	 * @param predicate
+	 *            The predicate for the filter
+	 * @return A batch filter by price predicate
+	 */
 	public Predicate<Batch> batchFilterPrice(Predicate<Double> predicate) {
 		return _warehouse.batchFilterPrice(predicate);
 	}
 
-	/// Returns a partner comparator
+	/**
+	 * Retrieves a partner comparator by it's id
+	 * 
+	 * @return A partner comparator by id
+	 */
 	public Comparator<Partner> partnerComparator() {
 		return _warehouse.partnerComparator();
 	}
 
-	/// Returns a sale filter for paid sales
+	/**
+	 * Retrieves a sale filter for paid sales
+	 * 
+	 * @return A sale filter by if they're paid
+	 */
 	public Predicate<Sale> saleFilterPaid() {
 		return _warehouse.saleFilterPaid();
 	}
 
-	/// Clears pending partner notifications and returns them
+	/**
+	 * Clears all pending notifications from a partner and returns them
+	 * 
+	 * @param partner
+	 *            The partner to clear notifications
+	 * @return All pending notifications
+	 */
 	public List<Notification> clearPendingPartnerNotifications(Partner partner) {
 		var notifications = partner.clearPendingNotifications();
 		_warehouseIsDirty |= !notifications.isEmpty();
 		return notifications;
 	}
 
-	/// Formats a value
+	/**
+	 * Formats a value
+	 * 
+	 * @param <T>
+	 *            The type of the value to format
+	 * @param value
+	 *            The value to format
+	 * @return The value formatted
+	 */
 	public <T extends WarehouseFormattable> String format(T value) {
 		return value.format(this);
 	}

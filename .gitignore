@@ -7,3 +7,6 @@
 # Test diffs
 /tests/*.diff
 /tests/*.outhyp
+
+# Documentation
+/docs/

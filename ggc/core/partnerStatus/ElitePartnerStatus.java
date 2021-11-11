@@ -8,7 +8,7 @@ import ggc.core.PartnerStatus;
 import ggc.core.TimePeriod;
 
 public class ElitePartnerStatus implements PartnerStatus {
-	/// Points required to rank up to elite
+	/** Points required to rank up to elite */
 	public static final int POINTS = 25000;
 
 	@Override

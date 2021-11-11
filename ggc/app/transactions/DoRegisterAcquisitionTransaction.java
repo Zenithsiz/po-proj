@@ -54,7 +54,7 @@ public class DoRegisterAcquisitionTransaction extends Command<WarehouseManager> 
 		_receiver.registerPurchase(partner, product, quantity, unitPrice);
 	}
 
-	/// Creates a product if the supplied id wasn't valid.
+	/** Creates a product if the supplied id wasn't valid. */
 	private Product createProductIfInexistent(String productId) throws CommandException, ProductAlreadyExistsException {
 		// If the user wants to add a recipe, ask for all components
 		if (Form.confirm(Message.requestAddRecipe())) {

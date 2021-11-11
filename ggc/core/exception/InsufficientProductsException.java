@@ -20,17 +20,17 @@ public class InsufficientProductsException extends Exception {
 		_quantityAvailable = quantityAvailable;
 	}
 
-	/// Returns the product id
+	/** Returns the product id */
 	public String getProductId() {
 		return _productId;
 	}
 
-	/// Returns the quantity requested
+	/** Returns the quantity requested */
 	public int getQuantityRequested() {
 		return _quantityRequested;
 	}
 
-	/// Returns the quantity available
+	/** Returns the quantity available */
 	public int getQuantityAvailable() {
 		return _quantityAvailable;
 	}

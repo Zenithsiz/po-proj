@@ -2,26 +2,35 @@ package ggc.core;
 
 import java.io.Serializable;
 
+/** A notification */
+// TODO: Create subclasses for this instead of having `_type`
 public class Notification implements Serializable, WarehouseFormattable {
-	/// Batch of the product we're notifying about
+	/** The batch we're notifying for. */
 	private Batch _batch;
 
-	/// Notification type
+	/** TODO: Remove */
 	private String _type;
 
+	/**
+	 * Creates a new notification
+	 * 
+	 * @param batch
+	 *            The batch that prompted this notification
+	 * @param type
+	 *            TODO: Remove
+	 */
 	Notification(Batch batch, String type) {
 		_batch = batch;
 		_type = type;
 	}
 
-	/// Returns the batch of this notification
+	/**
+	 * Retrieves this notification's batch
+	 * 
+	 * @return The batch that prompted notification
+	 */
 	Batch getBatch() {
 		return _batch;
-	}
-
-	/// Returns the type of this notification
-	String getType() {
-		return _type;
 	}
 
 	@Override

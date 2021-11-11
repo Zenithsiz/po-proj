@@ -2,7 +2,7 @@ package ggc.core.exception;
 
 public class UnknownPartnerIdException extends Exception {
 
-	/// Partner id
+	/** Partner id */
 	private String _partnerId;
 
 	public UnknownPartnerIdException(String partnerId) {

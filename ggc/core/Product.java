@@ -6,53 +6,99 @@ import java.util.stream.Stream;
 
 import ggc.core.util.StreamIterator;
 
-/// Base/Simple product
+/**
+ * A product.
+ * 
+ * A product is the unit that is stored and traded in the warehouse.
+ * 
+ * It may be a simple product, which cannot be manufactured, or a derived product, which may be derived according to a
+ * recipe.
+ */
 public class Product implements Serializable, WarehouseFormattable {
-	/// Serial number for serialization.
+	/** Serial number for serialization. */
 	private static final long serialVersionUID = 2021_10_27_01_17L;
 
-	/// Product id
+	/** Id of this product */
 	private String _id;
 
-	/// Max price seen of the product
+	/** Max price this product has been at */
 	private double _maxPrice = 0;
 
+	/**
+	 * Creates a new simple product
+	 * 
+	 * @param id
+	 *            The id of this product
+	 */
 	// Note: Package private to ensure we don't construct it outside of `core`.
 	Product(String id) {
 		_id = id;
 	}
 
-	/// Returns this product's id
+	/**
+	 * Retrieves this product's id
+	 * 
+	 * @return The id of this product
+	 */
 	String getId() {
 		return _id;
 	}
 
-	/// Returns this product's max price
+	/**
+	 * Retrieves this product's max price
+	 * 
+	 * @return The max price of this price
+	 */
 	double getMaxPrice() {
 		return _maxPrice;
 	}
 
-	/// Sets the max price of the product
+	/**
+	 * Sets the max price of this product
+	 * 
+	 * @param maxPrice
+	 *            The new maximum price
+	 */
 	void setMaxPrice(double maxPrice) {
 		assert maxPrice >= _maxPrice;
 		_maxPrice = maxPrice;
 	}
 
-	/// Returns this product as a derived product, if it is one
+	/**
+	 * Attempts to downcast this product to a derived one.
+	 * 
+	 * @return A derived product, if derived, else empty.
+	 */
 	Optional<DerivedProduct> getAsDerived() {
 		return Optional.empty();
 	}
 
-	/// Returns the payment factor for this product
+	/**
+	 * Retrieves this product's payment factor
+	 * <p>
+	 * The payment factor dictates how long a partner has between each time period for the payment of sales. It is 5 for
+	 * simple products and 3 for derived.
+	 * </p>
+	 * 
+	 * @return The payment factor for this product
+	 */
 	public int getPaymentFactor() {
 		return 5;
 	}
 
-	/// Returns extra fields to format the product with
-	protected Stream<String> extraFormatFields() {
+	/**
+	 * Returns extra fields to format using {@link #format(WarehouseManager)}.
+	 * 
+	 * @param warehouseManager
+	 *            The warehouse manager to format with
+	 * 
+	 * @return A stream of all extra fields to append. Each one will be prepended with `|`.
+	 */
+	protected Stream<String> extraFormatFields(WarehouseManager warehouseManager) {
 		return Stream.empty();
 	}
 
+	@Override
 	public String format(WarehouseManager warehouseManager) {
 		// Get the our max price and total quantity
 		int quantity = warehouseManager.productTotalQuantity(this);
@@ -61,7 +107,7 @@ public class Product implements Serializable, WarehouseFormattable {
 		StringBuilder repr = new StringBuilder(String.format("%s|%.0f|%d", _id, _maxPrice, quantity));
 
 		// Then add any extra fields we may have
-		for (var field : StreamIterator.streamIt(extraFormatFields())) {
+		for (var field : StreamIterator.streamIt(extraFormatFields(warehouseManager))) {
 			repr.append("|");
 			repr.append(field);
 		}

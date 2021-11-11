@@ -2,7 +2,7 @@ package ggc.core.exception;
 
 public class UnknownProductIdException extends Exception {
 
-	/// Product id
+	/** Product id */
 	private String _productId;
 
 	public UnknownProductIdException(String productId) {

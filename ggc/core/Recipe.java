@@ -11,15 +11,26 @@ import ggc.core.exception.UnknownProductIdException;
 import ggc.core.util.Pair;
 import ggc.core.util.StreamIterator;
 
-/// Recipe for a derived product
-public class Recipe implements Serializable {
-	/// Serial number for serialization.
+/** Recipe for a derived product */
+public class Recipe implements Serializable, WarehouseFormattable {
+	/** Serial number for serialization. */
 	private static final long serialVersionUID = 2021_10_27_05_55L;
 
-	/// All ingredient quantities
+	/** All ingredient quantities */
 	private Map<Product, Integer> _productQuantities;
 
-	/// Creates a new recipe from a stream of product Ids
+	/**
+	 * Creates a new recipe from a stream of product Ids
+	 * 
+	 * @param productIdQuantities
+	 *            The quantities for each product id
+	 * @param productGetter
+	 *            A getter for products given their IDs.
+	 * @return The recipe
+	 * @throws UnknownProductIdException
+	 *             If a product didn't exist
+	 */
+	// Note: Package private to ensure we don't construct it outside of `core`.
 	static Recipe fromProductIds(Stream<Pair<String, Integer>> productIdQuantities,
 			Function<String, Optional<Product>> productGetter) throws UnknownProductIdException {
 		var productQuantities = new LinkedHashMap<Product, Integer>();
@@ -35,22 +46,27 @@ public class Recipe implements Serializable {
 		return new Recipe(productQuantities);
 	}
 
-	// Note: Package private to ensure we don't construct it outside of `core`.
+	/**
+	 * Creates a recipe from it's product quantities
+	 * 
+	 * @param productQuantities
+	 *            The product quantities
+	 */
 	private Recipe(Map<Product, Integer> productQuantities) {
 		_productQuantities = productQuantities;
 	}
 
-	/// Returns a stream of all products and their quantities in this recipe
+	/**
+	 * Retrieves all product quantities
+	 * 
+	 * @return The product quantities of this recipe
+	 */
 	Stream<Pair<Product, Integer>> getProductQuantities() {
 		return _productQuantities.entrySet().stream().map(Pair::fromMapEntry);
 	}
 
-	/// Returns a stream of all products in this recipe
-	Stream<Product> getProducts() {
-		return _productQuantities.keySet().stream();
-	}
-
-	public String toString() {
+	@Override
+	public String format(WarehouseManager warehouseManager) {
 		return _productQuantities.entrySet().stream()
 				.map(entry -> String.format("%s:%d", entry.getKey().getId(), entry.getValue()))
 				.collect(Collectors.joining("#"));

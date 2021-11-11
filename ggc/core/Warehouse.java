@@ -30,7 +30,7 @@ import ggc.core.util.StreamIterator;
 import ggc.core.util.Pair;
 
 /**
- * Class Warehouse implements a warehouse.
+ * The warehouse
  */
 // Note: Package private because we don't need it outside of core
 class Warehouse implements Serializable {
@@ -38,7 +38,7 @@ class Warehouse implements Serializable {
 	/** Serial number for serialization. */
 	private static final long serialVersionUID = 2021_10_28_18_50L;
 
-	/// Collator for all strings
+	/** Collator for all strings */
 	private static Collator collator;
 
 	static {
@@ -48,34 +48,35 @@ class Warehouse implements Serializable {
 		collator.setDecomposition(Collator.FULL_DECOMPOSITION);
 	}
 
-	/// Current date
+	/** Current date */
+	// TODO: Think about whether or not to make this a static class, wouldn't work super well with loading.
 	private int _date;
 
-	/// Available balance
+	/** Available balance */
 	private int _availableBalance;
 
-	/// Next transaction id
+	/** Next transaction id */
 	private int _nextTransactionId;
 
-	/// All transactions
+	/** All transactions */
 	private List<Transaction> _transactions = new ArrayList<>();
 
-	/// All partners
+	/** All partners */
 	// Note: `transient` as `CollationKey`s aren't [de]serializable and the keys
 	//       are redundant either way.
 	private transient Map<CollationKey, Partner> _partners = new HashMap<>();
 
-	/// All products
+	/** All products */
 	// Note: `transient` as `CollationKey`s aren't [de]serializable and the keys
 	//       are redundant either way.
 	private transient Map<CollationKey, Product> _products = new HashMap<>();
 
-	/// All batches
+	/** All batches */
 	// Note: `transient` as `SortedMultiMap` isn't [de]serializable and the keys
 	//       are redundant either way.
 	private transient SortedMultiMap<Product, Batch> _batches = new SortedMultiMap<>(new BatchComparator());
 
-	/// Comparator for ordering batches by cheapest
+	/** Comparator for ordering batches by cheapest */
 	private class BatchComparator implements Comparator<Batch> {
 		@Override
 		public int compare(Batch lhs, Batch rhs) {
@@ -84,24 +85,42 @@ class Warehouse implements Serializable {
 		}
 	}
 
-	/// Imports a file onto this warehouse
+	/**
+	 * Imports a file onto this warehouse
+	 * 
+	 * @param fileName
+	 *            The filename to import
+	 * @throws IOException
+	 *             If unable to read the file
+	 * @throws BadEntryException
+	 *             If the entry was malformed
+	 * @throws ParsingException
+	 *             If unable to insert any entry into the warehouse
+	 */
 	void importFile(String fileName) throws IOException, BadEntryException, ParsingException {
 		// Create a parser and visit all lines
 		var parser = new Parser(fileName);
 		parser.visit(new ImportParserVisitor(this));
 	}
 
-	/// Visitor for importing a file
+	/** Visitor for importing a file */
 	private class ImportParserVisitor implements ParserVisitor {
-		/// The warehouse we're importing onto
+		/** The warehouse we're importing onto */
 		private Warehouse _warehouse;
 
+		/**
+		 * Creates a new visitor
+		 * 
+		 * @param warehouse
+		 *            The warehouse to import onto
+		 */
 		ImportParserVisitor(Warehouse warehouse) {
 			_warehouse = warehouse;
 		}
 
 		@Override
-		public void visitPartner(Partner partner) {
+		public void visitPartner(String id, String name, String address) {
+			var partner = new Partner(id, name, address);
 			_warehouse._partners.put(getCollationKey(partner.getId()), partner);
 		}
 
@@ -123,12 +142,12 @@ class Warehouse implements Serializable {
 
 		@Override
 		public void visitDerivedBatch(String productId, String partnerId, int quantity, double unitPrice,
-				double costFactor, Stream<Pair<String, Integer>> productQuantities)
+				double costFactor, Stream<Pair<String, Integer>> recipeProductIdQuantities)
 				throws UnknownPartnerIdException, UnknownProductIdException, ProductAlreadyExistsException {
 			// Get the product or register it
 			Product product = _warehouse.getProduct(productId).orElse(null);
 			if (product == null) {
-				product = _warehouse.registerDerivedProduct(productId, costFactor, productQuantities);
+				product = _warehouse.registerDerivedProduct(productId, costFactor, recipeProductIdQuantities);
 			}
 
 			// Then get the partner and create a new batch for it
@@ -140,11 +159,25 @@ class Warehouse implements Serializable {
 
 	}
 
-	/// Returns a collation key given a string with the class collation
+	/**
+	 * Retrieves a collation key given a string key
+	 * 
+	 * @param key
+	 *            The key to retrieve the collation key for
+	 * @return The collation key
+	 */
 	private static CollationKey getCollationKey(String key) {
 		return collator.getCollationKey(key);
 	}
 
+	/**
+	 * Override for serialization to write our transient fields
+	 * 
+	 * @param out
+	 *            The stream to write to
+	 * @throws IOException
+	 *             If unable to write
+	 */
 	// Note: We need to override the saving and loading because we use `RuleBasedCollationKey`s,
 	// and either way, the hashmaps could be saved as lists, the keys are redundant.
 	private void writeObject(ObjectOutputStream out) throws IOException {
@@ -154,6 +187,16 @@ class Warehouse implements Serializable {
 		out.writeObject(_batches.valuesStream().collect(Collectors.toList()));
 	}
 
+	/**
+	 * Override for deserialization to read our transient fields
+	 * 
+	 * @param in
+	 *            The stream to read from
+	 * @throws IOException
+	 *             If unable to read
+	 * @throws ClassNotFoundException
+	 *             If a class wasn't found while loading
+	 */
 	@SuppressWarnings("unchecked") // We're doing a raw cast without being able to properly check the underlying class
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
@@ -169,38 +212,75 @@ class Warehouse implements Serializable {
 				.collect(SortedMultiMap.collector(new BatchComparator()));
 	}
 
-	/// Returns the current date
+	/**
+	 * Retrieves the current date
+	 * 
+	 * @return The current date
+	 */
 	int getDate() {
 		return _date;
 	}
 
-	/// Advances the current date
+	/**
+	 * Advances the current date
+	 * 
+	 * @param offset
+	 *            The offset to add to the date
+	 */
 	void advanceDate(int offset) {
+		assert offset >= 0;
 		_date += offset;
+		assert _date >= 0;
 	}
 
-	/// Returns the available balance
+	/**
+	 * Retrieves the available balance
+	 * 
+	 * @return The available balance
+	 */
 	double getAvailableBalance() {
 		return _availableBalance;
 	}
 
-	/// Returns the accounting balance
+	/**
+	 * Retrieves the accounting balance
+	 * 
+	 * @return The accounting balance
+	 */
 	double getAccountingBalance() {
 		return _availableBalance
 				+ _transactions.stream().flatMapToDouble(transactionFilterUnpaidCreditSalePaymentAmounts()).sum();
 	}
 
-	/// Returns a stream over all products
+	/**
+	 * Retrieves a stream over all products
+	 * 
+	 * @return All products
+	 */
 	Stream<Product> getProducts() {
 		return _products.values().stream();
 	}
 
-	/// Returns a product given it's id
+	/**
+	 * Retrieves a product given it's id
+	 * 
+	 * @param productId
+	 *            The id of the product
+	 * @return The product, if it exists
+	 */
 	Optional<Product> getProduct(String productId) {
 		return Optional.ofNullable(_products.get(getCollationKey(productId)));
 	}
 
-	/// Registers a simple product given it's id
+	/**
+	 * Registers a simple product given it's id
+	 * 
+	 * @param productId
+	 *            The product id
+	 * @return The created product
+	 * @throws ProductAlreadyExistsException
+	 *             If the product already exists
+	 */
 	Product registerProduct(String productId) throws ProductAlreadyExistsException {
 		// If we already had the product, throw
 		if (getProduct(productId).isPresent()) {
@@ -213,9 +293,24 @@ class Warehouse implements Serializable {
 		return product;
 	}
 
-	/// Registers a derived product given it's id, alpha and all components by id
+	/**
+	 * Registers a derived product
+	 * 
+	 * @param productId
+	 *            The product id
+	 * @param costFactor
+	 *            The product cost factor
+	 * @param recipeProductIdQuantities
+	 *            The recipe product id quantities
+	 * 
+	 * @return The created product
+	 * @throws ProductAlreadyExistsException
+	 *             If the product already exists
+	 * @throws UnknownProductIdException
+	 *             If any product in the recipe doesn't exist
+	 */
 	Product registerDerivedProduct(String productId, double costFactor,
-			Stream<Pair<String, Integer>> productIdQuantities)
+			Stream<Pair<String, Integer>> recipeProductIdQuantities)
 			throws ProductAlreadyExistsException, UnknownProductIdException {
 		// If we already had the product, throw
 		if (getProduct(productId).isPresent()) {
@@ -223,18 +318,27 @@ class Warehouse implements Serializable {
 		}
 
 		// Else create the product, insert it and return
-		var recipe = Recipe.fromProductIds(productIdQuantities, this::getProduct);
+		var recipe = Recipe.fromProductIds(recipeProductIdQuantities, this::getProduct);
 		var product = new DerivedProduct(productId, recipe, costFactor);
 		_products.put(getCollationKey(productId), product);
 		return product;
 	}
 
-	/// Returns a stream over all batches
+	/**
+	 * Retrieves a stream over all batches
+	 * 
+	 * @return All batches
+	 */
 	Stream<Batch> getBatches() {
 		return _batches.valuesStream();
 	}
 
-	/// Inserts a new batch
+	/**
+	 * Inserts a new batch.
+	 * 
+	 * @param batch
+	 *            The batch to insert
+	 */
 	private void insertBatch(Batch batch) {
 		// Insert the batch
 		Product product = batch.getProduct();
@@ -247,58 +351,118 @@ class Warehouse implements Serializable {
 		}
 	}
 
-	/// Returns a stream over all partners
+	/**
+	 * Retrieves a stream over all partners
+	 * 
+	 * @return All partners
+	 */
 	Stream<Partner> getPartners() {
 		return _partners.values().stream();
 	}
 
-	/// Returns a partner given it's id
+	/**
+	 * Retrieves a partner given it's id
+	 * 
+	 * @param partnerId
+	 *            Id of the partner
+	 * @return The partner, if they exist
+	 */
 	Optional<Partner> getPartner(String partnerId) {
 		return Optional.ofNullable(_partners.get(getCollationKey(partnerId)));
 	}
 
-	/// Returns a partner's purchases
+	/**
+	 * Retrieves a partner's purchases
+	 * 
+	 * @param partner
+	 *            The partner to get the purchases
+	 * @return All purchases of the partner
+	 */
 	Stream<Purchase> getPartnerPurchases(Partner partner) {
 		return partner.getPurchases();
 	}
 
-	/// Returns a partner's sales
+	/**
+	 * Retrieves a partner's sales
+	 * 
+	 * @param partner
+	 *            The partner to get the sales
+	 * @return All sales of the partner
+	 */
 	Stream<Sale> getPartnerSales(Partner partner) {
 		return partner.getSales();
 	}
 
-	/// Registers a new partner
-	Partner registerPartner(String partnerId, String partnerName, String partnerAddress)
-			throws PartnerAlreadyExistsException {
+	/**
+	 * Registers a new partner
+	 * 
+	 * @param id
+	 *            The id of the partner
+	 * @param name
+	 *            The name of the partner
+	 * @param address
+	 *            The address of the partner
+	 * @return The partner created
+	 * @throws PartnerAlreadyExistsException
+	 *             If the partner already exists
+	 */
+	Partner registerPartner(String id, String name, String address) throws PartnerAlreadyExistsException {
 		// If we already had the partner, throw
-		if (getPartner(partnerId).isPresent()) {
-			throw new PartnerAlreadyExistsException(partnerId);
+		if (getPartner(id).isPresent()) {
+			throw new PartnerAlreadyExistsException(id);
 		}
 
 		// Else create it, insert it and return
-		var partner = new Partner(partnerId, partnerName, partnerAddress);
-		_partners.put(getCollationKey(partnerId), partner);
+		var partner = new Partner(id, name, address);
+		_partners.put(getCollationKey(id), partner);
 		return partner;
 	}
 
-	/// Toggles a partner's product notifications
+	/**
+	 * Toggles a partner's product notifications
+	 * 
+	 * @param partner
+	 *            The partner to toggle notifications for
+	 * @param product
+	 *            The product to toggle notifications for
+	 */
 	void togglePartnerNotifications(Partner partner, Product product) {
 		partner.toggleIsProductNotificationBlacklisted(product);
 	}
 
-	/// Returns a stream over all transactions
+	/**
+	 * Retrieves a stream over all transactions
+	 * 
+	 * @return All transactions
+	 */
 	Stream<Transaction> getTransactions() {
 		return _transactions.stream();
 	}
 
-	/// Returns a transaction given it's id
-	Optional<Transaction> getTransaction(int transactionId) {
-		return transactionId >= 0 && transactionId < _transactions.size()
-				? Optional.of(_transactions.get(transactionId))
-				: Optional.empty();
+	/**
+	 * Retrieves a transaction given it's id
+	 * 
+	 * @param id
+	 *            The id of the transaction
+	 * @return The transaction, if valid
+	 */
+	Optional<Transaction> getTransaction(int id) {
+		return id >= 0 && id < _transactions.size() ? Optional.of(_transactions.get(id)) : Optional.empty();
 	}
 
-	/// Registers a new purchase
+	/**
+	 * Registers a new purchase
+	 * 
+	 * @param partner
+	 *            The purchase's partner
+	 * @param product
+	 *            The purchase's product
+	 * @param quantity
+	 *            The purchase's quantity
+	 * @param unitPrice
+	 *            The purchase's unit price
+	 * @return The purchase
+	 */
 	Purchase registerPurchase(Partner partner, Product product, int quantity, double unitPrice) {
 		// Get the previous quantities and lowest price
 		var prevProductQuantity = productTotalQuantity(product);
@@ -318,6 +482,7 @@ class Warehouse implements Serializable {
 		_availableBalance -= unitPrice * quantity;
 
 		// If this is a new batch of an empty product, emit a `NEW` notification
+		// TODO: Move this to all the subclasses
 		if (prevProductQuantity == quantity) {
 			for (var notificationPartner : _partners.values()) {
 				if (!notificationPartner.isProductNotificationBlacklisted(product)) {
@@ -342,7 +507,21 @@ class Warehouse implements Serializable {
 		return purchase;
 	}
 
-	/// Registers a new sale
+	/**
+	 * Registers a new sale
+	 * 
+	 * @param partner
+	 *            The sale's partner
+	 * @param product
+	 *            The sale's product
+	 * @param quantity
+	 *            The sale's quantity
+	 * @param deadline
+	 *            The sale's deadline
+	 * @return The sale
+	 * @throws InsufficientProductsException
+	 *             If there isn't enough quantity of the product for the sale.
+	 */
 	CreditSale registerSale(Partner partner, Product product, int quantity, int deadline)
 			throws InsufficientProductsException {
 		// Remove `quantity` of `product`
@@ -357,7 +536,12 @@ class Warehouse implements Serializable {
 		return sale;
 	}
 
-	/// Pays an existing sale
+	/**
+	 * Pays a transaction if it's a sale
+	 * 
+	 * @param sale
+	 *            The transaction to pay
+	 */
 	public void paySale(Transaction sale) {
 		// If it's a credit sale, pay it
 		if (sale instanceof CreditSale) {
@@ -368,7 +552,19 @@ class Warehouse implements Serializable {
 		}
 	}
 
-	/// Registers a new breakdown, if `product`
+	/**
+	 * Registers a new breakdown
+	 * 
+	 * @param partner
+	 *            The partner that requested the breakdown
+	 * @param product
+	 *            The product to break down
+	 * @param quantity
+	 *            The quantity of product to break down
+	 * @return The breakdown sale
+	 * @throws InsufficientProductsException
+	 *             If there aren't enough products to break down
+	 */
 	BreakdownSale registerBreakdown(Partner partner, DerivedProduct product, int quantity)
 			throws InsufficientProductsException {
 		// If we don't have `quantity` products, throw
@@ -414,9 +610,17 @@ class Warehouse implements Serializable {
 		return sale;
 	}
 
-	/// Removes `quantity` items of `product` from stock, manufacturing if not enough exist.
-	/// 
-	/// Returns the total price of the removed items
+	/**
+	 * Removes a quantity of a product from stock, manufacturing if not enough exist
+	 * 
+	 * @param product
+	 *            The product to remove
+	 * @param quantity
+	 *            The quantity to remove
+	 * @return The total price of all products removed
+	 * @throws InsufficientProductsException
+	 *             If there weren't enough products to remove
+	 */
 	private double removeProduct(Product product, int quantity) throws InsufficientProductsException {
 		// If we're removing 0, return
 		assert quantity >= 0;
@@ -462,7 +666,16 @@ class Warehouse implements Serializable {
 		return totalPrice;
 	}
 
-	/// Asserts that there are enough quantity of `product` to supply, including possibly manufacturing.
+	/**
+	 * Asserts that there are enough quantity of `product` to supply, including possibly manufacturing.
+	 * 
+	 * @param product
+	 *            The product to check
+	 * @param quantity
+	 *            The minimum quantity
+	 * @throws InsufficientProductsException
+	 *             If there aren't enough products
+	 */
 	private void assertProductQuantity(Product product, int quantity) throws InsufficientProductsException {
 		// If we have enough quantity, return
 		var quantityAvailable = _batches.get(product).get().stream().mapToInt(Batch::getQuantity).sum();
@@ -485,9 +698,17 @@ class Warehouse implements Serializable {
 		}
 	}
 
-	/// Manufactures `quantity` of `Product` by removing all of it's components.
-	/// 
-	/// Returns the total price of the manufactured products.
+	/**
+	 * Removes all components of the recipe of a product
+	 * 
+	 * @param product
+	 *            The product to remove
+	 * @param quantity
+	 *            The quantity to remove
+	 * @return The total price of all products removed
+	 * @throws InsufficientProductsException
+	 *             If there weren't enough products to remove
+	 */
 	private double removeProductRecipeComponents(DerivedProduct product, int quantity)
 			throws InsufficientProductsException {
 		// Go through all products of the recipe
@@ -504,7 +725,14 @@ class Warehouse implements Serializable {
 		return product.getCostFactor() * totalPrice;
 	}
 
-	/// Returns the min price of a product
+	/**
+	 * Retrieves the minimum price of a product
+	 * 
+	 * @param product
+	 *            TODO
+	 * @return TODO
+	 */
+	// TODO: Move this to `Product`.
 	Optional<Double> productMinPrice(Product product) {
 		return _batches.get(product) //
 				.flatMap(batches -> batches.stream() //
@@ -513,7 +741,13 @@ class Warehouse implements Serializable {
 				);
 	}
 
-	/// Returns the total quantity of a product
+	/**
+	 * Retrieves the total quantity of a product
+	 * 
+	 * @param product
+	 *            The product to get the quantity of
+	 * @return The quantity of the product
+	 */
 	int productTotalQuantity(Product product) {
 		return _batches.get(product) //
 				.map(batches -> batches.stream() //
@@ -522,45 +756,84 @@ class Warehouse implements Serializable {
 				).orElse(0);
 	}
 
-	/// Returns a product comparator by it's id
+	/**
+	 * Retrieves a product comparator by it's id
+	 * 
+	 * @return A product comparator by id
+	 */
 	Comparator<Product> productComparator() {
 		return Comparator.comparing(product -> getCollationKey(product.getId()));
 	}
 
-	/// Returns a batch comparator by it's product id, partner id, unit price and then quantity
+	/**
+	 * Retrieves a batch comparator by it's product id, partner id, unit price and then quantity
+	 * 
+	 * @return A batch comparator
+	 */
 	Comparator<Batch> batchComparator() {
 		return Comparator.<Batch, CollationKey>comparing(batch -> getCollationKey(batch.getProduct().getId()))
 				.thenComparing(batch -> getCollationKey(batch.getPartner().getId())).thenComparing(Batch::getUnitPrice)
 				.thenComparing(Batch::getQuantity);
 	}
 
-	/// Returns a batch filter by it's partner
+	/**
+	 * Retrieves a batch filter by it's partner
+	 * 
+	 * @param partner
+	 *            The partner to filter by
+	 * @return A batch filter by partner
+	 */
 	Predicate<Batch> batchFilterPartner(Partner partner) {
 		return batch -> batch.getPartner() == partner;
 	}
 
-	/// Returns a batch filter by it's product
+	/**
+	 * Retrieves a batch filter by it's product
+	 * 
+	 * @param product
+	 *            The product to filter by
+	 * @return A batch filter by product
+	 */
 	Predicate<Batch> batchFilterProduct(Product product) {
 		return batch -> batch.getProduct() == product;
 	}
 
-	/// Returns a batch filter by it's price
+	/**
+	 * Retrieves a batch filter by it's price
+	 * 
+	 * @param predicate
+	 *            The predicate for the filter
+	 * @return A batch filter by price predicate
+	 */
 	Predicate<Batch> batchFilterPrice(Predicate<Double> predicate) {
 		return batch -> predicate.test(batch.getUnitPrice());
 	}
 
-	/// Returns a partner comparator by it's id
+	/**
+	 * Retrieves a partner comparator by it's id
+	 * 
+	 * @return A partner comparator by id
+	 */
 	Comparator<Partner> partnerComparator() {
 		// Note: Id is unique, so we don't need to compare by anything else
 		return Comparator.comparing(partner -> getCollationKey(partner.getId()));
 	}
 
-	/// Returns a sale filter for paid sales
+	/**
+	 * Retrieves a sale filter for paid sales
+	 * 
+	 * @return A sale filter by if they're paid
+	 */
 	Predicate<Sale> saleFilterPaid() {
 		return sale -> sale.isPaid();
 	}
 
-	/// Returns a transaction flat map for payment amounts unpaid sales
+	/**
+	 * Retrieves a transaction flat map for payment amounts unpaid sales
+	 * 
+	 * @return A function from a transaction to it's payment amount, if it's unpaid
+	 */
+	// TODO: Stream isn't the best for this, but `flatMap` might require it, check.
 	private Function<Transaction, DoubleStream> transactionFilterUnpaidCreditSalePaymentAmounts() {
 		return transaction -> {
 			if (transaction instanceof CreditSale) {
