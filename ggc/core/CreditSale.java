@@ -55,14 +55,17 @@ public class CreditSale extends Sale {
 	 * @throws IOException
 	 *             If unable to write
 	 */
-	// Note: We need to override the saving and loading because we use a `OptionalDouble`.
-	// Note: We use `NaN` as a sentinel value for the paid amount, as that shouldn't ever be a valid
-	//       amount to paid. We also use `-1` for the payment date, as that shouldn't be a valid date
-	// TODO: Think about writing a boolean to see if present.
 	private void writeObject(ObjectOutputStream out) throws IOException {
 		out.defaultWriteObject();
-		out.writeInt(_paymentDate.orElse(-1));
-		out.writeDouble(_paidCost.orElse(Double.NaN));
+		out.writeBoolean(_paymentDate.isPresent());
+		if (_paymentDate.isPresent()) {
+			out.writeInt(_paymentDate.getAsInt());
+		}
+
+		out.writeBoolean(_paidCost.isPresent());
+		if (_paidCost.isPresent()) {
+			out.writeDouble(_paidCost.getAsDouble());
+		}
 	}
 
 	/**
@@ -77,10 +80,8 @@ public class CreditSale extends Sale {
 	 */
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
-		var paymentDate = in.readInt();
-		var paidAmount = in.readDouble();
-		_paymentDate = paymentDate == -1 ? OptionalInt.empty() : OptionalInt.of(paymentDate);
-		_paidCost = Double.isNaN(paidAmount) ? OptionalDouble.empty() : OptionalDouble.of(paidAmount);
+		_paymentDate = in.readBoolean() ? OptionalInt.of(in.readInt()) : OptionalInt.empty();
+		_paidCost = in.readBoolean() ? OptionalDouble.of(in.readDouble()) : OptionalDouble.empty();
 	}
 
 	/**
