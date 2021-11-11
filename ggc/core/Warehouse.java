@@ -478,9 +478,10 @@ class Warehouse implements Serializable {
 		int quantityRemaining = quantity - quantityAvailable;
 		for (var pair : StreamIterator.streamIt(derivedProduct.getRecipe().getProductQuantities())) {
 			var recipeProduct = pair.getLhs();
-			var recipeQuantity = pair.getRhs();
+			var recipeUnitQuantity = pair.getRhs();
+			var recipeQuantity = quantityRemaining * recipeUnitQuantity;
 
-			assertProductQuantity(recipeProduct, quantityRemaining * recipeQuantity);
+			assertProductQuantity(recipeProduct, recipeQuantity);
 		}
 	}
 
@@ -492,9 +493,11 @@ class Warehouse implements Serializable {
 		// Go through all products of the recipe
 		double totalPrice = 0;
 		for (var pair : StreamIterator.streamIt(product.getRecipe().getProductQuantities())) {
-			var recipeQuantity = pair.getRhs();
+			var recipeProduct = pair.getLhs();
+			var recipeUnitQuantity = pair.getRhs();
+			var recipeQuantity = quantity * recipeUnitQuantity;
 
-			totalPrice += removeProduct(product, quantity * recipeQuantity);
+			totalPrice += removeProduct(recipeProduct, recipeQuantity);
 		}
 
 		// TODO: Check if this should be `(1 + costFactor) * totalPrice`
