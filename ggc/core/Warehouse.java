@@ -594,8 +594,7 @@ class Warehouse implements Serializable {
 
 		// Else remove the quantity of product, and add all components
 		// Note: `removeProduct` here won't manufacture any, since we know we have enough in stock
-		removeProduct(product, quantity);
-		double totalPrice = -product.getCostFactor() * quantity;
+		double totalPrice = removeProduct(product, quantity);
 		var components = new ArrayList<Pair<Product, Pair<Integer, Double>>>();
 		for (var pair : streamIt(product.getRecipe().getProductQuantities())) {
 			var recipeProduct = pair.getLhs();
@@ -612,20 +611,24 @@ class Warehouse implements Serializable {
 					.orElseGet(() -> product.getMaxPrice().orElse(0.0));
 			var recipePrice = recipeQuantity * recipeUnitPrice;
 
+			// Update our total price
+			totalPrice -= recipePrice;
+
 			// Then create it and insert it
 			var batch = new Batch(recipeProduct, partner, recipeQuantity, recipePrice);
 			insertBatch(batch);
 			components.add(new Pair<>(recipeProduct, new Pair<>(recipeQuantity, recipePrice)));
 		}
 
-		// Update our balance
-		_availableBalance += Math.abs(totalPrice);
-
 		// And create the sale
 		var sale = new BreakdownSale(_nextTransactionId, _date, product, partner, quantity, totalPrice, components);
 		_nextTransactionId++;
 		partner.addBreakdownSale(sale);
 		_transactions.add(sale);
+
+		// Then update our balance
+		// TODO: Check if it's that method that we should call
+		_availableBalance += sale.getDifferentialTotalPrice();
 
 		return sale;
 	}
@@ -741,8 +744,7 @@ class Warehouse implements Serializable {
 			totalPrice += removeProduct(recipeProduct, recipeQuantity);
 		}
 
-		// TODO: Check if this should be `(1 + costFactor) * totalPrice`
-		return product.getCostFactor() * totalPrice;
+		return (1.0 + product.getCostFactor()) * totalPrice;
 	}
 
 	/**

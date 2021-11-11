@@ -17,7 +17,7 @@
 			"mainClass": "ggc.app.App",
 			"projectName": "proj_317870b9",
 			"vmArgs": [
-				"-Dimport=tests/A-03-08-M-ok.import"
+				"-Dimport=tests/A-19-06-M-ok.import"
 			]
 		}
 	]
