@@ -1,9 +1,12 @@
 package ggc.core;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.stream.Stream;
-
 import ggc.core.util.StreamIterator;
 
 /**
@@ -21,8 +24,50 @@ public class Product implements Serializable, WarehouseFormattable {
 	/** Id of this product */
 	private String _id;
 
+	/** Min price this product has been at */
+	// Note: transient because we can't [de]serialize an optional
+	private transient OptionalDouble _minPrice = OptionalDouble.empty();
+
 	/** Max price this product has been at */
-	private double _maxPrice = 0;
+	// Note: transient because we can't [de]serialize an optional
+	private transient OptionalDouble _maxPrice = OptionalDouble.empty();
+
+	/**
+	 * Override for serialization to write our transient fields
+	 * 
+	 * @param out
+	 *            The stream to write to
+	 * @throws IOException
+	 *             If unable to write
+	 */
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		out.defaultWriteObject();
+		out.writeBoolean(_minPrice.isPresent());
+		if (_minPrice.isPresent()) {
+			out.writeDouble(_minPrice.getAsDouble());
+		}
+
+		out.writeBoolean(_maxPrice.isPresent());
+		if (_maxPrice.isPresent()) {
+			out.writeDouble(_maxPrice.getAsDouble());
+		}
+	}
+
+	/**
+	 * Override for deserialization to read our transient fields
+	 * 
+	 * @param in
+	 *            The stream to read from
+	 * @throws IOException
+	 *             If unable to read
+	 * @throws ClassNotFoundException
+	 *             If a class wasn't found while loading
+	 */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		_minPrice = in.readBoolean() ? OptionalDouble.of(in.readDouble()) : OptionalDouble.empty();
+		_maxPrice = in.readBoolean() ? OptionalDouble.of(in.readDouble()) : OptionalDouble.empty();
+	}
 
 	/**
 	 * Creates a new simple product
@@ -45,11 +90,31 @@ public class Product implements Serializable, WarehouseFormattable {
 	}
 
 	/**
+	 * Retrieves this product's min price
+	 * 
+	 * @return The min price of this price
+	 */
+	OptionalDouble getMinPrice() {
+		return _minPrice;
+	}
+
+	/**
+	 * Sets the min price of this product
+	 * 
+	 * @param minPrice
+	 *            The new minimum price
+	 */
+	void setMinPrice(double minPrice) {
+		assert _minPrice.isEmpty() || minPrice <= _minPrice.getAsDouble();
+		_minPrice = OptionalDouble.of(minPrice);
+	}
+
+	/**
 	 * Retrieves this product's max price
 	 * 
 	 * @return The max price of this price
 	 */
-	double getMaxPrice() {
+	OptionalDouble getMaxPrice() {
 		return _maxPrice;
 	}
 
@@ -60,8 +125,8 @@ public class Product implements Serializable, WarehouseFormattable {
 	 *            The new maximum price
 	 */
 	void setMaxPrice(double maxPrice) {
-		assert maxPrice >= _maxPrice;
-		_maxPrice = maxPrice;
+		assert _maxPrice.isEmpty() || maxPrice >= _maxPrice.getAsDouble();
+		_maxPrice = OptionalDouble.of(maxPrice);
 	}
 
 	/**
@@ -104,7 +169,7 @@ public class Product implements Serializable, WarehouseFormattable {
 		int quantity = warehouseManager.productTotalQuantity(this);
 
 		// Create the base string
-		StringBuilder repr = new StringBuilder(String.format("%s|%.0f|%d", _id, _maxPrice, quantity));
+		StringBuilder repr = new StringBuilder(String.format("%s|%.0f|%d", _id, _maxPrice.orElse(0.0), quantity));
 
 		// Then add any extra fields we may have
 		for (var field : StreamIterator.streamIt(extraFormatFields(warehouseManager))) {

@@ -344,9 +344,14 @@ class Warehouse implements Serializable {
 		Product product = batch.getProduct();
 		_batches.put(product, batch);
 
-		// If the price of the batch is the highest yet, set it
+		// If the price of the batch is the highest/lowest yet, set it
 		double unitPrice = batch.getUnitPrice();
-		if (unitPrice > product.getMaxPrice()) {
+		var minPrice = product.getMinPrice();
+		var maxPrice = product.getMaxPrice();
+		if (minPrice.isEmpty() || unitPrice < minPrice.getAsDouble()) {
+			product.setMinPrice(unitPrice);
+		}
+		if (maxPrice.isEmpty() || unitPrice > maxPrice.getAsDouble()) {
 			product.setMaxPrice(unitPrice);
 		}
 	}
@@ -466,7 +471,7 @@ class Warehouse implements Serializable {
 	Purchase registerPurchase(Partner partner, Product product, int quantity, double unitPrice) {
 		// Get the previous quantities and lowest price
 		var prevProductQuantity = productTotalQuantity(product);
-		var prevLowestPrice = productMinPrice(product);
+		var prevLowestPrice = product.getMinPrice();
 
 		// Create the batch for this purchase and add it
 		var batch = new Batch(product, partner, quantity, unitPrice);
@@ -495,7 +500,7 @@ class Warehouse implements Serializable {
 		// If this product is the cheapest of all other batches, and isn't the only batch,
 		// emit a `BARGAIN` notification
 		if (_batches.get(product).get().size() > 1
-				&& (prevLowestPrice.isEmpty() || unitPrice < prevLowestPrice.get())) {
+				&& (prevLowestPrice.isEmpty() || unitPrice < prevLowestPrice.getAsDouble())) {
 			for (var notificationPartner : _partners.values()) {
 				if (!notificationPartner.isProductNotificationBlacklisted(product)) {
 					var notification = new Notification(batch, "BARGAIN");
@@ -585,11 +590,12 @@ class Warehouse implements Serializable {
 
 			// Get the price to create the new batch with
 			// TODO: Check if we create a new batch here, or just use the cheapest if it exists
+			// TODO: If we have no bundles and no max price, what do we use?
 			var recipeUnitPrice = _batches.get(recipeProduct).stream() //
 					.flatMap(List::stream) //
 					.map(Batch::getUnitPrice) //
 					.findFirst() //
-					.orElseGet(() -> product.getMaxPrice());
+					.orElseGet(() -> product.getMaxPrice().orElse(0.0));
 			var recipePrice = recipeQuantity * recipeUnitPrice;
 
 			// Then create it and insert it
@@ -723,22 +729,6 @@ class Warehouse implements Serializable {
 
 		// TODO: Check if this should be `(1 + costFactor) * totalPrice`
 		return product.getCostFactor() * totalPrice;
-	}
-
-	/**
-	 * Retrieves the minimum price of a product
-	 * 
-	 * @param product
-	 *            TODO
-	 * @return TODO
-	 */
-	// TODO: Move this to `Product`.
-	Optional<Double> productMinPrice(Product product) {
-		return _batches.get(product) //
-				.flatMap(batches -> batches.stream() //
-						.min(Batch::compareByUnitPrice) //
-						.map(Batch::getUnitPrice) //
-				);
 	}
 
 	/**
