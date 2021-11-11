@@ -351,7 +351,7 @@ class Warehouse implements Serializable {
 		// And create the sale
 		var sale = new CreditSale(_nextTransactionId, product, partner, quantity, totalPrice, deadline);
 		_nextTransactionId++;
-		partner.addSale(sale);
+		partner.addCreditSale(sale);
 		_transactions.add(sale);
 
 		return sale;
@@ -377,8 +377,41 @@ class Warehouse implements Serializable {
 			throw new InsufficientProductsException(product.getId(), quantity, quantityAvailable);
 		}
 
-		// TODO:
-		return null;
+		// Else remove the quantity of product, and add all components
+		// Note: `removeProduct` here won't manufacture any, since we know we have enough in stock
+		removeProduct(product, quantity);
+		double totalPrice = -product.getCostFactor() * quantity;
+		var components = new ArrayList<Pair<Product, Pair<Integer, Double>>>();
+		for (var pair : StreamIterator.streamIt(product.getRecipe().getProductQuantities())) {
+			var recipeProduct = pair.getLhs();
+			var recipeUnitQuantity = pair.getRhs();
+			var recipeQuantity = quantity * recipeUnitQuantity;
+
+			// Get the price to create the new batch with
+			// TODO: Check if we create a new batch here, or just use the cheapest if it exists
+			var recipeUnitPrice = _batches.get(recipeProduct).stream() //
+					.flatMap(List::stream) //
+					.map(Batch::getUnitPrice) //
+					.findFirst() //
+					.orElseGet(() -> product.getMaxPrice());
+			var recipePrice = recipeQuantity * recipeUnitPrice;
+
+			// Then create it and insert it
+			var batch = new Batch(recipeProduct, recipeQuantity, partner, recipePrice);
+			insertBatch(batch);
+			components.add(new Pair<>(recipeProduct, new Pair<>(recipeQuantity, recipePrice)));
+		}
+
+		// Update our balance
+		_availableBalance += Math.abs(totalPrice);
+
+		// And create the sale
+		var sale = new BreakdownSale(_nextTransactionId, _date, product, partner, quantity, totalPrice, components);
+		_nextTransactionId++;
+		partner.addBreakdownSale(sale);
+		_transactions.add(sale);
+
+		return sale;
 	}
 
 	/// Removes `quantity` items of `product` from stock, manufacturing if not enough exist.
@@ -471,10 +504,10 @@ class Warehouse implements Serializable {
 	/// Returns the min price of a product
 	Optional<Double> productMinPrice(Product product) {
 		return _batches.get(product) //
-				.map(batches -> batches.stream() //
+				.flatMap(batches -> batches.stream() //
 						.min(Batch::compareByUnitPrice) //
 						.map(Batch::getUnitPrice) //
-				).orElse(Optional.empty());
+				);
 	}
 
 	/// Returns the total quantity of a product

@@ -97,7 +97,7 @@ public class Partner implements Serializable, WarehouseFormattable {
 	}
 
 	/// Adds a purchase to this partner
-	public void addPurchase(Purchase purchase) {
+	void addPurchase(Purchase purchase) {
 		_purchases.add(purchase);
 	}
 
@@ -106,13 +106,22 @@ public class Partner implements Serializable, WarehouseFormattable {
 		return _sales.stream();
 	}
 
-	/// Adds a sale to this partner
-	public void addSale(Sale sale) {
+	/// Adds a credit sale to this partner
+	void addCreditSale(CreditSale sale) {
 		_sales.add(sale);
 	}
 
+	/// Adds a breakdown sale to this partner
+	void addBreakdownSale(BreakdownSale sale) {
+		_sales.add(sale);
+
+		// Then add our points and attempt to promote
+		_points += 10 * sale.getTotalPrice();
+		tryPromotePartner();
+	}
+
 	/// Pays a sale and returns the value paid
-	public double paySale(CreditSale sale, int date) {
+	double paySale(CreditSale sale, int date) {
 		// Pay and get the paid amount
 		var paidAmount = sale.pay(date);
 
@@ -128,7 +137,7 @@ public class Partner implements Serializable, WarehouseFormattable {
 	}
 
 	/// Adds a notification
-	public void addNotifications(Notification notification) {
+	void addNotifications(Notification notification) {
 		_pendingNotifications.add(notification);
 	}
 
