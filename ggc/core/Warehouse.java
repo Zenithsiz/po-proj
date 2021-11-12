@@ -523,29 +523,33 @@ class Warehouse implements Serializable {
 
 		// If this is a new batch of an empty product, emit a `NEW` notification,
 		// as long as we've had the product in stock before (i.e. the min price exists)
-		// TODO: Think about moving this to subclasses somehow?
 		if (prevLowestPrice.isPresent() && prevProductQuantity == 0) {
-			for (var notificationPartner : _partners.values()) {
-				if (!notificationPartner.isProductNotificationBlacklisted(product)) {
-					var notification = new NewNotification(batch);
-					notificationPartner.addNotifications(notification);
-				}
-			}
+			sendNotifications(new NewNotification(batch));
 		}
 
 		// If this product is the cheapest of all other batches, and isn't the only batch,
 		// emit a `BARGAIN` notification
 		if (_batches.get(product).get().size() > 1
 				&& (prevLowestPrice.isEmpty() || unitPrice < prevLowestPrice.getAsDouble())) {
-			for (var notificationPartner : _partners.values()) {
-				if (!notificationPartner.isProductNotificationBlacklisted(product)) {
-					var notification = new BargainNotification(batch);
-					notificationPartner.addNotifications(notification);
-				}
-			}
+			sendNotifications(new BargainNotification(batch));
 		}
 
 		return purchase;
+	}
+
+	/**
+	 * Sends `notification` to all partners, if they don't have this product blacklisted
+	 * 
+	 * @param notification
+	 *            The notification to send.
+	 * 
+	 */
+	private void sendNotifications(Notification notification) {
+		for (var partner : _partners.values()) {
+			if (!partner.isProductNotificationBlacklisted(notification.getBatch().getProduct())) {
+				partner.addNotifications(notification);
+			}
+		}
 	}
 
 	/**
