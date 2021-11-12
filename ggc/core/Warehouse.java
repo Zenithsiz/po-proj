@@ -51,7 +51,6 @@ class Warehouse implements Serializable {
 	}
 
 	/** Current date */
-	// TODO: Think about whether or not to make this a static class, wouldn't work super well with loading.
 	private int _date;
 
 	/** Available balance */
