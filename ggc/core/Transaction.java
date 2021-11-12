@@ -85,13 +85,4 @@ public abstract class Transaction implements Serializable, WarehouseFormattable 
 	int getQuantity() {
 		return _quantity;
 	}
-
-	/**
-	 * Pays this transaction if it isn't paid already
-	 * 
-	 * @param date
-	 *            The date to pay the transaction at.
-	 * @return The amount paid.
-	 */
-	// TODO:
 }
