@@ -272,17 +272,6 @@ public class WarehouseManager {
 	}
 
 	/**
-	 * Retrieves a partner's transactions
-	 * 
-	 * @param partner
-	 *            The partner to get the transactions
-	 * @return All transactions of the partner
-	 */
-	public Stream<Transaction> getPartnerTransactions(Partner partner) {
-		return _warehouse.getPartnerTransactions(partner);
-	}
-
-	/**
 	 * Registers a new partner
 	 * 
 	 * @param id

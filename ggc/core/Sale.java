@@ -111,7 +111,7 @@ public class Sale extends Transaction {
 	 * 
 	 * @return The paid cost
 	 */
-	OptionalDouble getPaidCostIfPaid() {
+	OptionalDouble getPaidCost() {
 		return _paidCost;
 	}
 
@@ -128,6 +128,11 @@ public class Sale extends Transaction {
 		var penalty = getPartner().getStatus().getPenalty(date, _paymentDeadline, paymentFactor);
 
 		return _baseCost * (1.0 - discount) * (1.0 + penalty);
+	}
+
+	@Override
+	boolean isPaid() {
+		return _paidCost.isPresent() && _paymentDate.isPresent();
 	}
 
 	/**
@@ -171,10 +176,5 @@ public class Sale extends Transaction {
 		}
 
 		return baseString.toString();
-	}
-
-	@Override
-	boolean isPaid() {
-		return _paidCost.isPresent() && _paymentDate.isPresent();
 	}
 }

@@ -1,7 +1,5 @@
 package ggc.core;
 
-import java.util.OptionalDouble;
-
 /**
  * A purchase by a partner
  * 
@@ -56,8 +54,8 @@ public class Purchase extends Transaction {
 	}
 
 	@Override
-	OptionalDouble getPaidCostIfPaid() {
-		return OptionalDouble.of(_totalCost);
+	boolean isPaid() {
+		return true;
 	}
 
 	@Override

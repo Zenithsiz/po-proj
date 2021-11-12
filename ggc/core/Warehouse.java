@@ -434,17 +434,6 @@ class Warehouse implements Serializable {
 	}
 
 	/**
-	 * Retrieves a partner's transactions
-	 * 
-	 * @param partner
-	 *            The partner to get the transactions
-	 * @return All transactions of the partner
-	 */
-	public Stream<Transaction> getPartnerTransactions(Partner partner) {
-		return partner.getTransactions();
-	}
-
-	/**
 	 * Registers a new partner
 	 * 
 	 * @param id

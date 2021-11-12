@@ -167,15 +167,6 @@ public class Partner implements Serializable, WarehouseFormattable {
 	}
 
 	/**
-	 * Retrieves this partner's transactions
-	 * 
-	 * @return The transactions of this partner
-	 */
-	Stream<Transaction> getTransactions() {
-		return Stream.of(getPurchases(), getSales(), getBreakdownTransactions()).flatMap(transactions -> transactions);
-	}
-
-	/**
 	 * Adds a sale to this partner
 	 * 
 	 * @param sale
@@ -276,8 +267,8 @@ public class Partner implements Serializable, WarehouseFormattable {
 		double totalSales = 0.0;
 		double totalSalesPaid = 0.0;
 		for (var sale : _sales) {
-			totalSales += sale.getPaidCostIfPaid().orElseGet(() -> sale.getBaseCost());
-			totalSalesPaid += sale.getPaidCostIfPaid().orElse(0.0);
+			totalSales += sale.getPaidCost().orElseGet(() -> sale.getBaseCost());
+			totalSalesPaid += sale.getPaidCost().orElse(0.0);
 		}
 
 		return String.format("%s|%s|%s|%s|%d|%d|%d|%d", _id, _name, _address, _status.format(warehouseManager),

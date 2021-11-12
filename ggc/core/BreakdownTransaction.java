@@ -2,7 +2,6 @@ package ggc.core;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.OptionalDouble;
 import java.util.stream.Collectors;
 import ggc.core.util.Pair;
 
@@ -73,8 +72,8 @@ public class BreakdownTransaction extends Transaction {
 	}
 
 	@Override
-	OptionalDouble getPaidCostIfPaid() {
-		return OptionalDouble.of(getPaidCost());
+	boolean isPaid() {
+		return true;
 	}
 
 	@Override

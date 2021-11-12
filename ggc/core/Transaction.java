@@ -1,7 +1,6 @@
 package ggc.core;
 
 import java.io.Serializable;
-import java.util.OptionalDouble;
 
 /**
  * A transaction between the warehouse and a partner over a product
@@ -88,20 +87,11 @@ public abstract class Transaction implements Serializable, WarehouseFormattable 
 	}
 
 	/**
-	 * Retrieves the cost of this transaction, if paid
-	 * 
-	 * @return The cost of this transaction, if paid
-	 */
-	abstract OptionalDouble getPaidCostIfPaid();
-
-	/**
 	 * Retrieves if this transaction is paid
 	 * 
 	 * @return If paid
 	 */
-	boolean isPaid() {
-		return getPaidCostIfPaid().isEmpty();
-	}
+	abstract boolean isPaid();
 
 	/**
 	 * Pays this transaction if it isn't paid already
