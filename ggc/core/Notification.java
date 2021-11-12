@@ -4,9 +4,6 @@ import java.io.Serializable;
 
 /**
  * A notification
- * 
- * @param <Visitor>
- *            Visitor for when checking new notifications
  */
 public abstract class Notification implements Serializable, WarehouseFormattable {
 	/** The batch we're notifying for. */
