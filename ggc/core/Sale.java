@@ -130,7 +130,11 @@ public class Sale extends Transaction {
 		return _baseCost * (1.0 - discount) * (1.0 + penalty);
 	}
 
-	@Override
+	/**
+	 * Retrieves if this sale is paid
+	 * 
+	 * @return If this sale is paid
+	 */
 	boolean isPaid() {
 		return _paidCost.isPresent() && _paymentDate.isPresent();
 	}

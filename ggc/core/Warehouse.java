@@ -852,11 +852,11 @@ class Warehouse implements Serializable {
 	}
 
 	/**
-	 * Retrieves a transaction filter for paid transactions
+	 * Retrieves a sale filter for paid sales
 	 * 
-	 * @return A transactions filter by if they're paid
+	 * @return A sale filter by if they're paid
 	 */
-	Predicate<Transaction> transactionsFilterPaid() {
-		return transaction -> transaction.isPaid();
+	Predicate<Sale> saleFilterPaid() {
+		return sale -> sale.isPaid();
 	}
 }

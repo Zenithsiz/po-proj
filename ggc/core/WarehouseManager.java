@@ -469,12 +469,12 @@ public class WarehouseManager {
 	}
 
 	/**
-	 * Retrieves a transaction filter for paid transactions
+	 * Retrieves a sale filter for paid sales
 	 * 
-	 * @return A transactions filter by if they're paid
+	 * @return A sale filter by if they're paid
 	 */
-	public Predicate<Transaction> transactionFilterPaid() {
-		return _warehouse.transactionsFilterPaid();
+	public Predicate<Sale> saleFilterPaid() {
+		return _warehouse.saleFilterPaid();
 	}
 
 	/**

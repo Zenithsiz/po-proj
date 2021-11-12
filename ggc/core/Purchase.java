@@ -54,11 +54,6 @@ public class Purchase extends Transaction {
 	}
 
 	@Override
-	boolean isPaid() {
-		return true;
-	}
-
-	@Override
 	public String format(WarehouseManager warehouseManager) {
 		var partner = getPartner();
 		var product = getProduct();

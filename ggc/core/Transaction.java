@@ -87,13 +87,6 @@ public abstract class Transaction implements Serializable, WarehouseFormattable 
 	}
 
 	/**
-	 * Retrieves if this transaction is paid
-	 * 
-	 * @return If paid
-	 */
-	abstract boolean isPaid();
-
-	/**
 	 * Pays this transaction if it isn't paid already
 	 * 
 	 * @param date
