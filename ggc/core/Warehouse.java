@@ -9,15 +9,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
 import ggc.core.exception.BadEntryException;
 import ggc.core.exception.InsufficientProductsException;
 import ggc.core.exception.ParsingException;
@@ -248,8 +245,12 @@ class Warehouse implements Serializable {
 	 * @return The accounting balance
 	 */
 	double getAccountingBalance() {
-		return _availableBalance
-				+ _transactions.stream().flatMapToDouble(transactionFilterUnpaidCreditSalePaymentAmounts()).sum();
+		return _availableBalance + _partners.values().stream() //
+				.flatMap(Partner::getSales) //
+				.filter(sale -> !sale.isPaid()) //
+				.mapToDouble(sale -> sale.getTotalCostAt(getDate())) //
+				.sum();
+
 	}
 
 	/**
@@ -868,24 +869,5 @@ class Warehouse implements Serializable {
 	 */
 	Predicate<Transaction> transactionsFilterPaid() {
 		return transaction -> transaction.isPaid();
-	}
-
-	/**
-	 * Retrieves a transaction function that returns a one element stream (to be used by `flatMap`) of the current
-	 * payment amount of a sale if it is unpaid, else returns an empty stream.
-	 * 
-	 * @return A function from a transaction to it's payment amount, if it's unpaid
-	 */
-	private Function<Transaction, DoubleStream> transactionFilterUnpaidCreditSalePaymentAmounts() {
-		return transaction -> {
-			if (transaction instanceof Sale) {
-				var sale = (Sale) transaction;
-				if (!sale.isPaid()) {
-					return DoubleStream.of(sale.getTotalCostAt(getDate()));
-				}
-			}
-
-			return DoubleStream.empty();
-		};
 	}
 }
