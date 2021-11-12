@@ -186,7 +186,6 @@ public class Partner implements Serializable, WarehouseFormattable {
 		_breakdownTransactions.add(transaction);
 
 		// Then add our points and attempt to promote
-		// TODO: Should we promote if we get 0 points?
 		_points += 10 * transaction.getPaidCost();
 		tryPromotePartner();
 	}
