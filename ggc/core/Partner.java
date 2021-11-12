@@ -119,7 +119,6 @@ public class Partner implements Serializable, WarehouseFormattable {
 	/** Attempts to promote this partner, if they have enough points */
 	private void tryPromotePartner() {
 		// Keep promoting until we can't promote anymore
-		// TODO: Check if this should be recursive
 		while (true) {
 			var promotion = _status.checkPromotion(_points);
 			if (promotion.isEmpty()) {

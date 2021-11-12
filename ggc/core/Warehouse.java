@@ -628,12 +628,15 @@ class Warehouse implements Serializable {
 			var recipeQuantity = quantity * recipeUnitQuantity;
 
 			// Get the price to create the new batch with
-			// TODO: If we have no bundles and no max price, what do we use?
+			// Note: If the product was introduced without any batches, we throw.
 			var recipeUnitPrice = _batches.get(recipeProduct).stream() //
 					.flatMap(List::stream) //
 					.map(Batch::getUnitPrice) //
 					.findFirst() //
-					.orElseGet(() -> product.getMaxPrice().orElse(0.0));
+					.orElseGet(() -> product //
+							.getMaxPrice() //
+							.orElseThrow(() -> new RuntimeException("No max price for product exists")) //
+					);
 			var recipePrice = recipeQuantity * recipeUnitPrice;
 
 			// Update our total price
