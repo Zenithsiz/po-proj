@@ -422,6 +422,28 @@ class Warehouse implements Serializable {
 	}
 
 	/**
+	 * Retrieves a partner's breakdown transactions
+	 * 
+	 * @param partner
+	 *            The partner to get the breakdown transactions
+	 * @return All breakdown transactions of the partner
+	 */
+	public Stream<BreakdownTransaction> getPartnerBreakdownTransactions(Partner partner) {
+		return partner.getBreakdownTransactions();
+	}
+
+	/**
+	 * Retrieves a partner's transactions
+	 * 
+	 * @param partner
+	 *            The partner to get the transactions
+	 * @return All transactions of the partner
+	 */
+	public Stream<Transaction> getPartnerTransactions(Partner partner) {
+		return partner.getTransactions();
+	}
+
+	/**
 	 * Registers a new partner
 	 * 
 	 * @param id
@@ -551,13 +573,13 @@ class Warehouse implements Serializable {
 	 * @throws InsufficientProductsException
 	 *             If there isn't enough quantity of the product for the sale.
 	 */
-	CreditSale registerSale(Partner partner, Product product, int quantity, int deadline)
+	Sale registerSale(Partner partner, Product product, int quantity, int deadline)
 			throws InsufficientProductsException {
 		// Remove `quantity` of `product`
 		var totalPrice = removeProduct(product, quantity);
 
 		// And create the sale
-		var sale = new CreditSale(_nextTransactionId, product, partner, quantity, totalPrice, deadline);
+		var sale = new Sale(_nextTransactionId, product, partner, quantity, totalPrice, deadline);
 		_nextTransactionId++;
 		partner.addCreditSale(sale);
 		_transactions.add(sale);
@@ -573,9 +595,9 @@ class Warehouse implements Serializable {
 	 */
 	public void paySale(Transaction sale) {
 		// If it's a credit sale, pay it
-		if (sale instanceof CreditSale) {
+		if (sale instanceof Sale) {
 			var partner = sale.getPartner();
-			var amountPaid = partner.paySale((CreditSale) sale, getDate());
+			var amountPaid = partner.paySale((Sale) sale, getDate());
 
 			_availableBalance += amountPaid;
 		}
@@ -594,7 +616,7 @@ class Warehouse implements Serializable {
 	 * @throws InsufficientProductsException
 	 *             If there aren't enough products to break down
 	 */
-	BreakdownSale registerBreakdown(Partner partner, DerivedProduct product, int quantity)
+	BreakdownTransaction registerBreakdown(Partner partner, DerivedProduct product, int quantity)
 			throws InsufficientProductsException {
 		// If we don't have `quantity` products, throw
 		var quantityAvailable = _batches.get(product).get().stream().mapToInt(Batch::getQuantity).sum();
@@ -630,14 +652,14 @@ class Warehouse implements Serializable {
 		}
 
 		// And create the sale
-		var sale = new BreakdownSale(_nextTransactionId, _date, product, partner, quantity, totalPrice, components);
+		var sale = new BreakdownTransaction(_nextTransactionId, _date, product, partner, quantity, totalPrice,
+				components);
 		_nextTransactionId++;
 		partner.addBreakdownSale(sale);
 		_transactions.add(sale);
 
 		// Then update our balance
-		// TODO: Check if it's that method that we should call
-		_availableBalance += sale.getDifferentialTotalPrice();
+		_availableBalance += sale.getPaidCost();
 
 		return sale;
 	}
@@ -840,12 +862,12 @@ class Warehouse implements Serializable {
 	}
 
 	/**
-	 * Retrieves a sale filter for paid sales
+	 * Retrieves a transaction filter for paid transactions
 	 * 
-	 * @return A sale filter by if they're paid
+	 * @return A transactions filter by if they're paid
 	 */
-	Predicate<Sale> saleFilterPaid() {
-		return sale -> sale.isPaid();
+	Predicate<Transaction> transactionsFilterPaid() {
+		return transaction -> transaction.isPaid();
 	}
 
 	/**
@@ -856,10 +878,10 @@ class Warehouse implements Serializable {
 	 */
 	private Function<Transaction, DoubleStream> transactionFilterUnpaidCreditSalePaymentAmounts() {
 		return transaction -> {
-			if (transaction instanceof CreditSale) {
-				var sale = (CreditSale) transaction;
+			if (transaction instanceof Sale) {
+				var sale = (Sale) transaction;
 				if (!sale.isPaid()) {
-					return DoubleStream.of(sale.getPaymentAmount(getDate()));
+					return DoubleStream.of(sale.getTotalCostAt(getDate()));
 				}
 			}
 

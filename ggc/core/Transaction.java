@@ -1,6 +1,7 @@
 package ggc.core;
 
 import java.io.Serializable;
+import java.util.OptionalDouble;
 
 /**
  * A transaction between the warehouse and a partner over a product
@@ -30,9 +31,6 @@ public abstract class Transaction implements Serializable, WarehouseFormattable 
 	/** The partner associated with this transaction */
 	private Partner _partner;
 
-	/** The total price of the transaction, irrespective of who's paying or receiving it. */
-	private double _totalPrice;
-
 	/**
 	 * Creates a new transaction.
 	 * 
@@ -44,16 +42,13 @@ public abstract class Transaction implements Serializable, WarehouseFormattable 
 	 *            The partner for this exchange
 	 * @param quantity
 	 *            The quantity of product being exchanged
-	 * @param totalPrice
-	 *            The total price of this transaction
 	 */
 	// Note: Package private to ensure we don't construct it outside of `core`.
-	Transaction(int id, Product product, Partner partner, int quantity, double totalPrice) {
+	Transaction(int id, Product product, Partner partner, int quantity) {
 		_id = id;
 		_product = product;
 		_partner = partner;
 		_quantity = quantity;
-		_totalPrice = totalPrice;
 	}
 
 	/**
@@ -93,11 +88,27 @@ public abstract class Transaction implements Serializable, WarehouseFormattable 
 	}
 
 	/**
-	 * Retrieves this transaction's total price
+	 * Retrieves the cost of this transaction, if paid
 	 * 
-	 * @return The total price of this transaction
+	 * @return The cost of this transaction, if paid
 	 */
-	double getTotalPrice() {
-		return _totalPrice;
+	abstract OptionalDouble getPaidCostIfPaid();
+
+	/**
+	 * Retrieves if this transaction is paid
+	 * 
+	 * @return If paid
+	 */
+	boolean isPaid() {
+		return getPaidCostIfPaid().isEmpty();
 	}
+
+	/**
+	 * Pays this transaction if it isn't paid already
+	 * 
+	 * @param date
+	 *            The date to pay the transaction at.
+	 * @return The amount paid.
+	 */
+	// TODO:
 }

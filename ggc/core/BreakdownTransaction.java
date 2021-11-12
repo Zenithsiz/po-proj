@@ -2,17 +2,18 @@ package ggc.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalDouble;
 import java.util.stream.Collectors;
-
 import ggc.core.util.Pair;
 
-/** A sale from a breakdown */
-public class BreakdownSale extends Sale {
+/** A breakdown transaction */
+// TODO: Move this and others to their own directory
+public class BreakdownTransaction extends Transaction {
 	/** The date this sale took place */
 	private int _date;
 
-	/** TODO: Once figured out, comment this */
-	private double _differentialTotalPrice;
+	/** The base cost of the breakdown, possibly negative */
+	private double _baseCost;
 
 	/** All of the products we created in this sale, along with their total price. */
 	private List<Pair<Product, Pair<Integer, Double>>> _productsCreated;
@@ -30,16 +31,16 @@ public class BreakdownSale extends Sale {
 	 *            The partner that requested the breakdown
 	 * @param quantity
 	 *            The quantity of product that was broken down
-	 * @param totalPrice
-	 *            TODO: Once figured out, comment this
+	 * @param baseCost
+	 *            The base cost of the sale
 	 * @param productsCreated
 	 *            A map of all products created in this break down, with their quantities and total prices.
 	 */
-	BreakdownSale(int id, int date, Product product, Partner partner, int quantity, double totalPrice,
+	BreakdownTransaction(int id, int date, Product product, Partner partner, int quantity, double baseCost,
 			List<Pair<Product, Pair<Integer, Double>>> productsCreated) {
-		super(id, product, partner, quantity, Math.abs(totalPrice));
+		super(id, product, partner, quantity);
 		_date = date;
-		_differentialTotalPrice = totalPrice;
+		_baseCost = baseCost;
 		_productsCreated = new ArrayList<>(productsCreated);
 	}
 
@@ -53,21 +54,36 @@ public class BreakdownSale extends Sale {
 	}
 
 	/**
-	 * TODO:
+	 * Retrieves the base cost of this sale
 	 * 
-	 * @return TODO:
+	 * @return The base cost of this sale, possibly negative
 	 */
-	double getDifferentialTotalPrice() {
-		return _differentialTotalPrice;
+	double getBaseCost() {
+		return _baseCost;
+	}
+
+	/**
+	 * Returns the paid cost of this sale
+	 * 
+	 * @return The paid cost of this sale, always positive
+	 */
+	double getPaidCost() {
+		// Note: If the base cost was negative, the partner doesn't
+		//       pay anything
+		return Math.max(0, _baseCost);
+	}
+
+	@Override
+	OptionalDouble getPaidCostIfPaid() {
+		return OptionalDouble.of(getPaidCost());
 	}
 
 	@Override
 	public String format(WarehouseManager warehouseManager) {
 		var partner = getPartner();
 		var product = getProduct();
-		var baseString = new StringBuilder(
-				String.format("DESAGREGAÇÃO|%s|%s|%s|%d|%d|%d|%d|", getId(), partner.getId(), product.getId(),
-						getQuantity(), Math.round(_differentialTotalPrice), Math.round(getTotalPrice()), _date));
+		var baseString = new StringBuilder(String.format("DESAGREGAÇÃO|%s|%s|%s|%d|%d|%d|%d|", getId(), partner.getId(),
+				product.getId(), getQuantity(), Math.round(getBaseCost()), Math.round(getPaidCost()), _date));
 
 		String components = _productsCreated.stream().map(pair -> String.format("%s:%d:%d", pair.getLhs().getId(),
 				pair.getRhs().getLhs(), Math.round(pair.getRhs().getRhs()))).collect(Collectors.joining("#"));
@@ -75,10 +91,5 @@ public class BreakdownSale extends Sale {
 		baseString.append(components);
 
 		return baseString.toString();
-	}
-
-	@Override
-	boolean isPaid() {
-		return true;
 	}
 }

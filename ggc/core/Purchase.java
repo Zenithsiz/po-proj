@@ -1,5 +1,7 @@
 package ggc.core;
 
+import java.util.OptionalDouble;
+
 /**
  * A purchase by a partner
  * 
@@ -8,6 +10,9 @@ package ggc.core;
 public class Purchase extends Transaction {
 	/** Payment date */
 	private int _paymentDate;
+
+	/** Total cost */
+	private double _totalCost;
 
 	/**
 	 * Creates a new purchase
@@ -22,13 +27,14 @@ public class Purchase extends Transaction {
 	 *            The partner of this transaction
 	 * @param quantity
 	 *            The quantity of product purchased from the partner
-	 * @param totalPrice
-	 *            The total price of this purchase
+	 * @param totalCost
+	 *            The total cost of this purchase
 	 */
 	// Note: Package private to ensure we don't construct it outside of `core`.
-	Purchase(int id, int paymentDate, Product product, Partner partner, int quantity, double totalPrice) {
-		super(id, product, partner, quantity, totalPrice);
+	Purchase(int id, int paymentDate, Product product, Partner partner, int quantity, double totalCost) {
+		super(id, product, partner, quantity);
 		_paymentDate = paymentDate;
+		_totalCost = totalCost;
 	}
 
 	/**
@@ -40,11 +46,25 @@ public class Purchase extends Transaction {
 		return _paymentDate;
 	}
 
+	/**
+	 * Retrieves this transaction's total cost
+	 * 
+	 * @return The total cost of this transaction
+	 */
+	double getTotalCost() {
+		return _totalCost;
+	}
+
+	@Override
+	OptionalDouble getPaidCostIfPaid() {
+		return OptionalDouble.of(_totalCost);
+	}
+
 	@Override
 	public String format(WarehouseManager warehouseManager) {
 		var partner = getPartner();
 		var product = getProduct();
 		return String.format("COMPRA|%d|%s|%s|%d|%d|%d", getId(), partner.getId(), product.getId(), getQuantity(),
-				Math.round(getTotalPrice()), getPaymentDate());
+				Math.round(_totalCost), getPaymentDate());
 	}
 }

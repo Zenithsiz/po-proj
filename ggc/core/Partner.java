@@ -38,6 +38,9 @@ public class Partner implements Serializable, WarehouseFormattable {
 	/** All sales */
 	private List<Sale> _sales;
 
+	/** All breakdown transactions */
+	private List<BreakdownTransaction> _breakdownTransactions;
+
 	/** All pending notifications */
 	private List<Notification> _pendingNotifications;
 
@@ -63,6 +66,7 @@ public class Partner implements Serializable, WarehouseFormattable {
 		_points = 0.0;
 		_purchases = new ArrayList<>();
 		_sales = new ArrayList<>();
+		_breakdownTransactions = new ArrayList<>();
 		_pendingNotifications = new ArrayList<>();
 		_blacklistedProductNotifications = new HashSet<>();
 	}
@@ -154,26 +158,45 @@ public class Partner implements Serializable, WarehouseFormattable {
 	}
 
 	/**
+	 * Retrieves this partner's breakdown transactions
+	 * 
+	 * @return The breakdown transactions of this partner
+	 */
+	Stream<BreakdownTransaction> getBreakdownTransactions() {
+		return _breakdownTransactions.stream();
+	}
+
+	/**
+	 * Retrieves this partner's transactions
+	 * 
+	 * @return The transactions of this partner
+	 */
+	Stream<Transaction> getTransactions() {
+		return Stream.of(getPurchases(), getSales(), getBreakdownTransactions()).flatMap(transactions -> transactions);
+	}
+
+	/**
 	 * Adds a sale to this partner
 	 * 
 	 * @param sale
 	 *            The sale to add
 	 */
-	void addCreditSale(CreditSale sale) {
+	void addCreditSale(Sale sale) {
 		_sales.add(sale);
 	}
 
 	/**
 	 * Adds a breakdown sale to this partner
 	 * 
-	 * @param sale
+	 * @param transaction
 	 *            The sale to add
 	 */
-	void addBreakdownSale(BreakdownSale sale) {
-		_sales.add(sale);
+	void addBreakdownSale(BreakdownTransaction transaction) {
+		_breakdownTransactions.add(transaction);
 
 		// Then add our points and attempt to promote
-		_points += 10 * sale.getTotalPrice();
+		// TODO: Should we promote if we get 0 points?
+		_points += 10 * transaction.getPaidCost();
 		tryPromotePartner();
 	}
 
@@ -187,13 +210,13 @@ public class Partner implements Serializable, WarehouseFormattable {
 	 * @return The amount paid
 	 * 
 	 */
-	double paySale(CreditSale sale, int date) {
+	double paySale(Sale sale, int date) {
 		// Pay and get the paid amount
 		var paidAmount = sale.pay(date);
 
 		// Add the point and check for promotion if on time, else demote
 		if (date < sale.getPaymentDeadline()) {
-			_points += 10 * sale.getTotalPrice();
+			_points += 10 * paidAmount;
 			tryPromotePartner();
 		} else {
 			_status = _status.demote();
@@ -249,12 +272,12 @@ public class Partner implements Serializable, WarehouseFormattable {
 
 	@Override
 	public String format(WarehouseManager warehouseManager) {
-		double totalPurchases = _purchases.stream().mapToDouble(Transaction::getTotalPrice).sum();
+		double totalPurchases = _purchases.stream().mapToDouble(Purchase::getTotalCost).sum();
 		double totalSales = 0.0;
 		double totalSalesPaid = 0.0;
 		for (var sale : _sales) {
-			totalSales += sale.getTotalPrice();
-			totalSalesPaid += sale.isPaid() ? sale.getTotalPrice() : 0.0;
+			totalSales += sale.getPaidCostIfPaid().orElseGet(() -> sale.getBaseCost());
+			totalSalesPaid += sale.getPaidCostIfPaid().orElse(0.0);
 		}
 
 		return String.format("%s|%s|%s|%s|%d|%d|%d|%d", _id, _name, _address, _status.format(warehouseManager),

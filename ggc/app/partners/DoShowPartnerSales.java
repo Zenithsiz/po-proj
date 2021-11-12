@@ -24,9 +24,12 @@ class DoShowPartnerSales extends Command<WarehouseManager> {
 		var partnerId = super.stringField(PARTNER_ID);
 		var partner = _receiver.getPartner(partnerId).orElseThrow(() -> new UnknownPartnerKeyException(partnerId));
 
-		// Then get their sales and display them
+		// Then get their sales and breakdowns and display them
 		for (var sale : streamIt(_receiver.getPartnerSales(partner))) {
 			_display.addLine(_receiver.format(sale));
+		}
+		for (var breakdownTransaction : streamIt(_receiver.getPartnerBreakdownTransactions(partner))) {
+			_display.addLine(_receiver.format(breakdownTransaction));
 		}
 
 		_display.display();

@@ -261,6 +261,28 @@ public class WarehouseManager {
 	}
 
 	/**
+	 * Retrieves a partner's breakdown transactions
+	 * 
+	 * @param partner
+	 *            The partner to get the breakdown transactions
+	 * @return All breakdown transactions of the partner
+	 */
+	public Stream<BreakdownTransaction> getPartnerBreakdownTransactions(Partner partner) {
+		return _warehouse.getPartnerBreakdownTransactions(partner);
+	}
+
+	/**
+	 * Retrieves a partner's transactions
+	 * 
+	 * @param partner
+	 *            The partner to get the transactions
+	 * @return All transactions of the partner
+	 */
+	public Stream<Transaction> getPartnerTransactions(Partner partner) {
+		return _warehouse.getPartnerTransactions(partner);
+	}
+
+	/**
 	 * Registers a new partner
 	 * 
 	 * @param id
@@ -458,12 +480,12 @@ public class WarehouseManager {
 	}
 
 	/**
-	 * Retrieves a sale filter for paid sales
+	 * Retrieves a transaction filter for paid transactions
 	 * 
-	 * @return A sale filter by if they're paid
+	 * @return A transactions filter by if they're paid
 	 */
-	public Predicate<Sale> saleFilterPaid() {
-		return _warehouse.saleFilterPaid();
+	public Predicate<Transaction> transactionFilterPaid() {
+		return _warehouse.transactionsFilterPaid();
 	}
 
 	/**
