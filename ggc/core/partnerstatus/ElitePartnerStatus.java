@@ -1,4 +1,4 @@
-package ggc.core.partnerStatus;
+package ggc.core.partnerstatus;
 
 import ggc.core.WarehouseManager;
 
