@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import ggc.core.util.Pair;
 
 /** A breakdown transaction */
-// TODO: Move this and others to their own directory
 public class BreakdownTransaction extends Transaction {
 	/** The date this sale took place */
 	private int _date;
