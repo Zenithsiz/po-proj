@@ -7,22 +7,22 @@ import ggc.core.util.Pair;
 
 /** A breakdown transaction */
 public class BreakdownTransaction extends Transaction {
-	/** The date this sale took place */
+	/** The date this transaction took place */
 	private int _date;
 
 	/** The base cost of the breakdown, possibly negative */
 	private double _baseCost;
 
-	/** All of the products we created in this sale, along with their total price. */
+	/** All of the products we created in this transaction, along with their total price. */
 	private List<Pair<Product, Pair<Integer, Double>>> _productsCreated;
 
 	/**
-	 * Creates a new breakdown sale.
+	 * Creates a new breakdown transaction.
 	 * 
 	 * @param id
-	 *            The id of this sale
+	 *            The id of this transaction
 	 * @param date
-	 *            the date this sale was created
+	 *            the date this transaction was created
 	 * @param product
 	 *            The product that was broken down.
 	 * @param partner
@@ -30,7 +30,7 @@ public class BreakdownTransaction extends Transaction {
 	 * @param quantity
 	 *            The quantity of product that was broken down
 	 * @param baseCost
-	 *            The base cost of the sale
+	 *            The base cost of the transaction
 	 * @param productsCreated
 	 *            A map of all products created in this break down, with their quantities and total prices.
 	 */
@@ -43,27 +43,27 @@ public class BreakdownTransaction extends Transaction {
 	}
 
 	/**
-	 * Retrieves the payment date of this sale
+	 * Retrieves the payment date of this transaction
 	 * 
-	 * @return The date this sale was created
+	 * @return The date this transaction was created
 	 */
 	int getDate() {
 		return _date;
 	}
 
 	/**
-	 * Retrieves the base cost of this sale
+	 * Retrieves the base cost of this transaction
 	 * 
-	 * @return The base cost of this sale, possibly negative
+	 * @return The base cost of this transaction, possibly negative
 	 */
 	double getBaseCost() {
 		return _baseCost;
 	}
 
 	/**
-	 * Returns the paid cost of this sale
+	 * Returns the paid cost of this transaction
 	 * 
-	 * @return The paid cost of this sale, always positive
+	 * @return The paid cost of this transaction, always positive
 	 */
 	double getPaidCost() {
 		// Note: If the base cost was negative, the partner doesn't

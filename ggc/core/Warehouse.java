@@ -575,7 +575,7 @@ class Warehouse implements Serializable {
 		// And create the sale
 		var sale = new Sale(_nextTransactionId, product, partner, quantity, totalPrice, deadline);
 		_nextTransactionId++;
-		partner.addCreditSale(sale);
+		partner.addSale(sale);
 		_transactions.add(sale);
 
 		return sale;
@@ -588,7 +588,7 @@ class Warehouse implements Serializable {
 	 *            The transaction to pay
 	 */
 	public void paySale(Transaction sale) {
-		// If it's a credit sale, pay it
+		// If it's a sale, pay it
 		if (sale instanceof Sale) {
 			var partner = sale.getPartner();
 			var amountPaid = partner.paySale((Sale) sale, getDate());
@@ -606,7 +606,7 @@ class Warehouse implements Serializable {
 	 *            The product to break down
 	 * @param quantity
 	 *            The quantity of product to break down
-	 * @return The breakdown sale
+	 * @return The breakdown transaction
 	 * @throws InsufficientProductsException
 	 *             If there aren't enough products to break down
 	 */
@@ -649,7 +649,7 @@ class Warehouse implements Serializable {
 		var sale = new BreakdownTransaction(_nextTransactionId, _date, product, partner, quantity, totalPrice,
 				components);
 		_nextTransactionId++;
-		partner.addBreakdownSale(sale);
+		partner.addBreakdownTransaction(sale);
 		_transactions.add(sale);
 
 		// Then update our balance

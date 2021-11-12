@@ -172,17 +172,17 @@ public class Partner implements Serializable, WarehouseFormattable {
 	 * @param sale
 	 *            The sale to add
 	 */
-	void addCreditSale(Sale sale) {
+	void addSale(Sale sale) {
 		_sales.add(sale);
 	}
 
 	/**
-	 * Adds a breakdown sale to this partner
+	 * Adds a breakdown transaction to this partner
 	 * 
 	 * @param transaction
-	 *            The sale to add
+	 *            The transaction to add
 	 */
-	void addBreakdownSale(BreakdownTransaction transaction) {
+	void addBreakdownTransaction(BreakdownTransaction transaction) {
 		_breakdownTransactions.add(transaction);
 
 		// Then add our points and attempt to promote
