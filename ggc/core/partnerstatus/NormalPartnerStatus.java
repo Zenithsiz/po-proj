@@ -1,6 +1,8 @@
 package ggc.core.partnerstatus;
 
 import ggc.core.WarehouseManager;
+import ggc.core.util.Pair;
+
 import java.util.Optional;
 import ggc.core.PartnerStatus;
 import ggc.core.TimePeriod;
@@ -59,9 +61,8 @@ public class NormalPartnerStatus implements PartnerStatus {
 	}
 
 	@Override
-	public PartnerStatus demote() {
-		// Note: If we get demoted, we're still a normal
-		return this;
+	public Pair<PartnerStatus, Double> checkDemotion(double points, int date, int paymentDate) {
+		return new Pair<>(this, 0.0);
 	}
 
 }

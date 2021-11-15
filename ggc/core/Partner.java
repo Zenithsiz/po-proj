@@ -208,7 +208,9 @@ public class Partner implements Serializable, WarehouseFormattable {
 			_points += 10 * paidAmount;
 			tryPromotePartner();
 		} else {
-			_status = _status.demote();
+			var pair = _status.checkDemotion(_points, date, sale.getPaymentDeadline());
+			_status = pair.getLhs();
+			_points = pair.getRhs();
 		}
 
 		return paidAmount;

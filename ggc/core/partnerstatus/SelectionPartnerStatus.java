@@ -1,6 +1,8 @@
 package ggc.core.partnerstatus;
 
 import ggc.core.WarehouseManager;
+import ggc.core.util.Pair;
+
 import java.util.Optional;
 import ggc.core.PartnerStatus;
 import ggc.core.TimePeriod;
@@ -32,13 +34,19 @@ public class SelectionPartnerStatus implements PartnerStatus {
 	public double getPenalty(int date, int paymentDate, int factor) {
 		// Check which time period we're on
 		switch (TimePeriod.fromDate(date, paymentDate, factor)) {
-			// No penalties for P1, P2 or P3
+			// No penalties for P1 or P2
 			case P1:
 			case P2:
-			case P3:
 				return 0.0;
 
-			// 5% on P4
+			// 0 until 1 day after, then 2% daily
+			case P3:
+				if (date > paymentDate + 1) {
+					return 0.02 * (date - paymentDate);
+				}
+				return 0.0;
+
+			// 5% daily on P4
 			case P4:
 				return 0.05 * (date - paymentDate);
 
@@ -64,8 +72,11 @@ public class SelectionPartnerStatus implements PartnerStatus {
 	}
 
 	@Override
-	public PartnerStatus demote() {
-		return new NormalPartnerStatus();
+	public Pair<PartnerStatus, Double> checkDemotion(double points, int date, int paymentDate) {
+		if (date > paymentDate + 2) {
+			return new Pair<>(new NormalPartnerStatus(), 0.1 * points);
+		} else {
+			return new Pair<>(this, points);
+		}
 	}
-
 }

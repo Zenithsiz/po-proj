@@ -1,6 +1,7 @@
 package ggc.core.partnerstatus;
 
 import ggc.core.WarehouseManager;
+import ggc.core.util.Pair;
 
 import java.util.Optional;
 
@@ -49,8 +50,11 @@ public class ElitePartnerStatus implements PartnerStatus {
 	}
 
 	@Override
-	public PartnerStatus demote() {
-		return new SelectionPartnerStatus();
+	public Pair<PartnerStatus, Double> checkDemotion(double points, int date, int paymentDate) {
+		if (date - paymentDate > 15) {
+			return new Pair<>(new SelectionPartnerStatus(), 0.25 * points);
+		} else {
+			return new Pair<>(this, points);
+		}
 	}
-
 }

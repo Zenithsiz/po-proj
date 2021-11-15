@@ -3,6 +3,8 @@ package ggc.core;
 import java.io.Serializable;
 import java.util.Optional;
 
+import ggc.core.util.Pair;
+
 /** Partner status */
 public interface PartnerStatus extends Serializable, WarehouseFormattable {
 	/**
@@ -41,9 +43,15 @@ public interface PartnerStatus extends Serializable, WarehouseFormattable {
 	Optional<PartnerStatus> checkPromotion(double points);
 
 	/**
-	 * Demotes this partner
+	 * Demotes this partner and returns their new points
 	 * 
-	 * @return The demoted partner status
+	 * @param points
+	 *            The amount of points of the partner
+	 * @param date
+	 *            The date to calculate the penalty at
+	 * @param paymentDate
+	 *            the payment date of the transaction
+	 * @return The demoted partner status, and their new points
 	 */
-	PartnerStatus demote();
+	Pair<PartnerStatus, Double> checkDemotion(double points, int date, int paymentDate);
 }
