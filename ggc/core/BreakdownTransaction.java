@@ -75,7 +75,7 @@ public class BreakdownTransaction extends Transaction {
 	public String format(WarehouseManager warehouseManager) {
 		var partner = getPartner();
 		var product = getProduct();
-		var baseString = new StringBuilder(String.format("DESAGREGAÇÃO|%s|%s|%s|%d|%d|%d|%d|", getId(), partner.getId(),
+		var baseString = new StringBuilder(String.format("DESAGREGAÇÃO|%d|%s|%s|%d|%d|%d|%d|", getId(), partner.getId(),
 				product.getId(), getQuantity(), Math.round(getBaseCost()), Math.round(getPaidCost()), _date));
 
 		String components = _productsCreated.stream().map(pair -> String.format("%s:%d:%d", pair.getLhs().getId(),

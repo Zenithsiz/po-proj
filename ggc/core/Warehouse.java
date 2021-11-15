@@ -633,7 +633,7 @@ class Warehouse implements Serializable {
 					.flatMap(List::stream) //
 					.map(Batch::getUnitPrice) //
 					.findFirst() //
-					.orElseGet(() -> product //
+					.orElseGet(() -> recipeProduct //
 							.getMaxPrice() //
 							.orElseThrow(() -> new RuntimeException("No max price for product exists")) //
 					);
@@ -643,7 +643,7 @@ class Warehouse implements Serializable {
 			totalPrice -= recipePrice;
 
 			// Then create it and insert it
-			var batch = new Batch(recipeProduct, partner, recipeQuantity, recipePrice);
+			var batch = new Batch(recipeProduct, partner, recipeQuantity, recipeUnitPrice);
 			insertBatch(batch);
 			components.add(new Pair<>(recipeProduct, new Pair<>(recipeQuantity, recipePrice)));
 		}

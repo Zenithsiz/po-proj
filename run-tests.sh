@@ -27,9 +27,9 @@ for x in tests/*.in; do
 	let total++
 done
 
-# Remove any remaining `app*.dat` files
+# Remove any remaining `app*.dat` files and `.ggc` files
 rm -f app*.dat
-rm -f esgotado.ggc
+rm -f *.ggc
 
 let res=100*$correct/$total
 echo ""
