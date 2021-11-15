@@ -33,9 +33,9 @@ public class NormalPartnerStatus implements PartnerStatus {
 				return 0.0;
 			// 5% on P3 and 10% on P4
 			case P3:
-				return 0.05 * (date - TimePeriod.startDateP3(paymentDate, factor));
+				return 0.05 * (date - paymentDate);
 			case P4:
-				return 0.1 * (date - TimePeriod.startDateP4(paymentDate, factor));
+				return 0.1 * (date - paymentDate);
 
 			default:
 				return 0.0;

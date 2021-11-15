@@ -36,43 +36,4 @@ public enum TimePeriod {
 			return TimePeriod.P4;
 		}
 	}
-
-	/**
-	 * Returns the date at which P2 starts
-	 *
-	 * @param paymentDate
-	 *            the payment date of the transaction
-	 * @param factor
-	 *            The product payment factor
-	 * @return The start date of P2
-	 */
-	public static int startDateP2(int paymentDate, int factor) {
-		return paymentDate - factor;
-	}
-
-	/**
-	 * Returns the date at which P3 starts
-	 *
-	 * @param paymentDate
-	 *            the payment date of the transaction
-	 * @param factor
-	 *            The product payment factor
-	 * @return The start date of P3
-	 */
-	public static int startDateP3(int paymentDate, int factor) {
-		return paymentDate;
-	}
-
-	/**
-	 * Returns the date at which P4 starts
-	 *
-	 * @param paymentDate
-	 *            the payment date of the transaction
-	 * @param factor
-	 *            The product payment factor
-	 * @return The start date of P4
-	 */
-	public static int startDateP4(int paymentDate, int factor) {
-		return paymentDate + factor;
-	}
 }

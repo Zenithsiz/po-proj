@@ -16,7 +16,7 @@ public class SelectionPartnerStatus implements PartnerStatus {
 
 			// 5% if we're within 2 days before P3, else fallthrough to 0.0
 			case P2:
-				if (date <= TimePeriod.startDateP3(paymentDate, factor) - 2) {
+				if (date <= paymentDate - 2) {
 					return 0.05;
 				}
 
@@ -40,7 +40,7 @@ public class SelectionPartnerStatus implements PartnerStatus {
 
 			// 5% on P4
 			case P4:
-				return 0.05 * (date - TimePeriod.startDateP4(paymentDate, factor));
+				return 0.05 * (date - paymentDate);
 
 			default:
 				return 0.0;
