@@ -478,6 +478,15 @@ public class WarehouseManager {
 	}
 
 	/**
+	 * Retrieves a transaction comparator by it's id
+	 * 
+	 * @return A transaction comparator by id
+	 */
+	public Comparator<Transaction> transactionComparator() {
+		return _warehouse.transactionComparator();
+	}
+
+	/**
 	 * Clears all pending notifications from a partner and returns them
 	 * 
 	 * @param partner

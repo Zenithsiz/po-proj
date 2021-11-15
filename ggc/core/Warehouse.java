@@ -866,4 +866,13 @@ class Warehouse implements Serializable {
 	Predicate<Sale> saleFilterPaid() {
 		return sale -> sale.isPaid();
 	}
+
+	/**
+	 * Retrieves a transaction comparator by it's id
+	 * 
+	 * @return A transaction comparator by id
+	 */
+	Comparator<Transaction> transactionComparator() {
+		return Comparator.comparing(Transaction::getId);
+	}
 }
