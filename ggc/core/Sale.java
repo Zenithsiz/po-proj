@@ -140,21 +140,14 @@ public class Sale extends Transaction {
 	}
 
 	/**
-	 * Pays this sale and returns the amount paid.
-	 * 
-	 * <p>
-	 * If already paid, doesn't do anything and returns the paid cost.
-	 * </p>
+	 * Pays this sale and returns the amount paid
 	 * 
 	 * @param date
 	 *            The date to pay this sale at
 	 * @return The amount paid
 	 */
 	double pay(int date) {
-		// If we're already paid, ignore
-		if (isPaid()) {
-			return _paidCost.getAsDouble();
-		}
+		assert !isPaid();
 
 		// Get the total cost for `date` and set ourselves as paid
 		var paymentAmount = getTotalCostAt(date);

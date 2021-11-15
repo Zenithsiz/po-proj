@@ -584,14 +584,20 @@ class Warehouse implements Serializable {
 	/**
 	 * Pays a transaction if it's a sale
 	 * 
-	 * @param sale
+	 * @param transaction
 	 *            The transaction to pay
 	 */
-	public void paySale(Transaction sale) {
+	public void paySale(Transaction transaction) {
 		// If it's a sale, pay it
-		if (sale instanceof Sale) {
+		if (transaction instanceof Sale) {
+			var sale = (Sale) transaction;
+			// If it's paid, don't do anything
+			if (sale.isPaid()) {
+				return;
+			}
+
 			var partner = sale.getPartner();
-			var amountPaid = partner.paySale((Sale) sale, getDate());
+			var amountPaid = partner.paySale(sale, getDate());
 
 			_availableBalance += amountPaid;
 		}

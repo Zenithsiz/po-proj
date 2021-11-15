@@ -365,11 +365,11 @@ public class WarehouseManager {
 	/**
 	 * Pays a transaction if it's a sale
 	 * 
-	 * @param sale
+	 * @param transaction
 	 *            The transaction to pay
 	 */
-	public void paySale(Transaction sale) {
-		_warehouse.paySale(sale);
+	public void paySale(Transaction transaction) {
+		_warehouse.paySale(transaction);
 		_warehouseIsDirty = true;
 	}
 
