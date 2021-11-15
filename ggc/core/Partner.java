@@ -265,7 +265,7 @@ public class Partner implements Serializable, WarehouseFormattable {
 		double totalSales = 0.0;
 		double totalSalesPaid = 0.0;
 		for (var sale : _sales) {
-			totalSales += sale.getPaidCost().orElseGet(() -> sale.getBaseCost());
+			totalSales += sale.getBaseCost();
 			totalSalesPaid += sale.getPaidCost().orElse(0.0);
 		}
 
