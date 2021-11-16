@@ -57,7 +57,7 @@ class Warehouse implements Serializable {
 	private int _nextTransactionId;
 
 	/** All transactions */
-	private List<Transaction> _transactions = new ArrayList<>();
+	private Map<Integer, Transaction> _transactions = new HashMap<>();
 
 	/** All partners */
 	// Note: `transient` as `CollationKey`s aren't [de]serializable and the keys
@@ -476,7 +476,7 @@ class Warehouse implements Serializable {
 	 * @return All transactions
 	 */
 	Stream<Transaction> getTransactions() {
-		return _transactions.stream();
+		return _transactions.values().stream();
 	}
 
 	/**
@@ -487,7 +487,7 @@ class Warehouse implements Serializable {
 	 * @return The transaction, if valid
 	 */
 	Optional<Transaction> getTransaction(int id) {
-		return id >= 0 && id < _transactions.size() ? Optional.of(_transactions.get(id)) : Optional.empty();
+		return Optional.ofNullable(_transactions.get(id));
 	}
 
 	/**
@@ -516,7 +516,7 @@ class Warehouse implements Serializable {
 		var purchase = new Purchase(_nextTransactionId, _date, product, partner, quantity, quantity * unitPrice);
 		_nextTransactionId++;
 		partner.addPurchase(purchase);
-		_transactions.add(purchase);
+		_transactions.put(purchase.getId(), purchase);
 
 		// And update our balance
 		_availableBalance -= unitPrice * quantity;
@@ -576,7 +576,7 @@ class Warehouse implements Serializable {
 		var sale = new Sale(_nextTransactionId, product, partner, quantity, totalPrice, deadline);
 		_nextTransactionId++;
 		partner.addSale(sale);
-		_transactions.add(sale);
+		_transactions.put(sale.getId(), sale);
 
 		return sale;
 	}
@@ -653,7 +653,7 @@ class Warehouse implements Serializable {
 				components);
 		_nextTransactionId++;
 		partner.addBreakdownTransaction(sale);
-		_transactions.add(sale);
+		_transactions.put(sale.getId(), sale);
 
 		// Then update our balance
 		_availableBalance += sale.getPaidCost();
@@ -781,6 +781,28 @@ class Warehouse implements Serializable {
 	}
 
 	/**
+	 * Removes all partner sales and breakdown transactions under a price limit.
+	 * 
+	 * @param partner
+	 *            The partner to remove from
+	 * @param priceLimit
+	 *            The price limit
+	 * @return All removed transactions
+	 */
+	List<Transaction> removePartnerSalesAndBreakdownTransactionsUnder(Partner partner, int priceLimit) {
+		// Remove all transactions from the partner
+		var transactions = partner.removeSalesAndBreakdownTransactionsUnder(priceLimit);
+
+		// Then remove them from our list
+		for (var transaction : transactions) {
+			_transactions.remove(transaction.getId());
+		}
+
+		// And return the transactions
+		return transactions;
+	}
+
+	/**
 	 * Retrieves the total quantity of a product
 	 * 
 	 * @param product
@@ -813,6 +835,15 @@ class Warehouse implements Serializable {
 		return Comparator.<Batch, CollationKey>comparing(batch -> getCollationKey(batch.getProduct().getId()))
 				.thenComparing(batch -> getCollationKey(batch.getPartner().getId())).thenComparing(Batch::getUnitPrice)
 				.thenComparing(Batch::getQuantity);
+	}
+
+	/**
+	 * Retrieves a batch comparator by it's quantity
+	 * 
+	 * @return A batch comparator by quantity
+	 */
+	Comparator<Batch> batchComparatorByQuantity() {
+		return Comparator.comparing(Batch::getQuantity);
 	}
 
 	/**

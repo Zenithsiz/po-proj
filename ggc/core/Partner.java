@@ -215,6 +215,34 @@ public class Partner implements Serializable, WarehouseFormattable {
 	}
 
 	/**
+	 * Removes all sales and breakdown transactions under a price limit.
+	 * 
+	 * @param priceLimit
+	 *            The price limit
+	 * @return All removed transactions
+	 */
+	public List<Transaction> removeSalesAndBreakdownTransactionsUnder(int priceLimit) {
+		// Remove all sales and breakdowns under that price limit and save them
+		var transactions = new ArrayList<Transaction>();
+		_sales.removeIf(sale -> {
+			if (sale.isPaid() && sale.getPaidCost().getAsDouble() < priceLimit) {
+				transactions.add(sale);
+				return true;
+			}
+			return false;
+		});
+		_breakdownTransactions.removeIf(transaction -> {
+			if (transaction.getPaidCost() < priceLimit) {
+				transactions.add(transaction);
+				return true;
+			}
+			return false;
+		});
+
+		return transactions;
+	}
+
+	/**
 	 * Adds a notification
 	 * 
 	 * @param notification

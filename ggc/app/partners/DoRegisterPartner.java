@@ -3,6 +3,7 @@ package ggc.app.partners;
 import pt.tecnico.uilib.menus.Command;
 import pt.tecnico.uilib.menus.CommandException;
 import ggc.app.exception.DuplicatePartnerKeyException;
+import ggc.app.exception.UnknownPartnerKeyException;
 import ggc.core.WarehouseManager;
 import ggc.core.exception.PartnerAlreadyExistsException;
 
@@ -24,11 +25,16 @@ class DoRegisterPartner extends Command<WarehouseManager> {
 
 	@Override
 	public void execute() throws CommandException {
-		// Try to create the partner
 		String partnerId = super.stringField(PARTNER_ID);
 		String partnerName = super.stringField(PARTNER_NAME);
 		String partnerAddress = super.stringField(PARTNER_ADDRESS);
 
+		// If we're at capacity, don't allow
+		if (_receiver.getPartners().count() >= _receiver.getProducts().count() + 10) {
+			throw new UnknownPartnerKeyException(partnerId);
+		}
+
+		// Else try to create the partner
 		try {
 			_receiver.registerPartner(partnerId, partnerName, partnerAddress);
 		} catch (PartnerAlreadyExistsException e) {

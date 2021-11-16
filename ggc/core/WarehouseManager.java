@@ -398,6 +398,19 @@ public class WarehouseManager {
 	}
 
 	/**
+	 * Removes all partner sales and breakdown transactions under a price limit.
+	 * 
+	 * @param partner
+	 *            The partner to remove from
+	 * @param priceLimit
+	 *            The price limit
+	 * @return All removed transactions
+	 */
+	public List<Transaction> removePartnerSalesAndBreakdownTransactionsUnder(Partner partner, int priceLimit) {
+		return _warehouse.removePartnerSalesAndBreakdownTransactionsUnder(partner, priceLimit);
+	}
+
+	/**
 	 * Retrieves the total quantity of a product
 	 * 
 	 * @param product
@@ -424,6 +437,15 @@ public class WarehouseManager {
 	 */
 	public Comparator<Batch> batchComparator() {
 		return _warehouse.batchComparator();
+	}
+
+	/**
+	 * Retrieves a batch comparator by it's quantity
+	 * 
+	 * @return A batch comparator by quantity
+	 */
+	public Comparator<Batch> batchComparatorByQuantity() {
+		return _warehouse.batchComparatorByQuantity();
 	}
 
 	/**
@@ -501,5 +523,12 @@ public class WarehouseManager {
 	 */
 	public <T extends WarehouseFormattable> String format(T value) {
 		return value.format(this);
+	}
+
+	/**
+	 * Formats a batch by it's product id and quantity
+	 */
+	public String formatBatchByProductIdAndQuantity(Batch batch) {
+		return String.format("%s|%d", batch.getProduct().getId(), batch.getQuantity());
 	}
 }
